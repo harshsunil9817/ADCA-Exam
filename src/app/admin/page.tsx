@@ -78,16 +78,35 @@ function UserManagement() {
     const fetchSyncedStudents = async () => {
       setLoadingUsers(true);
       try {
+        // 1. Find the course ID for 'ADCA' by querying the 'courses' collection
+        const coursesRef = collection(studentDb, 'courses');
+        const courseQuery = query(coursesRef, where("name", "==", "ADCA")); // Assuming the course name field is 'name'
+        const courseSnapshot = await getDocs(courseQuery);
+
+        if (courseSnapshot.empty) {
+          console.error("ADCA course not found in the 'courses' collection.");
+          toast({ variant: 'destructive', title: 'Configuration Error', description: 'ADCA course definition not found.' });
+          setSyncedUsers([]);
+          setLoadingUsers(false);
+          return;
+        }
+        
+        const adcaCourseId = courseSnapshot.docs[0].id;
+
+        // 2. Fetch students who are enrolled in the ADCA course using the found ID
         const studentsSourceRef = collection(studentDb, 'students');
-        const q = query(studentsSourceRef, where("course", "==", "ADCA"));
-        const studentsSnapshot = await getDocs(q);
+        const studentsQuery = query(studentsSourceRef, where("course", "==", adcaCourseId));
+        const studentsSnapshot = await getDocs(studentsQuery);
+
         const fetchedStudents = studentsSnapshot.docs.map(doc => ({
           id: doc.id,
           name: doc.data().name || 'N/A',
           userId: doc.data().enrollment_number,
           role: 'student'
         })) as AdminPageUser[];
+
         setSyncedUsers(fetchedStudents);
+
       } catch (error) {
         console.error('Error fetching synced students:', error);
         toast({ variant: 'destructive', title: 'Fetch Failed', description: 'Could not fetch ADCA student data.' });
