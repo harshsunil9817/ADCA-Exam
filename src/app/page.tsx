@@ -75,7 +75,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center gap-3 mb-2">
-            <Image src="/logo.png" alt="Computer Skill Academy Logo" width={40} height={40} className="object-contain" />
+            <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="Computer Skill Academy Logo" width={40} height={40} className="object-contain" />
             <h1 className="text-3xl font-bold text-primary">Computer Skill Academy</h1>
           </div>
           <CardTitle className="text-2xl">ADCA Test Login</CardTitle>
