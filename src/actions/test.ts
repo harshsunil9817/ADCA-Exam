@@ -1,6 +1,6 @@
 "use server";
 
-import { db } from "@/lib/firebase";
+import { appDb } from "@/lib/firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import type { Answer, User } from "@/lib/types";
 import { questions } from "@/data/questions";
@@ -52,7 +52,7 @@ export async function submitTest(answers: Answer[], user: User) {
     incorrectAnswerDetails,
   };
 
-  const docRef = await addDoc(collection(db, "submissions"), submissionData);
+  const docRef = await addDoc(collection(appDb, "submissions"), submissionData);
 
   return docRef.id;
 }

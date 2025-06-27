@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
-import { db } from '@/lib/firebase';
+import { studentDb } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
@@ -65,9 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return adminUser;
     }
 
-    // Student check with universal password
+    // Student check with universal password, using the student database
     if (password_input === 'CSA321') {
-        const usersRef = collection(db, 'users');
+        const usersRef = collection(studentDb, 'users');
         const q = query(usersRef, where('enrollment_number', '==', userId));
         const querySnapshot = await getDocs(q);
 

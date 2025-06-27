@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
-import { db } from "@/lib/firebase";
+import { appDb } from "@/lib/firebase";
 import { collection, addDoc, getDocs, query, orderBy } from "firebase/firestore";
 import type { User, Submission } from "@/lib/types";
 
@@ -44,7 +44,7 @@ function UserManagement() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await addDoc(collection(db, "users"), {
+      await addDoc(collection(appDb, "users"), {
         name,
         userId,
         password, // Storing password in plaintext as requested
@@ -100,7 +100,7 @@ function SubmissionsList() {
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const q = query(collection(db, "submissions"), orderBy("date", "desc"));
+        const q = query(collection(appDb, "submissions"), orderBy("date", "desc"));
         const querySnapshot = await getDocs(q);
         const subs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Submission[];
         setSubmissions(subs);

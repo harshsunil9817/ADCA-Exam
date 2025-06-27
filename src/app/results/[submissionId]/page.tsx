@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { db } from '@/lib/firebase';
+import { appDb } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import type { Submission } from '@/lib/types';
 import { generateStudyGuide, StudyGuideInput } from '@/ai/flows/generate-study-guide';
@@ -38,7 +38,7 @@ export default function ResultsPage() {
 
         const fetchSubmission = async () => {
             try {
-                const docRef = doc(db, 'submissions', submissionId);
+                const docRef = doc(appDb, 'submissions', submissionId);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
