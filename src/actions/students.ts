@@ -56,7 +56,8 @@ export async function addStudent(enrollmentNumber: string, name: string): Promis
 
         await addDoc(collection(studentDb, "students"), {
             enrollmentNumber,
-            name
+            name,
+            courseId: "ADCA" // Automatically assign the ADCA course ID
         });
         return { success: true };
     } catch (error) {
