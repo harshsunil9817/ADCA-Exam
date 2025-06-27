@@ -7,17 +7,24 @@ import type { Student } from "@/lib/types";
 
 // Fetches all students for the admin panel
 export async function getStudents(): Promise<Student[]> {
-    const studentsCollection = collection(studentDb, 'students');
-    const q = query(studentsCollection, orderBy('enrollmentNumber'));
-    const snapshot = await getDocs(q);
-    if (snapshot.empty) {
+    try {
+        const studentsCollection = collection(studentDb, 'students');
+        const q = query(studentsCollection, orderBy('enrollmentNumber'));
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) {
+            return [];
+        }
+        return snapshot.docs.map(doc => ({
+            docId: doc.id,
+            enrollmentNumber: doc.data().enrollmentNumber as string,
+            name: doc.data().name as string
+        }));
+    } catch (error) {
+        const firebaseError = error as { code?: string; message?: string };
+        console.error("🔥 FIREBASE ERROR (getStudents):", firebaseError.code, firebaseError.message);
+        // Re-throw or return an empty array to avoid crashing the UI
         return [];
     }
-    return snapshot.docs.map(doc => ({
-        docId: doc.id,
-        enrollmentNumber: doc.data().enrollmentNumber as string,
-        name: doc.data().name as string
-    }));
 }
 
 // Adds a new student record
@@ -45,8 +52,9 @@ export async function addStudent(enrollmentNumber: string, name: string): Promis
         });
         return { success: true };
     } catch (error) {
-        console.error("Error adding student: ", error);
-        return { success: false, error: 'Failed to save student data.' };
+        const firebaseError = error as { code?: string; message?: string };
+        console.error("🔥 FIREBASE ERROR (addStudent):", firebaseError.code, firebaseError.message);
+        return { success: false, error: `Failed to save student data. Reason: ${firebaseError.code}` };
     }
 }
 
@@ -61,8 +69,9 @@ export async function updateStudentName(docId: string, name: string): Promise<{ 
         await updateDoc(studentRef, { name });
         return { success: true };
     } catch (error) {
-        console.error("Error updating student: ", error);
-        return { success: false, error: 'Failed to save student data.' };
+        const firebaseError = error as { code?: string; message?: string };
+        console.error("🔥 FIREBASE ERROR (updateStudentName):", firebaseError.code, firebaseError.message);
+        return { success: false, error: `Failed to save student data. Reason: ${firebaseError.code}` };
     }
 }
 
@@ -76,8 +85,9 @@ export async function deleteStudent(docId: string): Promise<{ success: boolean; 
         await deleteDoc(studentRef);
         return { success: true };
     } catch (error) {
-        console.error("Error deleting student: ", error);
-        return { success: false, error: 'Failed to delete student.' };
+        const firebaseError = error as { code?: string; message?: string };
+        console.error("🔥 FIREBASE ERROR (deleteStudent):", firebaseError.code, firebaseError.message);
+        return { success: false, error: `Failed to delete student. Reason: ${firebaseError.code}` };
     }
 }
 
@@ -90,6 +100,7 @@ export async function getStudentName(enrollmentNumber: string): Promise<string |
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
+            console.log(`Student with enrollment number ${enrollmentNumber} not found.`);
             return null; // Student not found
         }
         
@@ -97,7 +108,8 @@ export async function getStudentName(enrollmentNumber: string): Promise<string |
         return querySnapshot.docs[0].data().name as string;
 
     } catch (error) {
-        console.error("Error fetching student name:", error);
-        return null;
+        const firebaseError = error as { code?: string; message?: string };
+        console.error("🔥 FIREBASE ERROR (getStudentName):", firebaseError.code, firebaseError.message);
+        return null; // Return null on error to prevent login but not crash
     }
 }
