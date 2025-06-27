@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'Computer Skill Academy - ADCA Test',
-  description: 'ADCA Test Platform',
+  description: 'ADCA Test Platform for Computer Skill Academy',
 };
 
 export default function RootLayout({

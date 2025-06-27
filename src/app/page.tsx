@@ -35,30 +35,45 @@ export default function LoginPage() {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: "Please enter both Enrollment Number and Password.",
+        description: "Please enter both UserID and Password.",
       });
       setIsLoggingIn(false);
       return;
     }
 
     try {
-      const user = await login(userId, password);
-      if (user) {
+      const result = await login(userId, password);
+      
+      if (result.user) {
         toast({
           title: "Login Successful",
-          description: `Welcome, ${user.name}!`,
+          description: `Welcome, ${result.user.name}!`,
         });
-        if (user.role === "admin") {
+        if (result.user.role === "admin") {
           router.push("/admin");
         } else {
           router.push("/test");
         }
       } else {
-        toast({
-          variant: "destructive",
-          title: "Login Failed",
-          description: "Invalid credentials. Please try again.",
-        });
+         if (result.error === 'password') {
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "Incorrect password. Please try again.",
+            });
+         } else if (result.error === 'used') {
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "This UserID has already taken the test.",
+            });
+         } else {
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "Invalid credentials. Please try again.",
+            });
+         }
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -76,11 +91,10 @@ export default function LoginPage() {
     <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary/50 p-4">
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
-          <div className="flex justify-center items-center gap-3 mb-2">
+          <div className="flex justify-center items-center mb-4">
             <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="Computer Skill Academy Logo" width={200} height={400} className="object-contain" />
-            <h1 className="text-3xl font-bold text-primary">Computer Skill Academy</h1>
           </div>
-          <CardTitle className="text-2xl">ADCA Test Login</CardTitle>
+          <CardTitle className="text-2xl">Computer Skill Academy - ADCA Test Login</CardTitle>
           <CardDescription>
             Enter your credentials to access your account.
           </CardDescription>
@@ -88,11 +102,11 @@ export default function LoginPage() {
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="userId">Enrollment Number</Label>
+              <Label htmlFor="userId">UserID</Label>
               <Input
                 id="userId"
                 type="text"
-                placeholder="Enter your enrollment number"
+                placeholder="Enter your UserID"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 required

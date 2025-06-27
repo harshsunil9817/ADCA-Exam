@@ -4,13 +4,18 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
-import { appDb, studentDb } from '@/lib/firebase';
+import { appDb } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
+interface AuthResult {
+  user: User | null;
+  error?: 'password' | 'used' | 'generic';
+}
+
 interface AuthContextType {
   user: User | null;
-  login: (userId: string, password: string) => Promise<User | null>;
+  login: (userId: string, password: string) => Promise<AuthResult>;
   logout: () => void;
   loading: boolean;
 }
@@ -57,7 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [user, loading, pathname, router]);
 
-  const login = async (userId: string, password_input: string): Promise<User | null> => {
+  const login = async (userId: string, password_input: string): Promise<AuthResult> => {
     // Admin check first
     if (userId.toLowerCase() === 'sunilsingh817@gmail.com' && password_input === 'sunil4321') {
       const adminUser: User = {
@@ -68,50 +73,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
       sessionStorage.setItem('user', JSON.stringify(adminUser));
       setUser(adminUser);
-      return adminUser;
+      return { user: adminUser };
     }
 
-    // Student check with universal password, using the student database (from academyedge-h1a1s)
-    if (password_input === 'CSA321') {
-        const studentsRef = collection(studentDb, 'students');
-        const q = query(studentsRef, where('enrollmentNumber', '==', userId));
-        const querySnapshot = await getDocs(q);
-
-        if (!querySnapshot.empty) {
-            const userData = querySnapshot.docs[0].data();
-            const loggedInUser: User = {
-                id: querySnapshot.docs[0].id,
-                name: userData.name,
-                userId: userId, // The enrollment number is the user ID for the session
-                role: 'student',
-            };
-            
-            sessionStorage.setItem('user', JSON.stringify(loggedInUser));
-            setUser(loggedInUser);
-            return loggedInUser;
-        }
+    // Student check with universal password
+    if (password_input !== 'CSA321') {
+        return { user: null, error: 'password' };
     }
 
-    // Fallback check for manually added students in this app's database (from examplify-262mw)
-    const appUsersRef = collection(appDb, 'users');
-    const appUserQuery = query(appUsersRef, where('userId', '==', userId), where('password', '==', password_input), where('role', '==', 'student'));
-    const appUserSnapshot = await getDocs(appUserQuery);
+    // Check if user has already submitted a test
+    const submissionsRef = collection(appDb, "submissions");
+    const q = query(submissionsRef, where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
 
-    if (!appUserSnapshot.empty) {
-      const userData = appUserSnapshot.docs[0].data();
-      const loggedInUser: User = {
-        id: appUserSnapshot.docs[0].id,
-        name: userData.name,
-        userId: userData.userId,
+    if (!querySnapshot.empty) {
+        return { user: null, error: 'used' };
+    }
+
+    // If all checks pass, create a temporary user object
+    const loggedInUser: User = {
+        id: userId,
+        name: userId, // Use the UserID as the name
+        userId: userId,
         role: 'student',
-      };
-      sessionStorage.setItem('user', JSON.stringify(loggedInUser));
-      setUser(loggedInUser);
-      return loggedInUser;
-    }
-
-    // Return null if all login methods fail
-    return null;
+    };
+    
+    sessionStorage.setItem('user', JSON.stringify(loggedInUser));
+    setUser(loggedInUser);
+    return { user: loggedInUser };
   };
 
   const logout = () => {
