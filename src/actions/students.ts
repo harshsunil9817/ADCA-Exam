@@ -2,7 +2,7 @@
 "use server";
 
 import { studentDb } from "@/lib/firebase";
-import { collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, getDoc, where } from "firebase/firestore";
 import type { Student } from "@/lib/types";
 
 export async function getStudents(): Promise<Student[]> {
@@ -25,11 +25,10 @@ export async function addOrUpdateStudent(id: string, name: string): Promise<{ su
     }
    
     try {
-        const docRef = doc(studentDb, "students", id);
-        const docSnap = await getDoc(docRef);
-        
         const studentRef = doc(studentDb, 'students', id);
-        await setDoc(studentRef, { name: name });
+        // Ensure the 'id' field is stored within the document to make it queryable.
+        // Use { merge: true } to avoid overwriting other fields when updating.
+        await setDoc(studentRef, { id, name }, { merge: true });
         return { success: true };
     } catch (error) {
         console.error("Error adding/updating student: ", error);
@@ -53,12 +52,19 @@ export async function deleteStudent(id: string): Promise<{ success: boolean; err
 
 export async function getStudentName(id: string): Promise<string | null> {
     try {
-        const docRef = doc(studentDb, 'students', id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            return docSnap.data().name as string;
+        // Query for the student document where the 'id' field matches the login ID.
+        // This avoids a direct getDoc call which can cause permission errors.
+        const studentsRef = collection(studentDb, 'students');
+        const q = query(studentsRef, where("id", "==", id));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return null; // Student not found
         }
-        return null;
+        
+        // Return the name from the first document found by the query.
+        return querySnapshot.docs[0].data().name as string;
+
     } catch (error) {
         console.error("Error fetching student name:", error);
         return null;
