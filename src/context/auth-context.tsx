@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
-import { CircleNotch } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
   user: User | null;
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   if (loading) {
     return (
         <div className="flex items-center justify-center h-screen w-full">
-            <CircleNotch className="w-12 h-12 animate-spin text-primary" />
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
         </div>
     )
   }
