@@ -4,8 +4,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
-import { appDb } from '@/lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { appDb, studentDb } from '@/lib/firebase';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
 interface AuthResult {
@@ -48,18 +48,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loading) return; 
 
-    if(user) {
-        if(user.role === 'admin' && pathname !== '/admin' && !pathname.startsWith('/results')) {
-            router.push('/admin');
-        } else if (user.role === 'student' && pathname !== '/test' && pathname !== '/test/submitted') {
-            router.push('/test');
+    const publicPaths = ['/'];
+    const pathIsPublic = publicPaths.includes(pathname);
+
+    if (user) {
+        // If user is logged in, redirect from public pages
+        if(pathIsPublic) {
+            if (user.role === 'admin') {
+                router.push('/admin');
+            } else {
+                router.push('/test');
+            }
+        } else {
+            // If user is logged in and on a non-public page, ensure they are on the correct page for their role
+            if (user.role === 'admin' && !pathname.startsWith('/admin') && !pathname.startsWith('/results')) {
+                router.push('/admin');
+            } else if (user.role === 'student' && pathname !== '/test' && !pathname.startsWith('/test/submitted')) {
+                router.push('/test');
+            }
         }
     } else {
-        if (pathname !== '/') {
+        // If user is not logged in, redirect from non-public pages
+        if (!pathIsPublic) {
             router.push('/');
         }
     }
   }, [user, loading, pathname, router]);
+
 
   const login = async (userId: string, password_input: string): Promise<AuthResult> => {
     // Admin check first
@@ -75,11 +90,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { user: adminUser };
     }
 
-    // Student check with universal password
-    if (password_input !== 'CSA321') {
-        return { user: null, error: 'password' };
-    }
-
     // Check if user has already submitted a test
     const submissionsRef = collection(appDb, "submissions");
     const q = query(submissionsRef, where("userId", "==", userId));
@@ -89,11 +99,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { user: null, error: 'used' };
     }
 
-    // If all checks pass, create a temporary user object
+     // Check if student exists in the student database
+    const userDocRef = doc(studentDb, 'users', userId);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+        // User not found in student database, return generic error
+        return { user: null, error: 'generic' };
+    }
+
+    // Student password check (universal password)
+    if (password_input !== 'CSA321') {
+        return { user: null, error: 'password' };
+    }
+
+    // If all checks pass, create the user object
+    const studentData = userDocSnap.data();
     const loggedInUser: User = {
-        id: userId,
-        name: userId, // Use the UserID as the name
-        userId: userId,
+        id: userDocSnap.id,
+        name: studentData.name || userId, // Use name from DB, fallback to userId
+        userId: userDocSnap.id,
         role: 'student',
     };
     
