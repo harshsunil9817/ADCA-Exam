@@ -33,7 +33,7 @@ export default function LoginPage() {
         if (user.role === 'admin') {
             router.push('/admin');
         } else {
-            router.push('/test');
+            router.push('/test/confirm');
         }
     }
   }, [user, loading, router]);
@@ -59,12 +59,12 @@ export default function LoginPage() {
       if (result.user) {
         toast({
           title: "Login Successful",
-          description: `Welcome, ${result.user.name}!`,
+          description: `Welcome, ${result.user.name}! Please confirm your details.`,
         });
         if (result.user.role === "admin") {
           router.push("/admin");
         } else {
-          router.push("/test");
+          router.push("/test/confirm");
         }
       } else {
          if (result.error === 'password') {

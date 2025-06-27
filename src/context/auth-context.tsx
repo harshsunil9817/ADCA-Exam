@@ -6,7 +6,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { hasUserSubmitted } from '@/actions/test';
-import { getStudentName } from '@/actions/students';
+import { getStudentDetails } from '@/actions/students';
 
 interface AuthResult {
   user: User | null;
@@ -56,13 +56,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (user.role === 'admin') {
                 router.push('/admin');
             } else {
-                router.push('/test');
+                router.push('/test/confirm');
             }
         } else {
             if (user.role === 'admin' && !pathname.startsWith('/admin') && !pathname.startsWith('/results')) {
                 router.push('/admin');
-            } else if (user.role === 'student' && pathname !== '/test' && !pathname.startsWith('/test/submitted')) {
-                router.push('/test');
+            } else if (user.role === 'student' && !pathname.startsWith('/test')) {
+                router.push('/test/confirm');
             }
         }
     } else {
@@ -98,9 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { user: null, error: 'password' };
     }
 
-    // Check if student exists in the student database using a server action
-    const studentName = await getStudentName(userId);
-    if (!studentName) {
+    // Check if student exists in the student database and get details
+    const studentDetails = await getStudentDetails(userId);
+    if (!studentDetails) {
         // User not found in student database, return generic error
         return { user: null, error: 'generic' };
     }
@@ -108,9 +108,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // If all checks pass, create the user object
     const loggedInUser: User = {
         id: userId,
-        name: studentName, // Use name from server action
+        name: studentDetails.name,
         userId: userId,
         role: 'student',
+        fatherName: studentDetails.fatherName,
+        dob: studentDetails.dob
     };
     
     sessionStorage.setItem('user', JSON.stringify(loggedInUser));

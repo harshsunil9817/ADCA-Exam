@@ -3,7 +3,7 @@
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, collection, getDocs, doc, deleteDoc, query, orderBy, where, addDoc, updateDoc } from "firebase/firestore";
-import type { Student } from "@/lib/types";
+import type { Student, StudentDetails } from "@/lib/types";
 
 // Config for the student data app
 const firebaseConfigStudent = {
@@ -109,11 +109,11 @@ export async function deleteStudent(docId: string): Promise<{ success: boolean; 
     }
 }
 
-// Fetches a student's name by their enrollment number for login validation
-export async function getStudentName(enrollmentNumber: string): Promise<string | null> {
+// Fetches a student's full details by their enrollment number for login validation
+export async function getStudentDetails(enrollmentNumber: string): Promise<StudentDetails | null> {
     try {
         const studentsRef = collection(studentDb, 'students');
-        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber));
+        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber), where("courseId", "==", "ADCA"));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -121,11 +121,17 @@ export async function getStudentName(enrollmentNumber: string): Promise<string |
             return null;
         }
         
-        return querySnapshot.docs[0].data().name as string;
+        const studentData = querySnapshot.docs[0].data();
+
+        return {
+            name: studentData.name as string,
+            fatherName: studentData.fatherName as string,
+            dob: studentData.dob as { day: string; month: string; year: string; }
+        };
 
     } catch (error) {
         const firebaseError = error as { code?: string; message?: string };
-        console.error("🔥 FIREBASE ERROR (getStudentName):", firebaseError.code, firebaseError.message);
+        console.error("🔥 FIREBASE ERROR (getStudentDetails):", firebaseError.code, firebaseError.message);
         return null;
     }
 }

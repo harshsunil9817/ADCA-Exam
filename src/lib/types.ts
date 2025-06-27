@@ -1,15 +1,23 @@
 
 export interface User {
-  id: string;
+  id: string; // enrollmentNumber for students
   name: string;
-  userId: string;
+  userId: string; // Same as id for students
   role: "student" | "admin";
+  fatherName?: string; // Optional because admin doesn't have it
+  dob?: { day: string; month: string; year: string; }; // Optional
 }
 
 export interface Student {
   docId: string; // The actual firestore document ID
   enrollmentNumber: string; // The enrollment number e.g. "CSA250006"
   name: string;
+}
+
+export interface StudentDetails {
+  name: string;
+  fatherName: string;
+  dob: { day: string; month: string; year: string; };
 }
 
 export interface Option {

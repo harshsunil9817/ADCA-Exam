@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Header } from "@/components/header";
 
 export default function TestPage() {
   const { user, loading: authLoading } = useAuth();
@@ -103,7 +104,7 @@ export default function TestPage() {
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex(prev => prev - 1);
     }
   };
 
@@ -118,12 +119,17 @@ export default function TestPage() {
   };
 
   if (authLoading || !user) {
-    return null;
+    return (
+        <div className="flex items-center justify-center h-screen w-full">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        </div>
+    );
   }
 
   return (
     <>
-      <main className="container mx-auto py-8 px-4 flex flex-col" style={{minHeight: '100vh'}}>
+      <Header />
+      <main className="container mx-auto py-8 px-4 flex flex-col" style={{minHeight: 'calc(100vh - 80px)'}}>
         <Card className="mb-8">
           <CardHeader>
             <CardTitle className="text-3xl">Computer Skill Academy - ADCA Test</CardTitle>
