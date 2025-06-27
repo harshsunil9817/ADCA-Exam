@@ -50,7 +50,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlusCircle, Users, FileText, Trash2, Edit, Loader2, CheckCircle2 } from "lucide-react";
+import { PlusCircle, Users, FileText, Trash2, Edit } from "lucide-react";
 
 // User type with optional password for state management
 type AdminPageUser = User & { password?: string };
@@ -64,90 +64,60 @@ function UserManagement() {
   const [isAddingUser, setIsAddingUser] = useState(false);
   const { toast } = useToast();
 
-  const [users, setUsers] = useState<AdminPageUser[]>([]);
+  const [manualUsers, setManualUsers] = useState<AdminPageUser[]>([]);
+  const [syncedUsers, setSyncedUsers] = useState<AdminPageUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminPageUser | null>(null);
   const [editForm, setEditForm] = useState({ name: "", userId: "", password: "" });
-  
-  const [isSyncing, setIsSyncing] = useState(true);
-  const [syncMessage, setSyncMessage] = useState("Initializing student sync...");
 
-  // Effect for syncing students from the source database
+  // Effect for fetching students from the source database (studentDb)
   useEffect(() => {
-    const syncStudents = async () => {
-      setIsSyncing(true);
-      setSyncMessage('Fetching students from source database...');
+    const fetchSyncedStudents = async () => {
+      setLoadingUsers(true);
       try {
         const studentsSourceRef = collection(studentDb, 'students');
-        const usersDestRef = collection(appDb, 'users');
-        
-        const [studentsSnapshot, usersSnapshot] = await Promise.all([
-          getDocs(studentsSourceRef),
-          getDocs(query(usersDestRef, where("role", "==", "student")))
-        ]);
-
-        const sourceStudents = studentsSnapshot.docs.map(doc => doc.data());
-        const existingUserIds = new Set(usersSnapshot.docs.map(doc => doc.data().userId));
-        
-        const studentsToAdd = sourceStudents.filter(student => student.enrollment_number && !existingUserIds.has(student.enrollment_number));
-
-        if (studentsToAdd.length === 0) {
-          setSyncMessage('All students are already in sync.');
-          setIsSyncing(false);
-          return;
-        }
-
-        setSyncMessage(`Syncing ${studentsToAdd.length} new students...`);
-        
-        const writePromises = studentsToAdd.map(student => 
-          addDoc(usersDestRef, {
-            name: student.name,
-            userId: student.enrollment_number,
-            role: 'student'
-            // No password needed, they log in via the universal password check
-          })
-        );
-        
-        await Promise.all(writePromises);
-        
-        toast({ title: 'Sync Complete', description: `Successfully added ${studentsToAdd.length} new students.` });
-        setSyncMessage(`Sync complete. Added ${studentsToAdd.length} new students.`);
-
+        const studentsSnapshot = await getDocs(studentsSourceRef);
+        const fetchedStudents = studentsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          name: doc.data().name || 'N/A',
+          userId: doc.data().enrollment_number,
+          role: 'student'
+        })) as AdminPageUser[];
+        setSyncedUsers(fetchedStudents);
       } catch (error) {
-        console.error('Error syncing students:', error);
-        toast({ variant: 'destructive', title: 'Sync Failed', description: 'Could not sync student data.' });
-        setSyncMessage('An error occurred during sync. See console for details.');
+        console.error('Error fetching synced students:', error);
+        toast({ variant: 'destructive', title: 'Fetch Failed', description: 'Could not fetch student data from the source database.' });
       } finally {
-        setIsSyncing(false);
+        setLoadingUsers(false);
       }
     };
-
-    syncStudents();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchSyncedStudents();
   }, [toast]);
 
-  // Effect for listening to user changes in this app's database
+  // Effect for listening to manually added user changes in this app's database
   useEffect(() => {
-    const q = query(collection(appDb, "users"), where("role", "==", "student"));
+    // Only fetch users that have a password, indicating they are manually added
+    const q = query(collection(appDb, "users"), where("role", "==", "student"), where("password", "!=", null));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       const fetchedUsers: AdminPageUser[] = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       })) as AdminPageUser[];
-      setUsers(fetchedUsers);
+      setManualUsers(fetchedUsers);
       setLoadingUsers(false);
     }, (error) => {
-        console.error("Error fetching users: ", error);
-        toast({ variant: "destructive", title: "Error", description: "Could not fetch users." });
+        console.error("Error fetching manual users: ", error);
+        toast({ variant: "destructive", title: "Error", description: "Could not fetch manually added users." });
         setLoadingUsers(false);
     });
 
     return () => unsubscribe();
   }, [toast]);
 
+  const allUsers = [...syncedUsers, ...manualUsers].sort((a, b) => a.name.localeCompare(b.name));
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -186,7 +156,6 @@ function UserManagement() {
       await updateDoc(userRef, {
         name: editForm.name,
         userId: editForm.userId,
-        // Only update password if it's provided
         ...(editForm.password && { password: editForm.password }),
       });
       toast({ title: "User Updated", description: "User details have been updated." });
@@ -213,27 +182,8 @@ function UserManagement() {
     <div className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Student Synchronization</CardTitle>
-          <CardDescription>
-            Students from the central database are automatically synced when this page loads.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2">
-            {isSyncing ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
-            )}
-            <p className="text-sm text-muted-foreground">{syncMessage}</p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-            <CardTitle>Manage Student List</CardTitle>
-            <CardDescription>View, edit, or delete students. The list includes synced and manually added students.</CardDescription>
+            <CardTitle>Student List</CardTitle>
+            <CardDescription>View all students from the main database and those added manually.</CardDescription>
         </CardHeader>
         <CardContent>
             <Table>
@@ -247,7 +197,7 @@ function UserManagement() {
                 </TableHeader>
                 <TableBody>
                     {loadingUsers ? (
-                        Array.from({ length: 3 }).map((_, i) => (
+                        Array.from({ length: 5 }).map((_, i) => (
                             <TableRow key={i}>
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-32" /></TableCell>
@@ -255,8 +205,8 @@ function UserManagement() {
                                 <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
                             </TableRow>
                         ))
-                    ) : users.length > 0 ? (
-                        users.map((user) => (
+                    ) : allUsers.length > 0 ? (
+                        allUsers.map((user) => (
                             <TableRow key={user.id}>
                                 <TableCell className="font-medium">{user.name}</TableCell>
                                 <TableCell>{user.userId}</TableCell>
@@ -268,13 +218,13 @@ function UserManagement() {
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right space-x-2">
-                                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(user)}>
+                                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(user)} disabled={!user.password}>
                                         <Edit className="h-4 w-4" />
                                         <span className="sr-only">Edit User</span>
                                     </Button>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" disabled={!user.password}>
                                                 <Trash2 className="h-4 w-4" />
                                                 <span className="sr-only">Delete User</span>
                                             </Button>
@@ -309,7 +259,7 @@ function UserManagement() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><PlusCircle /> Add Student Manually</CardTitle>
           <CardDescription>
-            Create a new student with a specific password. Synced students use a universal password.
+            Create a new student with a specific password. Synced students use a universal password (CSA321).
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleAddUser}>
@@ -349,11 +299,11 @@ function UserManagement() {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-userId" className="text-right">User ID</Label>
-                <Input id="edit-userId" type="email" value={editForm.userId} onChange={(e) => setEditForm({...editForm, userId: e.target.value})} className="col-span-3" disabled={isUpdatingUser} />
+                <Input id="edit-userId" value={editForm.userId} onChange={(e) => setEditForm({...editForm, userId: e.target.value})} className="col-span-3" disabled={isUpdatingUser} />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-password" className="text-right">Password</Label>
-                <Input id="edit-password" value={editForm.password} placeholder={editingUser?.password ? "Enter new password" : "User is synced (no password)"} onChange={(e) => setEditForm({...editForm, password: e.target.value})} className="col-span-3" disabled={isUpdatingUser || !editingUser?.password} />
+                <Input id="edit-password" placeholder="Enter new password" value={editForm.password} onChange={(e) => setEditForm({...editForm, password: e.target.value})} className="col-span-3" disabled={isUpdatingUser} />
               </div>
             </div>
             <DialogFooter>
@@ -484,3 +434,5 @@ export default function AdminPage() {
     </>
   );
 }
+
+    
