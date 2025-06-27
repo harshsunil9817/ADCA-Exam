@@ -133,9 +133,6 @@ export default function TestPage() {
       <main className="container mx-auto py-8 px-4 flex flex-col" style={{minHeight: 'calc(100vh - 80px)'}}>
         <Card className="mb-8">
           <CardHeader className="text-center">
-            <div className="flex justify-center items-center mb-4">
-                <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="NIELIT Logo" width={200} height={400} className="object-contain" />
-            </div>
             <CardTitle className="text-3xl">Computer Skill Academy - ADCA Test</CardTitle>
             <CardDescription>
               Answer all 100 questions. You have one hour to complete the test.
