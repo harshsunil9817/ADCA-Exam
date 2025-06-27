@@ -12,7 +12,7 @@ export function Header() {
     <header className="bg-card shadow-md sticky top-0 z-40">
       <div className="container mx-auto flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
-          <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="Computer Skill Academy Logo" width={32} height={32} className="object-contain"/>
+          <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="Computer Skill Academy Logo" width={40} height={40} className="object-contain"/>
           <h1 className="text-2xl font-bold text-primary">Computer Skill Academy - ADCA Test</h1>
         </div>
         {user && (
