@@ -24,16 +24,25 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        const q = query(studentsCollection, where("courseId", "==", "ADCA"), orderBy('enrollmentNumber'));
+        // Query only by courseId to avoid the need for a composite index.
+        // Sorting will be handled in the code after fetching.
+        const q = query(studentsCollection, where("courseId", "==", "ADCA"));
         const snapshot = await getDocs(q);
+        
         if (snapshot.empty) {
             return [];
         }
-        return snapshot.docs.map(doc => ({
+        
+        const students = snapshot.docs.map(doc => ({
             docId: doc.id,
             enrollmentNumber: doc.data().enrollmentNumber as string,
             name: doc.data().name as string
         }));
+
+        // Sort the results by enrollment number here in the code
+        students.sort((a, b) => a.enrollmentNumber.localeCompare(b.enrollmentNumber));
+
+        return students;
     } catch (error) {
         const firebaseError = error as { code?: string; message?: string };
         console.error("🔥 FIREBASE ERROR (getStudents):", firebaseError.code, firebaseError.message);
