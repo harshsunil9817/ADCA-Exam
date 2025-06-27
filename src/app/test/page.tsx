@@ -17,12 +17,10 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { submitTest } from "@/actions/test";
+import { submitTest, hasUserSubmitted } from "@/actions/test";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
-import { appDb } from "@/lib/firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function TestPage() {
@@ -50,11 +48,13 @@ export default function TestPage() {
     if (authLoading || !user) return;
 
     const checkSubmission = async () => {
-        const q = query(collection(appDb, "submissions"), where("userId", "==", user.id));
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-            router.replace(`/test/submitted?submissionId=${querySnapshot.docs[0].id}`);
-        }
+      const alreadySubmitted = await hasUserSubmitted(user.id);
+      if (alreadySubmitted) {
+          // This logic relies on the submission check in auth-context, 
+          // but as a fallback, we redirect here too.
+          // A more robust solution might pass the submission ID from the check.
+          router.replace(`/test/submitted`); 
+      }
     };
 
     checkSubmission();
@@ -103,7 +103,7 @@ export default function TestPage() {
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
+      setCurrentQuestionIndex(prev => prev + 1);
     }
   };
 

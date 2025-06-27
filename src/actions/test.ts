@@ -1,8 +1,9 @@
+
 "use server";
 
 import { appDb } from "@/lib/firebase";
-import { collection, addDoc, doc, deleteDoc } from "firebase/firestore";
-import type { Answer, User } from "@/lib/types";
+import { collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy } from "firebase/firestore";
+import type { Answer, Submission, User } from "@/lib/types";
 import { questions } from "@/data/questions";
 
 export async function submitTest(answers: Answer[], user: User) {
@@ -63,4 +64,44 @@ export async function deleteSubmission(submissionId: string) {
   }
   const submissionRef = doc(appDb, "submissions", submissionId);
   await deleteDoc(submissionRef);
+}
+
+
+// Server action to check if a user has already submitted a test.
+export async function hasUserSubmitted(userId: string): Promise<boolean> {
+  if (!userId) return false;
+  const submissionsRef = collection(appDb, "submissions");
+  const q = query(submissionsRef, where("userId", "==", userId));
+  const querySnapshot = await getDocs(q);
+  return !querySnapshot.empty;
+}
+
+// Server action to get all submissions.
+export async function getSubmissions(): Promise<Submission[]> {
+    const q = query(collection(appDb, "submissions"), orderBy("date", "desc"));
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+        return [];
+    }
+    // Note: We cast to Submission, assuming the data in Firestore matches the type.
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Submission);
+}
+
+// Server action to get a single submission by its ID.
+export async function getSubmissionById(id: string): Promise<Submission | null> {
+    if (!id) return null;
+    try {
+        const docRef = doc(appDb, 'submissions', id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return { id: docSnap.id, ...docSnap.data() } as Submission;
+        } else {
+            console.log("No such submission found in action!");
+            return null;
+        }
+    } catch (error) {
+        console.error("Error fetching submission by ID:", error);
+        return null;
+    }
 }

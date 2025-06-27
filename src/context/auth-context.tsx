@@ -4,9 +4,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
-import { appDb, studentDb } from '@/lib/firebase';
-import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
+import { studentDb } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import { hasUserSubmitted } from '@/actions/test';
 
 interface AuthResult {
   user: User | null;
@@ -52,7 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const pathIsPublic = publicPaths.includes(pathname);
 
     if (user) {
-        // If user is logged in, redirect from public pages
         if(pathIsPublic) {
             if (user.role === 'admin') {
                 router.push('/admin');
@@ -60,7 +60,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 router.push('/test');
             }
         } else {
-            // If user is logged in and on a non-public page, ensure they are on the correct page for their role
             if (user.role === 'admin' && !pathname.startsWith('/admin') && !pathname.startsWith('/results')) {
                 router.push('/admin');
             } else if (user.role === 'student' && pathname !== '/test' && !pathname.startsWith('/test/submitted')) {
@@ -68,7 +67,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         }
     } else {
-        // If user is not logged in, redirect from non-public pages
         if (!pathIsPublic) {
             router.push('/');
         }
@@ -90,12 +88,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { user: adminUser };
     }
 
-    // Check if user has already submitted a test
-    const submissionsRef = collection(appDb, "submissions");
-    const q = query(submissionsRef, where("userId", "==", userId));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
+    // Check if user has already submitted a test using the server action
+    const alreadySubmitted = await hasUserSubmitted(userId);
+    if (alreadySubmitted) {
         return { user: null, error: 'used' };
     }
 

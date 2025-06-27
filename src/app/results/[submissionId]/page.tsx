@@ -4,8 +4,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { appDb } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 import type { Submission } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +19,7 @@ import { PrintableResult } from '@/components/PrintableResult';
 import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswers';
 import { PrintableResultOnly } from '@/components/PrintableResultOnly';
 import { questions as allQuestions } from '@/data/questions';
+import { getSubmissionById } from '@/actions/test';
 
 const StatCard = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string | number, color?: string }) => (
     <Card>
@@ -57,14 +56,14 @@ export default function ResultsPage() {
         if (!submissionId) return;
 
         const fetchSubmission = async () => {
+            setLoading(true);
             try {
-                const docRef = doc(appDb, 'submissions', submissionId);
-                const docSnap = await getDoc(docRef);
-
-                if (docSnap.exists()) {
-                    setSubmission(docSnap.data() as Submission);
+                const sub = await getSubmissionById(submissionId);
+                if (sub) {
+                    setSubmission(sub);
                 } else {
                     console.error("No such submission!");
+                    // Optionally, redirect or show a 'not found' message
                 }
             } catch (error) {
                 console.error("Error fetching submission:", error);

@@ -5,10 +5,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
-import { appDb, studentDb } from "@/lib/firebase";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import type { Submission, Student } from "@/lib/types";
-import { deleteSubmission } from "@/actions/test";
+import { deleteSubmission, getSubmissions } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addOrUpdateStudent, deleteStudent } from "@/actions/students";
 import { questions as defaultQuestions } from "@/data/questions";
@@ -72,19 +70,23 @@ function SubmissionsList() {
 
   useEffect(() => {
     const fetchSubmissions = async () => {
+      setLoading(true);
       try {
-        const q = query(collection(appDb, "submissions"), orderBy("date", "desc"));
-        const querySnapshot = await getDocs(q);
-        const subs = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Submission[];
+        const subs = await getSubmissions();
         setSubmissions(subs);
       } catch (error) {
         console.error("Error fetching submissions: ", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to fetch submissions.",
+        });
       } finally {
         setLoading(false);
       }
     };
     fetchSubmissions();
-  }, []);
+  }, [toast]);
 
   const handleDeleteSubmission = async () => {
     if (!submissionToDelete) return;
@@ -266,7 +268,7 @@ function QuestionEditor() {
                     <Terminal className="h-4 w-4" />
                     <AlertTitle>JSON Format Example</AlertTitle>
                     <AlertDescription>
-                        Your JSON data must be an array `[]` of question objects, with each object structured like this:
+                        Your JSON data must be an array \`[]\` of question objects, with each object structured like this:
                         <pre className="mt-2 w-full rounded-md bg-muted p-4 text-xs overflow-x-auto">
                             <code>[ ... , {exampleJson}, ... ]</code>
                         </pre>
