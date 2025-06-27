@@ -1,10 +1,25 @@
 
 "use server";
 
-import { appDb } from "@/lib/firebase";
-import { collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy } from "firebase/firestore";
+import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
+import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy } from "firebase/firestore";
 import type { Answer, Submission, User } from "@/lib/types";
 import { questions } from "@/data/questions";
+
+// Config for the primary app (submissions)
+const firebaseConfigApp = {
+  apiKey: "AIzaSyAeiQQ62Pn_MBPhsAruzqKHdZxLO1riJFY",
+  authDomain: "examplify-262mw.firebaseapp.com",
+  projectId: "examplify-262mw",
+  storageBucket: "examplify-262mw.firebasestorage.app",
+  messagingSenderId: "644265344193",
+  appId: "1:644265344193:web:c3500be72fdc0aea77e840"
+};
+
+// Initialize app, checking if it already exists to avoid errors during hot-reloading.
+const primaryApp: FirebaseApp = getApps().find(app => app.name === 'primary') || initializeApp(firebaseConfigApp, 'primary');
+const appDb = getFirestore(primaryApp);
+
 
 export async function submitTest(answers: Answer[], user: User) {
   let score = 0;
