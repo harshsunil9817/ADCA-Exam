@@ -12,7 +12,7 @@ export function Header() {
       <div className="container mx-auto flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
           <Computer className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold text-primary">Computer Skill Academy</h1>
+          <h1 className="text-2xl font-bold text-primary">Computer Skill Academy - ADCA Test</h1>
         </div>
         {user && (
           <div className="flex items-center gap-4">

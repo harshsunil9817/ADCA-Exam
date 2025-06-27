@@ -7,7 +7,7 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Computer Skill Academy',
+  title: 'Computer Skill Academy - ADCA Test',
   description: 'ADCA Test Platform',
 };
 

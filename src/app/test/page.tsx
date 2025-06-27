@@ -19,8 +19,9 @@ import { Progress } from "@/components/ui/progress";
 import { submitTest } from "@/actions/test";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Header } from "@/components/header";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { appDb } from "@/lib/firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function TestPage() {
   const { user, loading: authLoading } = useAuth();
@@ -41,6 +42,20 @@ export default function TestPage() {
     if (!authLoading && !user) {
       router.push("/");
     }
+  }, [user, authLoading, router]);
+
+  useEffect(() => {
+    if (authLoading || !user) return;
+
+    const checkSubmission = async () => {
+        const q = query(collection(appDb, "submissions"), where("userId", "==", user.id));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+            router.replace(`/test/submitted?submissionId=${querySnapshot.docs[0].id}`);
+        }
+    };
+
+    checkSubmission();
   }, [user, authLoading, router]);
 
   const handleSubmit = useCallback(async () => {
@@ -102,7 +117,6 @@ export default function TestPage() {
 
   return (
     <>
-      <Header />
       <main className="container mx-auto py-8 px-4 flex flex-col" style={{minHeight: 'calc(100vh - 80px)'}}>
         <Card className="mb-8">
           <CardHeader>
@@ -146,13 +160,17 @@ export default function TestPage() {
                   className="h-full"
                 >
                   {Object.entries(currentQuestion.options).map(([key, option]) => (
-                    <div key={key} className="flex items-center space-x-3 p-3 rounded-md border has-[:checked]:bg-accent">
+                    <Label 
+                      key={key} 
+                      htmlFor={`${currentQuestion.id}-${key}`}
+                      className="flex items-center space-x-3 p-3 rounded-md border has-[:checked]:bg-accent has-[:checked]:border-primary cursor-pointer transition-colors"
+                    >
                       <RadioGroupItem value={key} id={`${currentQuestion.id}-${key}`} />
-                      <Label htmlFor={`${currentQuestion.id}-${key}`} className="flex-1 cursor-pointer">
+                      <div className="flex-1">
                           <p>{option.en}</p>
                           <p className="text-muted-foreground">{option.hi}</p>
-                      </Label>
-                    </div>
+                      </div>
+                    </Label>
                   ))}
                 </RadioGroup>
               </CardContent>
