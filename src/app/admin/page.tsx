@@ -8,7 +8,7 @@ import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
 import { deleteSubmission, getSubmissions } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
-import { getStudents, addOrUpdateStudent, deleteStudent } from "@/actions/students";
+import { getStudents, addStudent, updateStudentName, deleteStudent } from "@/actions/students";
 import { questions as defaultQuestions } from "@/data/questions";
 
 
@@ -302,8 +302,8 @@ function StudentManager() {
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [currentStudent, setCurrentStudent] = useState<Partial<Student> | null>(null); // For add/edit form
-    const [formValues, setFormValues] = useState({ id: '', name: '' });
+    const [currentStudent, setCurrentStudent] = useState<Student | null>(null); // For add/edit form
+    const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '' });
     const { toast } = useToast();
 
     const fetchStudents = async () => {
@@ -325,13 +325,13 @@ function StudentManager() {
 
     const handleAddClick = () => {
         setCurrentStudent(null);
-        setFormValues({ id: '', name: '' });
+        setFormValues({ enrollmentNumber: '', name: '' });
         setIsDialogOpen(true);
     };
 
     const handleEditClick = (student: Student) => {
         setCurrentStudent(student);
-        setFormValues({ id: student.id.replace('CSA', ''), name: student.name });
+        setFormValues({ enrollmentNumber: student.enrollmentNumber.replace('CSA', ''), name: student.name });
         setIsDialogOpen(true);
     };
     
@@ -342,7 +342,7 @@ function StudentManager() {
     const handleConfirmDelete = async () => {
         if (!studentToDelete) return;
         setIsDeleting(true);
-        const result = await deleteStudent(studentToDelete.id);
+        const result = await deleteStudent(studentToDelete.docId);
         if (result.success) {
             toast({ title: "Student Deleted", description: `Student ${studentToDelete.name} has been removed.` });
             fetchStudents(); // Refetch to update the list
@@ -357,11 +357,15 @@ function StudentManager() {
         e.preventDefault();
         setIsSaving(true);
         
-        const fullId = `CSA${formValues.id}`;
+        const fullEnrollmentNumber = `CSA${formValues.enrollmentNumber}`;
         const studentName = formValues.name;
-        const studentIdToSave = currentStudent ? currentStudent.id! : fullId;
-
-        const result = await addOrUpdateStudent(studentIdToSave, studentName);
+        
+        let result;
+        if (currentStudent) { // Editing existing student
+            result = await updateStudentName(currentStudent.docId, studentName);
+        } else { // Adding new student
+            result = await addStudent(fullEnrollmentNumber, studentName);
+        }
 
         if (result.success) {
             toast({ title: "Success", description: `Student data for ${studentName} has been saved.` });
@@ -387,7 +391,7 @@ function StudentManager() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[200px]">UserID</TableHead>
+                            <TableHead className="w-[200px]">Enrollment #</TableHead>
                             <TableHead>Student Name</TableHead>
                             <TableHead className="text-right w-[120px]">Actions</TableHead>
                         </TableRow>
@@ -403,8 +407,8 @@ function StudentManager() {
                             ))
                         ) : students.length > 0 ? (
                             students.map((student) => (
-                                <TableRow key={student.id}>
-                                    <TableCell className="font-mono">{student.id}</TableCell>
+                                <TableRow key={student.docId}>
+                                    <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
                                     <TableCell className="font-medium">{student.name}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex gap-2 justify-end">
@@ -442,13 +446,13 @@ function StudentManager() {
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="userId" className="text-right">UserID</Label>
+                            <Label htmlFor="enrollmentNumber" className="text-right">Enrollment #</Label>
                              <div className="col-span-3 flex items-center gap-2">
                                 <span className="text-muted-foreground font-mono">CSA</span>
                                 <Input
-                                id="userId"
-                                value={formValues.id}
-                                onChange={(e) => setFormValues({ ...formValues, id: e.target.value.replace(/[^0-9]/g, '') })}
+                                id="enrollmentNumber"
+                                value={formValues.enrollmentNumber}
+                                onChange={(e) => setFormValues({ ...formValues, enrollmentNumber: e.target.value.replace(/[^0-9]/g, '') })}
                                 className="w-full"
                                 required
                                 disabled={!!currentStudent || isSaving}
@@ -486,7 +490,7 @@ function StudentManager() {
             <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the student <span className="font-bold">{studentToDelete?.name} ({studentToDelete?.id})</span> and all associated data.
+                This action cannot be undone. This will permanently delete the student <span className="font-bold">{studentToDelete?.name} ({studentToDelete?.enrollmentNumber})</span> and all associated data.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

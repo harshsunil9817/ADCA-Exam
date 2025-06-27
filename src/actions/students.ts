@@ -2,46 +2,77 @@
 "use server";
 
 import { studentDb } from "@/lib/firebase";
-import { collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, getDoc, where } from "firebase/firestore";
+import { collection, getDocs, doc, deleteDoc, query, orderBy, where, addDoc, updateDoc } from "firebase/firestore";
 import type { Student } from "@/lib/types";
 
+// Fetches all students for the admin panel
 export async function getStudents(): Promise<Student[]> {
     const studentsCollection = collection(studentDb, 'students');
-    const q = query(studentsCollection, orderBy('__name__'));
+    const q = query(studentsCollection, orderBy('enrollmentNumber'));
     const snapshot = await getDocs(q);
     if (snapshot.empty) {
         return [];
     }
-    return snapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name as string }));
+    return snapshot.docs.map(doc => ({
+        docId: doc.id,
+        enrollmentNumber: doc.data().enrollmentNumber as string,
+        name: doc.data().name as string
+    }));
 }
 
-
-export async function addOrUpdateStudent(id: string, name: string): Promise<{ success: boolean; error?: string }> {
-    if (!id || !name) {
-        return { success: false, error: 'Student ID and Name are required.' };
+// Adds a new student record
+export async function addStudent(enrollmentNumber: string, name: string): Promise<{ success: boolean; error?: string }> {
+    if (!enrollmentNumber || !name) {
+        return { success: false, error: 'Enrollment Number and Name are required.' };
     }
-    if (!id.startsWith('CSA')) {
-         return { success: false, error: 'Internal error: Student ID must start with "CSA".' };
+    if (!enrollmentNumber.startsWith('CSA')) {
+         return { success: false, error: 'Internal error: Enrollment Number must start with "CSA".' };
     }
    
     try {
-        const studentRef = doc(studentDb, 'students', id);
-        // Ensure the 'id' field is stored within the document to make it queryable.
-        // Use { merge: true } to avoid overwriting other fields when updating.
-        await setDoc(studentRef, { id, name }, { merge: true });
+        // Check if student with this enrollment number already exists
+        const q = query(collection(studentDb, 'students'), where("enrollmentNumber", "==", enrollmentNumber));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+            return { success: false, error: `Student with Enrollment Number ${enrollmentNumber} already exists.` };
+        }
+
+        // Add new student
+        await addDoc(collection(studentDb, "students"), {
+            enrollmentNumber,
+            name
+            // In a real app, you would add other default fields here
+        });
         return { success: true };
     } catch (error) {
-        console.error("Error adding/updating student: ", error);
+        console.error("Error adding student: ", error);
         return { success: false, error: 'Failed to save student data.' };
     }
 }
 
-export async function deleteStudent(id: string): Promise<{ success: boolean; error?: string }> {
-     if (!id) {
-        return { success: false, error: 'Student ID is required.' };
+// Updates a student's name
+export async function updateStudentName(docId: string, name: string): Promise<{ success: boolean; error?: string }> {
+    if (!docId || !name) {
+        return { success: false, error: 'Student Doc ID and Name are required.' };
+    }
+   
+    try {
+        const studentRef = doc(studentDb, 'students', docId);
+        await updateDoc(studentRef, { name });
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating student: ", error);
+        return { success: false, error: 'Failed to save student data.' };
+    }
+}
+
+// Deletes a student record by document ID
+export async function deleteStudent(docId: string): Promise<{ success: boolean; error?: string }> {
+     if (!docId) {
+        return { success: false, error: 'Student Doc ID is required.' };
     }
     try {
-        const studentRef = doc(studentDb, 'students', id);
+        const studentRef = doc(studentDb, 'students', docId);
         await deleteDoc(studentRef);
         return { success: true };
     } catch (error) {
@@ -50,12 +81,12 @@ export async function deleteStudent(id: string): Promise<{ success: boolean; err
     }
 }
 
-export async function getStudentName(id: string): Promise<string | null> {
+// Fetches a student's name by their enrollment number for login validation
+export async function getStudentName(enrollmentNumber: string): Promise<string | null> {
     try {
-        // Query for the student document where the 'id' field matches the login ID.
-        // This avoids a direct getDoc call which can cause permission errors.
         const studentsRef = collection(studentDb, 'students');
-        const q = query(studentsRef, where("id", "==", id));
+        // Query for the student document where the 'enrollmentNumber' field matches the login ID.
+        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {

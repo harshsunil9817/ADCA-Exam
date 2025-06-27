@@ -7,7 +7,8 @@ export interface User {
 }
 
 export interface Student {
-  id: string; // e.g. "CSA101"
+  docId: string; // The actual firestore document ID
+  enrollmentNumber: string; // The enrollment number e.g. "CSA250006"
   name: string;
 }
 
