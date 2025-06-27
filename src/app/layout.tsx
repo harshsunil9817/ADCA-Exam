@@ -7,8 +7,8 @@ import { Inter } from 'next/font/google';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'Examplify',
-  description: 'Online examination platform',
+  title: 'Computer Skill Academy',
+  description: 'ADCA Test Platform',
 };
 
 export default function RootLayout({

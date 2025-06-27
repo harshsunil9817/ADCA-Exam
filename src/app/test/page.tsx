@@ -106,7 +106,7 @@ export default function TestPage() {
       <main className="container mx-auto py-8 px-4 flex flex-col" style={{minHeight: 'calc(100vh - 80px)'}}>
         <Card className="mb-8">
           <CardHeader>
-            <CardTitle className="text-3xl">Computer Literacy Test</CardTitle>
+            <CardTitle className="text-3xl">ADCA Test</CardTitle>
             <CardDescription>
               Answer all 100 questions. You have one hour to complete the test.
             </CardDescription>

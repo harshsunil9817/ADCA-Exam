@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpenCheck } from "lucide-react";
+import { Computer } from "lucide-react";
 
 export default function LoginPage() {
   const [userId, setUserId] = useState("");
@@ -75,10 +75,10 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
           <div className="flex justify-center items-center gap-3 mb-2">
-            <BookOpenCheck className="h-10 w-10 text-primary" />
-            <h1 className="text-4xl font-bold text-primary">Examplify</h1>
+            <Computer className="h-10 w-10 text-primary" />
+            <h1 className="text-3xl font-bold text-primary">Computer Skill Academy</h1>
           </div>
-          <CardTitle className="text-2xl">Welcome Back!</CardTitle>
+          <CardTitle className="text-2xl">ADCA Test Login</CardTitle>
           <CardDescription>
             Enter your credentials to access your account.
           </CardDescription>

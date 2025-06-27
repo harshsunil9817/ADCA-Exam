@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/context/auth-context";
 import { Button } from "./ui/button";
-import { BookOpenCheck, LogOut, User as UserIcon } from "lucide-react";
+import { Computer, LogOut, User as UserIcon } from "lucide-react";
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -11,8 +11,8 @@ export function Header() {
     <header className="bg-card shadow-md sticky top-0 z-40">
       <div className="container mx-auto flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
-          <BookOpenCheck className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl font-bold text-primary">Examplify</h1>
+          <Computer className="h-8 w-8 text-primary" />
+          <h1 className="text-2xl font-bold text-primary">Computer Skill Academy</h1>
         </div>
         {user && (
           <div className="flex items-center gap-4">
