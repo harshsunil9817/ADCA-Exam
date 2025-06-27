@@ -78,17 +78,19 @@ function UserManagement() {
     const fetchSyncedStudents = async () => {
       setLoadingUsers(true);
       try {
-        // Fetch students who are enrolled in the ADCA course by checking the courseID field
+        // Fetch all students and then filter for the ADCA course on the client side.
+        // This is a more robust way to fetch data if direct queries face issues.
         const studentsSourceRef = collection(studentDb, 'students');
-        const studentsQuery = query(studentsSourceRef, where("courseID", "==", "ADCA"));
-        const studentsSnapshot = await getDocs(studentsQuery);
+        const studentsSnapshot = await getDocs(studentsSourceRef);
 
-        const fetchedStudents = studentsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          name: doc.data().name || 'N/A',
-          userId: doc.data().enrollment_number,
-          role: 'student'
-        })) as AdminPageUser[];
+        const fetchedStudents = studentsSnapshot.docs
+          .filter(doc => doc.data().courseId === "ADCA")
+          .map(doc => ({
+            id: doc.id,
+            name: doc.data().name || 'N/A',
+            userId: doc.data().enrollment_number,
+            role: 'student'
+          })) as AdminPageUser[];
 
         setSyncedUsers(fetchedStudents);
 
@@ -459,3 +461,5 @@ export default function AdminPage() {
     </>
   );
 }
+
+    
