@@ -19,7 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { submitTest } from "@/actions/test";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { appDb } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
@@ -181,7 +181,7 @@ export default function TestPage() {
         <div className="mt-auto pt-8 flex justify-between items-center">
             <Button
                 onClick={handlePrevious}
-                disabled={currentQuestionIndex === 0}
+                disabled={currentQuestionIndex === 0 || isSubmitting}
                 variant="outline"
                 size="lg"
             >
@@ -191,7 +191,7 @@ export default function TestPage() {
             <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button size="lg" disabled={isSubmitting}>
-                        {isSubmitting ? 'Submitting...' : 'Submit Test'}
+                        {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Submitting...</> : 'Submit Test'}
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
@@ -204,7 +204,7 @@ export default function TestPage() {
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={handleSubmit} disabled={isSubmitting}>
-                            {isSubmitting ? 'Submitting...' : 'Yes, Submit My Test'}
+                            {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/>Submitting...</> : 'Yes, Submit My Test'}
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
@@ -212,7 +212,7 @@ export default function TestPage() {
 
             <Button
                 onClick={handleNext}
-                disabled={currentQuestionIndex === questions.length - 1}
+                disabled={currentQuestionIndex === questions.length - 1 || isSubmitting}
                 size="lg"
             >
                 Next <ArrowRight className="ml-2 h-4 w-4" />

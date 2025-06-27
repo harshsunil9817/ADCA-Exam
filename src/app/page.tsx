@@ -16,20 +16,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    setIsLoggingIn(true);
 
     if (!userId || !password) {
       toast({
@@ -37,7 +37,7 @@ export default function LoginPage() {
         title: "Login Failed",
         description: "Please enter both Enrollment Number and Password.",
       });
-      setIsLoading(false);
+      setIsLoggingIn(false);
       return;
     }
 
@@ -68,7 +68,7 @@ export default function LoginPage() {
         description: "Could not log in. Please try again later.",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoggingIn(false);
     }
   };
 
@@ -96,7 +96,7 @@ export default function LoginPage() {
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 required
-                disabled={isLoading}
+                disabled={isLoggingIn}
               />
             </div>
             <div className="space-y-2">
@@ -109,7 +109,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={isLoading}
+                  disabled={isLoggingIn}
                   className="pr-10"
                 />
                 <Button
@@ -119,7 +119,7 @@ export default function LoginPage() {
                   className="absolute inset-y-0 right-0 h-full px-3 text-muted-foreground hover:bg-transparent"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Hide password" : "Show password"}
-                  disabled={isLoading}
+                  disabled={isLoggingIn}
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5" />
@@ -131,8 +131,8 @@ export default function LoginPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing In..." : "Sign In"}
+            <Button type="submit" className="w-full" disabled={isLoggingIn}>
+              {isLoggingIn ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing In...</> : "Sign In"}
             </Button>
           </CardFooter>
         </form>
