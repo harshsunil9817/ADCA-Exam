@@ -65,27 +65,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return adminUser;
     }
 
-    // Student check in Firestore
-    const usersRef = collection(db, 'users');
-    const q = query(usersRef, where('userId', '==', userId), where('password', '==', password_input));
-    
-    const querySnapshot = await getDocs(q);
+    // Student check with universal password
+    if (password_input === 'CSA321') {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('userId', '==', userId));
+        const querySnapshot = await getDocs(q);
 
-    if (querySnapshot.empty) {
-      return null;
+        if (!querySnapshot.empty) {
+            const userData = querySnapshot.docs[0].data();
+            const loggedInUser: User = {
+                id: querySnapshot.docs[0].id,
+                name: userData.name,
+                userId: userData.userId,
+                role: 'student',
+            };
+            
+            sessionStorage.setItem('user', JSON.stringify(loggedInUser));
+            setUser(loggedInUser);
+            return loggedInUser;
+        }
     }
 
-    const userData = querySnapshot.docs[0].data();
-    const loggedInUser: User = {
-      id: querySnapshot.docs[0].id,
-      name: userData.name,
-      userId: userData.userId,
-      role: 'student',
-    };
-    
-    sessionStorage.setItem('user', JSON.stringify(loggedInUser));
-    setUser(loggedInUser);
-    return loggedInUser;
+    // Return null if not admin and student login fails
+    return null;
   };
 
   const logout = () => {
