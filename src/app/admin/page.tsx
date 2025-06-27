@@ -79,7 +79,8 @@ function UserManagement() {
       setLoadingUsers(true);
       try {
         const studentsSourceRef = collection(studentDb, 'students');
-        const studentsSnapshot = await getDocs(studentsSourceRef);
+        const q = query(studentsSourceRef, where("course", "==", "ADCA"));
+        const studentsSnapshot = await getDocs(q);
         const fetchedStudents = studentsSnapshot.docs.map(doc => ({
           id: doc.id,
           name: doc.data().name || 'N/A',
@@ -89,7 +90,7 @@ function UserManagement() {
         setSyncedUsers(fetchedStudents);
       } catch (error) {
         console.error('Error fetching synced students:', error);
-        toast({ variant: 'destructive', title: 'Fetch Failed', description: 'Could not fetch student data from the source database.' });
+        toast({ variant: 'destructive', title: 'Fetch Failed', description: 'Could not fetch ADCA student data.' });
       } finally {
         setLoadingUsers(false);
       }
@@ -152,12 +153,24 @@ function UserManagement() {
     setIsUpdatingUser(true);
 
     try {
-      const userRef = doc(appDb, "users", editingUser.id);
-      await updateDoc(userRef, {
-        name: editForm.name,
-        userId: editForm.userId,
-        ...(editForm.password && { password: editForm.password }),
-      });
+      if (editingUser.password !== undefined) { // It's a manual user
+        const userRef = doc(appDb, "users", editingUser.id);
+        await updateDoc(userRef, {
+          name: editForm.name,
+          userId: editForm.userId,
+          ...(editForm.password && { password: editForm.password }),
+        });
+      } else { // It's a synced user
+        const userRef = doc(studentDb, "students", editingUser.id);
+        await updateDoc(userRef, {
+          name: editForm.name,
+          enrollment_number: editForm.userId,
+        });
+        // Update local state to show changes immediately
+        setSyncedUsers(prev => prev.map(u => 
+            u.id === editingUser.id ? { ...u, name: editForm.name, userId: editForm.userId } : u
+        ));
+      }
       toast({ title: "User Updated", description: "User details have been updated." });
       setIsEditDialogOpen(false);
       setEditingUser(null);
@@ -168,10 +181,16 @@ function UserManagement() {
     setIsUpdatingUser(false);
   };
   
-  const handleDeleteUser = async (userIdToDelete: string) => {
+  const handleDeleteUser = async (userToDelete: AdminPageUser) => {
       try {
-          await deleteDoc(doc(appDb, "users", userIdToDelete));
-          toast({ title: "User Deleted", description: "The user has been successfully deleted." });
+        if (userToDelete.password !== undefined) { // It's a manual user
+          await deleteDoc(doc(appDb, "users", userToDelete.id));
+        } else { // It's a synced user
+          await deleteDoc(doc(studentDb, "students", userToDelete.id));
+           // Update local state to reflect deletion
+          setSyncedUsers(prev => prev.filter(u => u.id !== userToDelete.id));
+        }
+        toast({ title: "User Deleted", description: "The user has been successfully deleted." });
       } catch (error) {
           console.error("Error deleting user: ", error);
           toast({ variant: "destructive", title: "Error", description: "Could not delete user." });
@@ -183,7 +202,7 @@ function UserManagement() {
       <Card>
         <CardHeader>
             <CardTitle>Student List</CardTitle>
-            <CardDescription>View all students from the main database and those added manually.</CardDescription>
+            <CardDescription>View all ADCA students from the main database and those added manually.</CardDescription>
         </CardHeader>
         <CardContent>
             <Table>
@@ -211,20 +230,20 @@ function UserManagement() {
                                 <TableCell className="font-medium">{user.name}</TableCell>
                                 <TableCell>{user.userId}</TableCell>
                                 <TableCell>
-                                    {user.password ? (
+                                    {user.password !== undefined ? (
                                         <span className="text-xs font-semibold text-sky-600">Manual</span>
                                     ) : (
                                         <span className="text-xs font-semibold text-emerald-600">Synced</span>
                                     )}
                                 </TableCell>
                                 <TableCell className="text-right space-x-2">
-                                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(user)} disabled={!user.password}>
+                                    <Button variant="ghost" size="icon" onClick={() => handleEditClick(user)}>
                                         <Edit className="h-4 w-4" />
                                         <span className="sr-only">Edit User</span>
                                     </Button>
                                     <AlertDialog>
                                         <AlertDialogTrigger asChild>
-                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" disabled={!user.password}>
+                                            <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
                                                 <Trash2 className="h-4 w-4" />
                                                 <span className="sr-only">Delete User</span>
                                             </Button>
@@ -238,7 +257,7 @@ function UserManagement() {
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDeleteUser(user.id)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
+                                                <AlertDialogAction onClick={() => handleDeleteUser(user)} className="bg-destructive hover:bg-destructive/90">Delete</AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
                                     </AlertDialog>
@@ -301,10 +320,12 @@ function UserManagement() {
                 <Label htmlFor="edit-userId" className="text-right">User ID</Label>
                 <Input id="edit-userId" value={editForm.userId} onChange={(e) => setEditForm({...editForm, userId: e.target.value})} className="col-span-3" disabled={isUpdatingUser} />
               </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="edit-password" className="text-right">Password</Label>
-                <Input id="edit-password" placeholder="Enter new password" value={editForm.password} onChange={(e) => setEditForm({...editForm, password: e.target.value})} className="col-span-3" disabled={isUpdatingUser} />
-              </div>
+              {editingUser?.password !== undefined && (
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="edit-password" className="text-right">Password</Label>
+                  <Input id="edit-password" placeholder="Leave blank to keep unchanged" value={editForm.password} onChange={(e) => setEditForm({...editForm, password: e.target.value})} className="col-span-3" disabled={isUpdatingUser} />
+                </div>
+              )}
             </div>
             <DialogFooter>
               <Button type="submit" disabled={isUpdatingUser}>
@@ -434,5 +455,3 @@ export default function AdminPage() {
     </>
   );
 }
-
-    
