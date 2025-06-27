@@ -54,8 +54,8 @@ export default function TestPage() {
     try {
         const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
         const submissionId = await submitTest(answersArray, user);
-        toast({ title: 'Test Submitted!', description: "Thanks for taking the test. We're redirecting you to your results." });
-        router.push(`/results/${submissionId}`);
+        toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
+        router.push(`/test/submitted?submissionId=${submissionId}`);
     } catch (error) {
         console.error("Submission failed:", error);
         toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
