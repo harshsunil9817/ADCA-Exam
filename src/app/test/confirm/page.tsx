@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, UserCheck } from 'lucide-react';
+import { Loader2, UserCheck, ArrowLeft } from 'lucide-react';
 import { Header } from '@/components/header';
 import Image from "next/image";
 
 export default function ConfirmDetailsPage() {
-    const { user, loading } = useAuth();
+    const { user, loading, logout } = useAuth();
     const router = useRouter();
 
     if (loading || !user) {
@@ -59,7 +59,11 @@ export default function ConfirmDetailsPage() {
                             <span className="font-bold">{`${user.dob?.day}/${user.dob?.month}/${user.dob?.year}`}</span>
                         </div>
                     </CardContent>
-                    <CardFooter>
+                    <CardFooter className="flex flex-col sm:flex-row gap-2">
+                        <Button onClick={logout} className="w-full" size="lg" variant="outline">
+                            <ArrowLeft className="mr-2 h-5 w-5" />
+                            Back to Login
+                        </Button>
                         <Button onClick={handleConfirm} className="w-full" size="lg">
                             <UserCheck className="mr-2 h-5 w-5" />
                             Yes, this is me. Start Test.
