@@ -40,6 +40,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkUser();
   }, []);
 
+  useEffect(() => {
+    if (loading) return; // Don't run router logic until session is checked
+
+    const publicPaths = ['/'];
+    const pathIsPublic = publicPaths.includes(pathname);
+
+    // If user is logged in but on a public page, redirect them.
+    if (user && pathIsPublic) {
+      router.push(user.role === 'admin' ? '/admin' : '/test');
+    }
+
+    // If user is not logged in and not on a public page, redirect to login.
+    if (!user && !pathIsPublic) {
+      router.push('/');
+    }
+  }, [user, loading, pathname, router]);
+
   const login = async (userId: string, password_input: string): Promise<User | null> => {
     // Admin check first
     if (userId.toLowerCase() === 'sunilsingh817@gmail.com' && password_input === 'sunil4321') {
@@ -103,22 +120,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/');
   };
   
-  // While checking auth, show a loader to prevent flicker
-  if (loading) {
-    return (
-        <div className="flex items-center justify-center h-screen w-full">
-            <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        </div>
-    );
-  }
-
   const publicPaths = ['/'];
   const pathIsPublic = publicPaths.includes(pathname);
-  
-  // If user is logged in but on a public page, redirect them.
-  // Show a loader while redirecting.
-  if (user && pathIsPublic) {
-    router.push(user.role === 'admin' ? '/admin' : '/test');
+
+  // If we are loading or a redirect is about to happen, show a loader.
+  if (loading || (user && pathIsPublic) || (!user && !pathIsPublic)) {
     return (
         <div className="flex items-center justify-center h-screen w-full">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -126,16 +132,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // If user is not logged in and not on a public page, redirect to login.
-  // Show a loader while redirecting.
-  if (!user && !pathIsPublic) {
-    router.push('/');
-    return (
-        <div className="flex items-center justify-center h-screen w-full">
-            <Loader2 className="w-12 h-12 animate-spin text-primary" />
-        </div>
-    );
-  }
 
   return (
     <AuthContext.Provider value={{ user, login, logout, loading }}>
@@ -151,5 +147,3 @@ export function useAuth() {
   }
   return context;
 }
-
-    
