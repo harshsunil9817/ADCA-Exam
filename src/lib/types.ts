@@ -1,8 +1,14 @@
+
 export interface User {
   id: string;
   name: string;
   userId: string;
   role: "student" | "admin";
+}
+
+export interface Student {
+  id: string; // e.g. "CSA101"
+  name: string;
 }
 
 export interface Option {

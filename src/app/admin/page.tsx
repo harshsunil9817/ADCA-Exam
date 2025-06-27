@@ -5,11 +5,12 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
-import { appDb } from "@/lib/firebase";
+import { appDb, studentDb } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
-import type { Submission } from "@/lib/types";
+import type { Submission, Student } from "@/lib/types";
 import { deleteSubmission } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
+import { getStudents, addOrUpdateStudent, deleteStudent } from "@/actions/students";
 import { questions as defaultQuestions } from "@/data/questions";
 
 
@@ -32,7 +33,7 @@ import {
 } from "@/components/ui/table";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Loader2, Terminal, Trash2 } from "lucide-react";
+import { FileText, Loader2, Terminal, Trash2, Users, UserPlus, Edit } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -43,10 +44,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 
 // Submissions List Component
@@ -280,6 +293,217 @@ function QuestionEditor() {
     );
 }
 
+function StudentManager() {
+    const [students, setStudents] = useState<Student[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [currentStudent, setCurrentStudent] = useState<Partial<Student> | null>(null); // For add/edit form
+    const [formValues, setFormValues] = useState({ id: '', name: '' });
+    const { toast } = useToast();
+
+    const fetchStudents = async () => {
+        setLoading(true);
+        try {
+            const studentList = await getStudents();
+            setStudents(studentList);
+        } catch (error) {
+            console.error("Error fetching students:", error);
+            toast({ variant: "destructive", title: "Error", description: "Failed to fetch student list." });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchStudents();
+    }, []);
+
+    const handleAddClick = () => {
+        setCurrentStudent(null);
+        setFormValues({ id: '', name: '' });
+        setIsDialogOpen(true);
+    };
+
+    const handleEditClick = (student: Student) => {
+        setCurrentStudent(student);
+        setFormValues({ id: student.id.replace('CSA', ''), name: student.name });
+        setIsDialogOpen(true);
+    };
+    
+    const handleDeleteClick = (student: Student) => {
+        setStudentToDelete(student);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!studentToDelete) return;
+        setIsDeleting(true);
+        const result = await deleteStudent(studentToDelete.id);
+        if (result.success) {
+            toast({ title: "Student Deleted", description: `Student ${studentToDelete.name} has been removed.` });
+            fetchStudents(); // Refetch to update the list
+        } else {
+            toast({ variant: "destructive", title: "Error", description: result.error });
+        }
+        setIsDeleting(false);
+        setStudentToDelete(null);
+    };
+    
+    const handleSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+        
+        const fullId = `CSA${formValues.id}`;
+        const studentName = formValues.name;
+        const studentIdToSave = currentStudent ? currentStudent.id! : fullId;
+
+        const result = await addOrUpdateStudent(studentIdToSave, studentName);
+
+        if (result.success) {
+            toast({ title: "Success", description: `Student data for ${studentName} has been saved.` });
+            setIsDialogOpen(false);
+            fetchStudents();
+        } else {
+            toast({ variant: "destructive", title: "Error", description: result.error });
+        }
+        setIsSaving(false);
+    };
+
+    return (
+        <>
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle className="flex items-center gap-2"><Users /> Manage Students</CardTitle>
+                    <CardDescription>Add, edit, or remove student records.</CardDescription>
+                </div>
+                <Button onClick={handleAddClick}><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[200px]">UserID</TableHead>
+                            <TableHead>Student Name</TableHead>
+                            <TableHead className="text-right w-[120px]">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                         {loading ? (
+                            Array.from({ length: 5 }).map((_, i) => (
+                            <TableRow key={i}>
+                                <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                                <TableCell className="text-right"><Skeleton className="h-9 w-[84px] ml-auto" /></TableCell>
+                            </TableRow>
+                            ))
+                        ) : students.length > 0 ? (
+                            students.map((student) => (
+                                <TableRow key={student.id}>
+                                    <TableCell className="font-mono">{student.id}</TableCell>
+                                    <TableCell className="font-medium">{student.name}</TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex gap-2 justify-end">
+                                            <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => handleEditClick(student)}>
+                                                <Edit className="h-4 w-4" />
+                                                <span className="sr-only">Edit</span>
+                                            </Button>
+                                            <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => handleDeleteClick(student)}>
+                                                <Trash2 className="h-4 w-4" />
+                                                <span className="sr-only">Delete</span>
+                                            </Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={3} className="text-center h-24">No students found.</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+
+        {/* Add/Edit Dialog */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+                <form onSubmit={handleSave}>
+                    <DialogHeader>
+                        <DialogTitle>{currentStudent ? 'Edit Student' : 'Add New Student'}</DialogTitle>
+                        <DialogDescription>
+                            {currentStudent ? "Update the student's name." : "Enter the new student's details."}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="userId" className="text-right">UserID</Label>
+                             <div className="col-span-3 flex items-center gap-2">
+                                <span className="text-muted-foreground font-mono">CSA</span>
+                                <Input
+                                id="userId"
+                                value={formValues.id}
+                                onChange={(e) => setFormValues({ ...formValues, id: e.target.value.replace(/[^0-9]/g, '') })}
+                                className="w-full"
+                                required
+                                disabled={!!currentStudent || isSaving}
+                                />
+                             </div>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">Name</Label>
+                            <Input
+                            id="name"
+                            value={formValues.name}
+                            onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
+                            className="col-span-3"
+                            required
+                            disabled={isSaving}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary" disabled={isSaving}>Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={isSaving}>
+                            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save Student'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!studentToDelete} onOpenChange={(open) => !open && setStudentToDelete(null)}>
+            <AlertDialogContent>
+            <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the student <span className="font-bold">{studentToDelete?.name} ({studentToDelete?.id})</span> and all associated data.
+                </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => setStudentToDelete(null)} disabled={isDeleting}>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                    onClick={handleConfirmDelete} 
+                    disabled={isDeleting}
+                    className={buttonVariants({ variant: "destructive" })}
+                >
+                    {isDeleting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</> : "Yes, delete student"}
+                </AlertDialogAction>
+            </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
+        </>
+    );
+}
+
 
 // Main Admin Page
 export default function AdminPage() {
@@ -301,18 +525,22 @@ export default function AdminPage() {
     <Header />
     <main className="container mx-auto p-4 md:p-8">
       <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-      <p className="text-muted-foreground mb-8">Manage test submissions and questions.</p>
+      <p className="text-muted-foreground mb-8">Manage test submissions and application data.</p>
       
       <Tabs defaultValue="submissions" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
-              <TabsTrigger value="questions">Add/Edit Questions</TabsTrigger>
+              <TabsTrigger value="questions">Questions</TabsTrigger>
+              <TabsTrigger value="students">Manage Students</TabsTrigger>
           </TabsList>
           <TabsContent value="submissions" className="mt-6">
               <SubmissionsList />
           </TabsContent>
           <TabsContent value="questions" className="mt-6">
               <QuestionEditor />
+          </TabsContent>
+           <TabsContent value="students" className="mt-6">
+              <StudentManager />
           </TabsContent>
       </Tabs>
 
