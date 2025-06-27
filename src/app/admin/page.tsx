@@ -331,7 +331,7 @@ function StudentManager() {
 
     const handleEditClick = (student: Student) => {
         setCurrentStudent(student);
-        setFormValues({ enrollmentNumber: student.enrollmentNumber.replace('CSA', ''), name: student.name });
+        setFormValues({ enrollmentNumber: student.enrollmentNumber, name: student.name });
         setIsDialogOpen(true);
     };
     
@@ -357,7 +357,7 @@ function StudentManager() {
         e.preventDefault();
         setIsSaving(true);
         
-        const fullEnrollmentNumber = `CSA${formValues.enrollmentNumber}`;
+        const fullEnrollmentNumber = formValues.enrollmentNumber;
         const studentName = formValues.name;
         
         let result;
@@ -383,7 +383,7 @@ function StudentManager() {
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="flex items-center gap-2"><Users /> Manage Students</CardTitle>
-                    <CardDescription>Add, edit, or remove student records.</CardDescription>
+                    <CardDescription>Add, edit, or remove student records for the ADCA course.</CardDescription>
                 </div>
                 <Button onClick={handleAddClick}><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button>
             </CardHeader>
@@ -426,7 +426,7 @@ function StudentManager() {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={3} className="text-center h-24">No students found.</TableCell>
+                                <TableCell colSpan={3} className="text-center h-24">No students found for the ADCA course.</TableCell>
                             </TableRow>
                         )}
                     </TableBody>
@@ -447,17 +447,15 @@ function StudentManager() {
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="enrollmentNumber" className="text-right">Enrollment #</Label>
-                             <div className="col-span-3 flex items-center gap-2">
-                                <span className="text-muted-foreground font-mono">CSA</span>
-                                <Input
-                                id="enrollmentNumber"
-                                value={formValues.enrollmentNumber}
-                                onChange={(e) => setFormValues({ ...formValues, enrollmentNumber: e.target.value.replace(/[^0-9]/g, '') })}
-                                className="w-full"
-                                required
-                                disabled={!!currentStudent || isSaving}
-                                />
-                             </div>
+                            <Input
+                            id="enrollmentNumber"
+                            value={formValues.enrollmentNumber}
+                            onChange={(e) => setFormValues({ ...formValues, enrollmentNumber: e.target.value })}
+                            className="col-span-3"
+                            required
+                            disabled={!!currentStudent || isSaving}
+                            placeholder="e.g., CSA250001"
+                            />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="name" className="text-right">Name</Label>

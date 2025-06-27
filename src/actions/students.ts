@@ -24,7 +24,7 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        const q = query(studentsCollection, orderBy('enrollmentNumber'));
+        const q = query(studentsCollection, where("courseId", "==", "ADCA"), orderBy('enrollmentNumber'));
         const snapshot = await getDocs(q);
         if (snapshot.empty) {
             return [];
@@ -45,9 +45,6 @@ export async function getStudents(): Promise<Student[]> {
 export async function addStudent(enrollmentNumber: string, name: string): Promise<{ success: boolean; error?: string }> {
     if (!enrollmentNumber || !name) {
         return { success: false, error: 'Enrollment Number and Name are required.' };
-    }
-    if (!enrollmentNumber.startsWith('CSA')) {
-         return { success: false, error: 'Internal error: Enrollment Number must start with "CSA".' };
     }
    
     try {

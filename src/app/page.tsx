@@ -20,7 +20,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const [numericUserId, setNumericUserId] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -43,9 +43,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoggingIn(true);
 
-    const userId = `CSA${numericUserId}`;
-
-    if (!numericUserId || !password) {
+    if (!userId || !password) {
       toast({
         variant: "destructive",
         title: "Login Failed",
@@ -125,19 +123,15 @@ export default function LoginPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="userId">UserID</Label>
-              <div className="flex w-full items-center rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-                <span className="pl-3 pr-2 text-muted-foreground">CSA</span>
-                <Input
-                  id="userId"
-                  type="text"
-                  placeholder="Enter your ID number"
-                  value={numericUserId}
-                  onChange={(e) => setNumericUserId(e.target.value.replace(/[^0-9]/g, ''))}
-                  required
-                  disabled={isLoggingIn}
-                  className="border-0 h-9 focus-visible:ring-0 focus-visible:ring-offset-0 flex-1"
-                />
-              </div>
+              <Input
+                id="userId"
+                type="text"
+                placeholder="Enter your full UserID (e.g., CSA250001)"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+                required
+                disabled={isLoggingIn}
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
