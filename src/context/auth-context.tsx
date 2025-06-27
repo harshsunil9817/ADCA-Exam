@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Student check with universal password, using the student database (from academyedge-h1a1s)
     if (password_input === 'CSA321') {
         const studentsRef = collection(studentDb, 'students');
-        const q = query(studentsRef, where('enrollment_number', '==', userId));
+        const q = query(studentsRef, where('enrollmentNumber', '==', userId));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
@@ -137,3 +137,5 @@ export function useAuth() {
   }
   return context;
 }
+
+    

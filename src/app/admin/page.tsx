@@ -88,7 +88,7 @@ function UserManagement() {
           .map(doc => ({
             id: doc.id,
             name: doc.data().name || 'N/A',
-            userId: doc.data().enrollment_number,
+            userId: doc.data().enrollmentNumber,
             role: 'student'
           })) as AdminPageUser[];
 
@@ -170,7 +170,7 @@ function UserManagement() {
         const userRef = doc(studentDb, "students", editingUser.id);
         await updateDoc(userRef, {
           name: editForm.name,
-          enrollment_number: editForm.userId,
+          enrollmentNumber: editForm.userId,
         });
         // Update local state to show changes immediately
         setSyncedUsers(prev => prev.map(u => 
