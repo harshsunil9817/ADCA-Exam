@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
@@ -23,9 +24,20 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const { login } = useAuth();
+  const { login, user, loading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (!loading && user) {
+        if (user.role === 'admin') {
+            router.push('/admin');
+        } else {
+            router.push('/test');
+        }
+    }
+  }, [user, loading, router]);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,6 +100,14 @@ export default function LoginPage() {
       setIsLoggingIn(false);
     }
   };
+  
+  if (loading || user) {
+      return (
+         <div className="flex items-center justify-center h-screen w-full">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        </div>
+      )
+  }
 
   return (
     <main className="flex items-center justify-center min-h-screen bg-gradient-to-br from-background to-secondary/50 p-4">
@@ -96,7 +116,7 @@ export default function LoginPage() {
           <div className="flex justify-center items-center mb-4">
             <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="Computer Skill Academy Logo" width={200} height={400} className="object-contain" />
           </div>
-          <CardTitle className="text-2xl">Computer Skill Academy - ADCA Test Login</CardTitle>
+          <CardTitle className="text-2xl">Computer Skill Academy - ADCA Test</CardTitle>
           <CardDescription>
             Enter your credentials to access your account.
           </CardDescription>

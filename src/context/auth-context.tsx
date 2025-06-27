@@ -46,17 +46,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (loading) return; // Don't run router logic until session is checked
+    if (loading) return; 
 
     const publicPaths = ['/'];
     const pathIsPublic = publicPaths.includes(pathname);
-
-    // If user is logged in but on a public page, redirect them.
-    if (user && pathIsPublic) {
-      router.push(user.role === 'admin' ? '/admin' : '/test');
-    }
-
-    // If user is not logged in and not on a public page, redirect to login.
+    
     if (!user && !pathIsPublic) {
       router.push('/');
     }
@@ -113,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathIsPublic = publicPaths.includes(pathname);
 
   // If we are loading or a redirect is about to happen, show a loader.
-  if (loading || (user && pathIsPublic) || (!user && !pathIsPublic)) {
+  if (loading || (!user && !pathIsPublic)) {
     return (
         <div className="flex items-center justify-center h-screen w-full">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
