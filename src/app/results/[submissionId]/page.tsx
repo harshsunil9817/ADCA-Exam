@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PrintableResult } from '@/components/PrintableResult';
+import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswers';
 
 const StatCard = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string | number, color?: string }) => (
     <Card>
@@ -37,8 +38,10 @@ export default function ResultsPage() {
     const submissionId = params.submissionId as string;
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isDownloading, setIsDownloading] = useState(false);
-    const printableRef = useRef<HTMLDivElement>(null);
+    const [isDownloadingFull, setIsDownloadingFull] = useState(false);
+    const [isDownloadingIncorrect, setIsDownloadingIncorrect] = useState(false);
+    const printableFullRef = useRef<HTMLDivElement>(null);
+    const printableIncorrectRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (authLoading) return;
@@ -68,32 +71,39 @@ export default function ResultsPage() {
         fetchSubmission();
     }, [submissionId, user, authLoading, router]);
 
-    const handleDownloadPdf = async () => {
-        if (!printableRef.current || !submission) return;
+    const handleDownloadPdf = async (type: 'full' | 'incorrect') => {
+        const targetRef = type === 'full' ? printableFullRef : printableIncorrectRef;
+        const setIsDownloading = type === 'full' ? setIsDownloadingFull : setIsDownloadingIncorrect;
+        const reportName = type === 'full' ? 'Full-Report' : 'Incorrect-Answers';
+
+        if (!targetRef.current || !submission) return;
         setIsDownloading(true);
 
-        const canvas = await html2canvas(printableRef.current, {
-            scale: 2,
-        });
+        const canvas = await html2canvas(targetRef.current, { scale: 2 });
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF({
-            orientation: 'p',
-            unit: 'mm',
-            format: 'a4',
-        });
+        const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+        
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const imgHeight = canvas.height * pdfWidth / canvas.width;
-        let heightLeft = imgHeight;
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const imgWidth = canvas.width;
+        const imgHeight = canvas.height;
+        const ratio = imgWidth / pdfWidth;
+        const canvasHeight = imgHeight / ratio;
+
+        let heightLeft = canvasHeight;
         let position = 0;
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-        heightLeft -= pdf.internal.pageSize.getHeight();
-        while (heightLeft >= 0) {
-            position = heightLeft - imgHeight;
+
+        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight);
+        heightLeft -= pdfHeight;
+
+        while (heightLeft > 0) {
+            position = -heightLeft;
             pdf.addPage();
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
-            heightLeft -= pdf.internal.pageSize.getHeight();
+            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight);
+            heightLeft -= pdfHeight;
         }
-        pdf.save(`Test-Report-${submission.studentName.replace(' ', '_')}-${submissionId}.pdf`);
+        
+        pdf.save(`Test-Report-${reportName}-${submission.studentName.replace(/\s+/g, '_')}.pdf`);
         setIsDownloading(false);
     };
 
@@ -152,10 +162,16 @@ export default function ResultsPage() {
                                 </CardDescription>
                             </div>
                         </div>
-                        <Button onClick={handleDownloadPdf} disabled={isDownloading} className="w-full sm:w-auto">
-                            {isDownloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
-                            {isDownloading ? "Generating..." : "Download Report"}
-                        </Button>
+                        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Button onClick={() => handleDownloadPdf('full')} disabled={isDownloadingFull} className="w-full sm:w-auto">
+                                {isDownloadingFull ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
+                                {isDownloadingFull ? "Generating..." : "Download Full Report"}
+                            </Button>
+                             <Button onClick={() => handleDownloadPdf('incorrect')} disabled={isDownloadingIncorrect} className="w-full sm:w-auto" variant="secondary">
+                                {isDownloadingIncorrect ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
+                                {isDownloadingIncorrect ? "Generating..." : "Download Incorrect Only"}
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
             </Card>
@@ -184,8 +200,8 @@ export default function ResultsPage() {
                                                 <p className="text-sm text-muted-foreground">{item.question_hi}</p>
                                             </div>
                                         </AccordionTrigger>
-                                        <AccordionContent className="p-4 bg-secondary/50 rounded-md">
-                                            <div className="mb-2"><span className="font-semibold">Student's Answer: </span><Badge variant="destructive">{item.userSelectedAnswer}</Badge></div>
+                                        <AccordionContent className="p-4 bg-secondary/50 rounded-md space-y-2">
+                                            <div><span className="font-semibold">Student's Answer: </span><Badge variant="destructive">{item.userSelectedAnswer}</Badge></div>
                                             <div><span className="font-semibold">Correct Answer: </span><Badge className="bg-green-500 hover:bg-green-600">{item.correct_option}</Badge></div>
                                         </AccordionContent>
                                     </AccordionItem>
@@ -197,8 +213,9 @@ export default function ResultsPage() {
                     </CardContent>
                 </Card>
             </div>
-            <div className="fixed -left-[9999px] top-0">
-               <PrintableResult ref={printableRef} submission={submission} />
+            <div className="fixed -left-[9999px] top-0 -z-50">
+               {submission && <PrintableResult ref={printableFullRef} submission={submission} />}
+               {submission && <PrintableIncorrectAnswers ref={printableIncorrectRef} submission={submission} />}
             </div>
         </main>
         </>
