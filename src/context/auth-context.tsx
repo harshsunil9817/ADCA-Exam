@@ -1,9 +1,10 @@
+
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
-import { studentDb } from '@/lib/firebase';
+import { appDb, studentDb } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
@@ -65,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return adminUser;
     }
 
-    // Student check with universal password, using the student database
+    // Student check with universal password, using the student database (from academyedge-h1a1s)
     if (password_input === 'CSA321') {
         const studentsRef = collection(studentDb, 'students');
         const q = query(studentsRef, where('enrollment_number', '==', userId));
@@ -86,7 +87,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    // Return null if not admin and student login fails
+    // Fallback check for manually added students in this app's database (from examplify-262mw)
+    const appUsersRef = collection(appDb, 'users');
+    const appUserQuery = query(appUsersRef, where('userId', '==', userId), where('password', '==', password_input), where('role', '==', 'student'));
+    const appUserSnapshot = await getDocs(appUserQuery);
+
+    if (!appUserSnapshot.empty) {
+      const userData = appUserSnapshot.docs[0].data();
+      const loggedInUser: User = {
+        id: appUserSnapshot.docs[0].id,
+        name: userData.name,
+        userId: userData.userId,
+        role: 'student',
+      };
+      sessionStorage.setItem('user', JSON.stringify(loggedInUser));
+      setUser(loggedInUser);
+      return loggedInUser;
+    }
+
+    // Return null if all login methods fail
     return null;
   };
 

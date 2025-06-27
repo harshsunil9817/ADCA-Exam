@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
-import { appDb } from "@/lib/firebase";
+import { appDb, studentDb } from "@/lib/firebase";
 import { collection, addDoc, getDocs, query, orderBy, onSnapshot, doc, deleteDoc, updateDoc, where } from "firebase/firestore";
 import type { User, Submission } from "@/lib/types";
 
@@ -49,7 +50,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PlusCircle, Users, FileText, Trash2, Edit } from "lucide-react";
+import { PlusCircle, Users, FileText, Trash2, Edit, Loader2, CheckCircle2 } from "lucide-react";
 
 // User type with optional password for state management
 type AdminPageUser = User & { password?: string };
@@ -70,7 +71,65 @@ function UserManagement() {
   const [isUpdatingUser, setIsUpdatingUser] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminPageUser | null>(null);
   const [editForm, setEditForm] = useState({ name: "", userId: "", password: "" });
+  
+  const [isSyncing, setIsSyncing] = useState(true);
+  const [syncMessage, setSyncMessage] = useState("Initializing student sync...");
 
+  // Effect for syncing students from the source database
+  useEffect(() => {
+    const syncStudents = async () => {
+      setIsSyncing(true);
+      setSyncMessage('Fetching students from source database...');
+      try {
+        const studentsSourceRef = collection(studentDb, 'students');
+        const usersDestRef = collection(appDb, 'users');
+        
+        const [studentsSnapshot, usersSnapshot] = await Promise.all([
+          getDocs(studentsSourceRef),
+          getDocs(query(usersDestRef, where("role", "==", "student")))
+        ]);
+
+        const sourceStudents = studentsSnapshot.docs.map(doc => doc.data());
+        const existingUserIds = new Set(usersSnapshot.docs.map(doc => doc.data().userId));
+        
+        const studentsToAdd = sourceStudents.filter(student => student.enrollment_number && !existingUserIds.has(student.enrollment_number));
+
+        if (studentsToAdd.length === 0) {
+          setSyncMessage('All students are already in sync.');
+          setIsSyncing(false);
+          return;
+        }
+
+        setSyncMessage(`Syncing ${studentsToAdd.length} new students...`);
+        
+        const writePromises = studentsToAdd.map(student => 
+          addDoc(usersDestRef, {
+            name: student.name,
+            userId: student.enrollment_number,
+            role: 'student'
+            // No password needed, they log in via the universal password check
+          })
+        );
+        
+        await Promise.all(writePromises);
+        
+        toast({ title: 'Sync Complete', description: `Successfully added ${studentsToAdd.length} new students.` });
+        setSyncMessage(`Sync complete. Added ${studentsToAdd.length} new students.`);
+
+      } catch (error) {
+        console.error('Error syncing students:', error);
+        toast({ variant: 'destructive', title: 'Sync Failed', description: 'Could not sync student data.' });
+        setSyncMessage('An error occurred during sync. See console for details.');
+      } finally {
+        setIsSyncing(false);
+      }
+    };
+
+    syncStudents();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toast]);
+
+  // Effect for listening to user changes in this app's database
   useEffect(() => {
     const q = query(collection(appDb, "users"), where("role", "==", "student"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -127,7 +186,8 @@ function UserManagement() {
       await updateDoc(userRef, {
         name: editForm.name,
         userId: editForm.userId,
-        password: editForm.password,
+        // Only update password if it's provided
+        ...(editForm.password && { password: editForm.password }),
       });
       toast({ title: "User Updated", description: "User details have been updated." });
       setIsEditDialogOpen(false);
@@ -153,43 +213,35 @@ function UserManagement() {
     <div className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><PlusCircle /> Add New Student</CardTitle>
+          <CardTitle>Student Synchronization</CardTitle>
           <CardDescription>
-            Create a new user ID and password for a student. This user will be stored in this app's database.
+            Students from the central database are automatically synced when this page loads.
           </CardDescription>
         </CardHeader>
-        <form onSubmit={handleAddUser}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Student Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isAddingUser} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-userId">User ID (Email)</Label>
-              <Input id="new-userId" type="email" value={userId} onChange={(e) => setUserId(e.target.value)} required disabled={isAddingUser} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-password">Password</Label>
-              <Input id="new-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isAddingUser} />
-            </div>
-            <Button type="submit" disabled={isAddingUser} className="w-full sm:w-auto">
-              {isAddingUser ? "Adding..." : "Add Student"}
-            </Button>
-          </CardContent>
-        </form>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            {isSyncing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="h-4 w-4 text-green-500" />
+            )}
+            <p className="text-sm text-muted-foreground">{syncMessage}</p>
+          </div>
+        </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-            <CardTitle>Manage Added Students</CardTitle>
-            <CardDescription>View, edit, or delete students you have added manually.</CardDescription>
+            <CardTitle>Manage Student List</CardTitle>
+            <CardDescription>View, edit, or delete students. The list includes synced and manually added students.</CardDescription>
         </CardHeader>
         <CardContent>
             <Table>
                 <TableHeader>
                     <TableRow>
                         <TableHead>Student Name</TableHead>
-                        <TableHead>User ID</TableHead>
+                        <TableHead>User ID (Enrollment #)</TableHead>
+                        <TableHead>Origin</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -199,6 +251,7 @@ function UserManagement() {
                             <TableRow key={i}>
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
                                 <TableCell className="text-right"><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
                             </TableRow>
                         ))
@@ -207,6 +260,13 @@ function UserManagement() {
                             <TableRow key={user.id}>
                                 <TableCell className="font-medium">{user.name}</TableCell>
                                 <TableCell>{user.userId}</TableCell>
+                                <TableCell>
+                                    {user.password ? (
+                                        <span className="text-xs font-semibold text-sky-600">Manual</span>
+                                    ) : (
+                                        <span className="text-xs font-semibold text-emerald-600">Synced</span>
+                                    )}
+                                </TableCell>
                                 <TableCell className="text-right space-x-2">
                                     <Button variant="ghost" size="icon" onClick={() => handleEditClick(user)}>
                                         <Edit className="h-4 w-4" />
@@ -237,12 +297,40 @@ function UserManagement() {
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={3} className="text-center">No manually added students found.</TableCell>
+                            <TableCell colSpan={4} className="text-center">No students found.</TableCell>
                         </TableRow>
                     )}
                 </TableBody>
             </Table>
         </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><PlusCircle /> Add Student Manually</CardTitle>
+          <CardDescription>
+            Create a new student with a specific password. Synced students use a universal password.
+          </CardDescription>
+        </CardHeader>
+        <form onSubmit={handleAddUser}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Student Name</Label>
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required disabled={isAddingUser} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-userId">User ID (Enrollment #)</Label>
+              <Input id="new-userId" value={userId} onChange={(e) => setUserId(e.target.value)} required disabled={isAddingUser} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="new-password">Password</Label>
+              <Input id="new-password" type="text" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={isAddingUser} />
+            </div>
+            <Button type="submit" disabled={isAddingUser} className="w-full sm:w-auto">
+              {isAddingUser ? "Adding..." : "Add Student"}
+            </Button>
+          </CardContent>
+        </form>
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -265,7 +353,7 @@ function UserManagement() {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="edit-password" className="text-right">Password</Label>
-                <Input id="edit-password" value={editForm.password} onChange={(e) => setEditForm({...editForm, password: e.target.value})} className="col-span-3" disabled={isUpdatingUser} />
+                <Input id="edit-password" value={editForm.password} placeholder={editingUser?.password ? "Enter new password" : "User is synced (no password)"} onChange={(e) => setEditForm({...editForm, password: e.target.value})} className="col-span-3" disabled={isUpdatingUser || !editingUser?.password} />
               </div>
             </div>
             <DialogFooter>
@@ -380,16 +468,16 @@ export default function AdminPage() {
       <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
       <p className="text-muted-foreground mb-8">Manage students and view test results.</p>
       
-      <Tabs defaultValue="submissions" className="w-full">
+      <Tabs defaultValue="users" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md">
-          <TabsTrigger value="submissions"><FileText className="w-4 h-4 mr-2"/>Submissions</TabsTrigger>
           <TabsTrigger value="users"><Users className="w-4 h-4 mr-2"/>User Management</TabsTrigger>
+          <TabsTrigger value="submissions"><FileText className="w-4 h-4 mr-2"/>Submissions</TabsTrigger>
         </TabsList>
-        <TabsContent value="submissions" className="mt-6">
-          <SubmissionsList />
-        </TabsContent>
         <TabsContent value="users" className="mt-6">
           <UserManagement />
+        </TabsContent>
+        <TabsContent value="submissions" className="mt-6">
+          <SubmissionsList />
         </TabsContent>
       </Tabs>
     </main>
