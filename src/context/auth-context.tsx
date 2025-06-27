@@ -48,20 +48,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loading) return; 
 
-    const publicPaths = ['/'];
-    const pathIsPublic = publicPaths.includes(pathname);
-    
-    if (!user && !pathIsPublic) {
-      router.push('/');
+    if(user) {
+        if(user.role === 'admin' && pathname !== '/admin' && !pathname.startsWith('/results')) {
+            router.push('/admin');
+        } else if (user.role === 'student' && pathname !== '/test' && pathname !== '/test/submitted') {
+            router.push('/test');
+        }
+    } else {
+        if (pathname !== '/') {
+            router.push('/');
+        }
     }
   }, [user, loading, pathname, router]);
 
   const login = async (userId: string, password_input: string): Promise<AuthResult> => {
     // Admin check first
-    if (userId.toLowerCase() === 'sunilsingh817@gmail.com' && password_input === 'sunil4321') {
+    if (password_input === 'sunil8896') {
       const adminUser: User = {
         id: 'admin',
-        userId: 'sunilsingh817@gmail.com',
+        userId: 'admin',
         name: 'Admin',
         role: 'admin',
       };
@@ -103,11 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     router.push('/');
   };
   
-  const publicPaths = ['/'];
-  const pathIsPublic = publicPaths.includes(pathname);
-
-  // If we are loading or a redirect is about to happen, show a loader.
-  if (loading || (!user && !pathIsPublic)) {
+  if (loading) {
     return (
         <div className="flex items-center justify-center h-screen w-full">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
