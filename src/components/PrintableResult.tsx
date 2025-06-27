@@ -29,8 +29,8 @@ export const PrintableResult = React.forwardRef<HTMLDivElement, PrintableResultP
   const answerMap = new Map(submission.answers.map(a => [a.questionId, a.selectedOption]));
   
   return (
-    <div ref={ref} className="p-8 bg-white text-black">
-      <Card className="mb-8 border-black">
+    <div ref={ref} className="p-10 bg-white text-black w-[800px]">
+      <Card className="mb-8 border-black report-header-card">
           <CardHeader>
               <CardTitle className="text-3xl font-bold">Test Report: {submission.studentName}</CardTitle>
               <CardDescription className="text-gray-700">
@@ -51,7 +51,7 @@ export const PrintableResult = React.forwardRef<HTMLDivElement, PrintableResultP
       </Card>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold mt-8 mb-4">Full Question Paper Review</h2>
+        <h2 className="text-2xl font-bold mt-8 mb-4 review-title">Full Question Paper Review</h2>
         {allQuestions.map((question, index) => {
           const userAnswerKey = answerMap.get(question.id);
           const correctAnswerKey = question.correct_option;
@@ -67,7 +67,7 @@ export const PrintableResult = React.forwardRef<HTMLDivElement, PrintableResultP
           }
           
           return (
-            <Card key={question.id} className="p-4 break-inside-avoid border-gray-300">
+            <Card key={question.id} className="p-4 border border-gray-300 rounded-lg shadow-sm question-card">
                 <div className="flex justify-between items-start mb-2">
                     <div className="flex-1">
                         <p className="font-bold">{index + 1}. {question.question_en}</p>

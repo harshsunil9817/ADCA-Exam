@@ -77,7 +77,9 @@ export default function ResultsPage() {
     }, [submissionId, user, authLoading, router]);
 
     const handleDownloadPdf = async (type: 'full' | 'incorrect' | 'result') => {
-        let targetRef, setIsDownloading, reportName;
+        let targetRef: React.RefObject<HTMLDivElement>;
+        let setIsDownloading: React.Dispatch<React.SetStateAction<boolean>>;
+        let reportName: string;
 
         if (type === 'full') {
             targetRef = printableFullRef;
@@ -94,34 +96,60 @@ export default function ResultsPage() {
         }
 
         if (!targetRef.current || !submission) return;
+        
         setIsDownloading(true);
 
-        const canvas = await html2canvas(targetRef.current, { scale: 2 });
-        const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-        
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = imgWidth / pdfWidth;
-        const canvasHeight = imgHeight / ratio;
+        const margin = 15; // 15mm margin
+        const contentWidth = pdfWidth - margin * 2;
+        let yPos = margin;
 
-        let heightLeft = canvasHeight;
-        let position = 0;
-
-        // For single-page reports like 'result', no looping is needed.
         if (type === 'result') {
-            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, canvasHeight);
+            const canvas = await html2canvas(targetRef.current, { scale: 2 });
+            const imgData = canvas.toDataURL('image/png');
+            const imgHeight = (canvas.height * contentWidth) / canvas.width;
+            pdf.addImage(imgData, 'PNG', margin, yPos, contentWidth, imgHeight);
         } else {
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight);
-            heightLeft -= pdfHeight;
+            // Header Card
+            const headerElement = targetRef.current.querySelector('.report-header-card') as HTMLElement;
+            if (headerElement) {
+                const canvas = await html2canvas(headerElement, { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                const imgHeight = (canvas.height * contentWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', margin, yPos, contentWidth, imgHeight);
+                yPos += imgHeight + 5; // 5mm space
+            }
 
-            while (heightLeft > 0) {
-                position = -heightLeft;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight);
-                heightLeft -= pdfHeight;
+            // Review Title
+            const reviewTitleElement = targetRef.current.querySelector('.review-title') as HTMLElement;
+            if (reviewTitleElement) {
+                const canvas = await html2canvas(reviewTitleElement, { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                const imgHeight = (canvas.height * contentWidth) / canvas.width;
+                 if (yPos + imgHeight > pdfHeight - margin) {
+                    pdf.addPage();
+                    yPos = margin;
+                }
+                pdf.addImage(imgData, 'PNG', margin, yPos, contentWidth, imgHeight);
+                yPos += imgHeight + 5; // 5mm space
+            }
+
+            // Question Cards
+            const questionCards = Array.from(targetRef.current.querySelectorAll('.question-card')) as HTMLElement[];
+            for (const card of questionCards) {
+                const canvas = await html2canvas(card, { scale: 2 });
+                const imgData = canvas.toDataURL('image/png');
+                const imgHeight = (canvas.height * contentWidth) / canvas.width;
+
+                if (yPos + imgHeight > pdfHeight - margin) {
+                    pdf.addPage();
+                    yPos = margin;
+                }
+
+                pdf.addImage(imgData, 'PNG', margin, yPos, contentWidth, imgHeight);
+                yPos += imgHeight + 3; // 3mm space between questions
             }
         }
         

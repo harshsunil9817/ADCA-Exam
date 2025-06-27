@@ -30,8 +30,8 @@ export const PrintableIncorrectAnswers = React.forwardRef<HTMLDivElement, Printa
   const incorrectQuestions = allQuestions.filter(q => incorrectQuestionIds.has(q.id));
 
   return (
-    <div ref={ref} className="p-8 bg-white text-black">
-      <Card className="mb-8 border-black">
+    <div ref={ref} className="p-10 bg-white text-black w-[800px]">
+      <Card className="mb-8 border-black report-header-card">
           <CardHeader>
               <CardTitle className="text-3xl font-bold">Incorrect Answers Report: {submission.studentName}</CardTitle>
               <CardDescription className="text-gray-700">
@@ -52,14 +52,14 @@ export const PrintableIncorrectAnswers = React.forwardRef<HTMLDivElement, Printa
       </Card>
 
       <div className="space-y-4">
-        <h2 className="text-2xl font-bold mt-8 mb-4">Incorrectly Answered Questions Review</h2>
+        <h2 className="text-2xl font-bold mt-8 mb-4 review-title">Incorrectly Answered Questions Review</h2>
         {incorrectQuestions.map((question) => {
           const userAnswerKey = answerMap.get(question.id);
           const correctAnswerKey = question.correct_option;
           const originalQuestionNumber = allQuestions.findIndex(q => q.id === question.id) + 1;
           
           return (
-            <Card key={question.id} className="p-4 break-inside-avoid border-gray-300">
+            <Card key={question.id} className="p-4 border border-gray-300 rounded-lg shadow-sm question-card">
                 <div className="flex justify-between items-start mb-2">
                     <div className="flex-1">
                         <p className="font-bold">{originalQuestionNumber}. {question.question_en}</p>
