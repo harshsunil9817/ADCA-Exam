@@ -1,7 +1,7 @@
 "use server";
 
 import { appDb } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, doc, deleteDoc } from "firebase/firestore";
 import type { Answer, User } from "@/lib/types";
 import { questions } from "@/data/questions";
 
@@ -55,4 +55,12 @@ export async function submitTest(answers: Answer[], user: User) {
   const docRef = await addDoc(collection(appDb, "submissions"), submissionData);
 
   return docRef.id;
+}
+
+export async function deleteSubmission(submissionId: string) {
+  if (!submissionId) {
+    throw new Error("Submission ID is required.");
+  }
+  const submissionRef = doc(appDb, "submissions", submissionId);
+  await deleteDoc(submissionRef);
 }
