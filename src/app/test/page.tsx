@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/auth-context";
 import { questions } from "@/data/questions";
-import type { Answer } from "@/lib/types";
+import type { Answer, Question } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -30,15 +30,26 @@ export default function TestPage() {
   const router = useRouter();
   const { toast } = useToast();
 
+  const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<number, string>>(new Map());
   const [timeLeft, setTimeLeft] = useState(60 * 60); // 60 minutes
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    // Fisher-Yates shuffle algorithm to randomize questions
+    const array = [...questions];
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    setShuffledQuestions(array);
+  }, []); // Empty dependency array ensures this runs only once on mount
+
   const answeredCount = useMemo(() => answers.size, [answers]);
-  const progressValue = (answeredCount / questions.length) * 100;
+  const progressValue = shuffledQuestions.length > 0 ? (answeredCount / shuffledQuestions.length) * 100 : 0;
   
-  const currentQuestion = questions[currentQuestionIndex];
+  const currentQuestion = shuffledQuestions[currentQuestionIndex];
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -54,7 +65,6 @@ export default function TestPage() {
       if (alreadySubmitted) {
           // This logic relies on the submission check in auth-context, 
           // but as a fallback, we redirect here too.
-          // A more robust solution might pass the submission ID from the check.
           router.replace(`/test/submitted`); 
       }
     };
@@ -98,7 +108,7 @@ export default function TestPage() {
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
+    if (currentQuestionIndex < shuffledQuestions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
   };
@@ -119,7 +129,7 @@ export default function TestPage() {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  if (authLoading || !user) {
+  if (authLoading || !user || shuffledQuestions.length === 0) {
     return (
         <div className="flex items-center justify-center h-screen w-full">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -146,7 +156,7 @@ export default function TestPage() {
               <div className="w-full md:w-1/2">
                   <div className="flex justify-between mb-1">
                       <span className="font-medium">Progress</span>
-                      <span className="text-sm text-muted-foreground">{answeredCount} of {questions.length} answered</span>
+                      <span className="text-sm text-muted-foreground">{answeredCount} of {shuffledQuestions.length} answered</span>
                   </div>
                   <Progress value={progressValue} />
               </div>
@@ -200,7 +210,7 @@ export default function TestPage() {
                 <CardContent>
                     <ScrollArea className="h-72">
                         <div className="grid grid-cols-5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-2 pr-4">
-                            {questions.map((q, index) => (
+                            {shuffledQuestions.map((q, index) => (
                                 <Button
                                     key={q.id}
                                     variant={
@@ -244,7 +254,7 @@ export default function TestPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            You have answered {answeredCount} out of {questions.length} questions. You cannot change your answers after submitting.
+                            You have answered {answeredCount} out of {shuffledQuestions.length} questions. You cannot change your answers after submitting.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -258,7 +268,7 @@ export default function TestPage() {
 
             <Button
                 onClick={handleNext}
-                disabled={currentQuestionIndex === questions.length - 1 || isSubmitting}
+                disabled={currentQuestionIndex === shuffledQuestions.length - 1 || isSubmitting}
                 size="lg"
             >
                 Next <ArrowRight className="ml-2 h-4 w-4" />
