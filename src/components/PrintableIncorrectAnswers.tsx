@@ -1,4 +1,5 @@
-import type { Submission, Question } from '@/lib/types';
+
+import type { Submission } from '@/lib/types';
 import { questions as allQuestions } from '@/data/questions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -52,15 +53,16 @@ export const PrintableIncorrectAnswers = React.forwardRef<HTMLDivElement, Printa
 
       <div className="space-y-4">
         <h2 className="text-2xl font-bold mt-8 mb-4">Incorrectly Answered Questions Review</h2>
-        {incorrectQuestions.map((question, index) => {
+        {incorrectQuestions.map((question) => {
           const userAnswerKey = answerMap.get(question.id);
           const correctAnswerKey = question.correct_option;
+          const originalQuestionNumber = allQuestions.findIndex(q => q.id === question.id) + 1;
           
           return (
             <Card key={question.id} className="p-4 break-inside-avoid border-gray-300">
                 <div className="flex justify-between items-start mb-2">
                     <div className="flex-1">
-                        <p className="font-bold">{index + 1}. {question.question_en}</p>
+                        <p className="font-bold">{originalQuestionNumber}. {question.question_en}</p>
                         <p className="text-sm text-gray-600">{question.question_hi}</p>
                     </div>
                      <Badge variant="destructive">Incorrect</Badge>

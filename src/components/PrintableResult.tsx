@@ -1,4 +1,5 @@
-import type { Submission, Question } from '@/lib/types';
+
+import type { Submission } from '@/lib/types';
 import { questions as allQuestions } from '@/data/questions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,11 +9,19 @@ interface PrintableResultProps {
   submission: Submission;
 }
 
-const getOptionClasses = (isUserAnswer: boolean, isCorrectAnswer: boolean) => {
-    if (isUserAnswer && isCorrectAnswer) return "bg-green-100 border-green-500"; // Correct answer chosen
-    if (isUserAnswer && !isCorrectAnswer) return "bg-red-100 border-red-500"; // Incorrect answer chosen
-    if (!isUserAnswer && isCorrectAnswer) return "bg-green-100 border-green-500"; // The correct answer, not chosen by user
-    return "border-gray-200"; // Regular option
+const getOptionClasses = (userAnswerKey: string | undefined, correctAnswerKey: string, optionKey: string) => {
+    const isCorrectAnswer = correctAnswerKey === optionKey;
+    const isUserAnswer = userAnswerKey === optionKey;
+
+    // If the question was answered
+    if (userAnswerKey !== undefined) {
+        if (isUserAnswer && isCorrectAnswer) return "bg-green-100 border-green-500"; // Correct answer chosen
+        if (isUserAnswer && !isCorrectAnswer) return "bg-red-100 border-red-500"; // Incorrect answer chosen
+        if (!isUserAnswer && isCorrectAnswer) return "bg-green-100 border-green-500"; // The correct answer, not chosen by user
+    }
+    
+    // If not answered, or just a regular option that wasn't the correct one on an incorrect question
+    return "border-gray-200";
 };
 
 
@@ -70,7 +79,7 @@ export const PrintableResult = React.forwardRef<HTMLDivElement, PrintableResultP
                     {Object.entries(question.options).map(([key, option]) => {
                         const isUserAnswer = userAnswerKey === key;
                         const isCorrectAnswer = correctAnswerKey === key;
-                        const classes = getOptionClasses(isUserAnswer, isCorrectAnswer);
+                        const classes = getOptionClasses(userAnswerKey, correctAnswerKey, key);
 
                         return (
                             <div key={key} className={`p-2 border rounded-md ${classes}`}>

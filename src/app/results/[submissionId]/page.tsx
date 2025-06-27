@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useRef } from 'react';
@@ -11,13 +12,15 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Header } from '@/components/header';
-import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PrintableResult } from '@/components/PrintableResult';
 import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswers';
+import { PrintableResultOnly } from '@/components/PrintableResultOnly';
+import { questions as allQuestions } from '@/data/questions';
 
 const StatCard = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string | number, color?: string }) => (
     <Card>
@@ -40,8 +43,10 @@ export default function ResultsPage() {
     const [loading, setLoading] = useState(true);
     const [isDownloadingFull, setIsDownloadingFull] = useState(false);
     const [isDownloadingIncorrect, setIsDownloadingIncorrect] = useState(false);
+    const [isDownloadingResult, setIsDownloadingResult] = useState(false);
     const printableFullRef = useRef<HTMLDivElement>(null);
     const printableIncorrectRef = useRef<HTMLDivElement>(null);
+    const printableResultRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (authLoading) return;
@@ -71,15 +76,27 @@ export default function ResultsPage() {
         fetchSubmission();
     }, [submissionId, user, authLoading, router]);
 
-    const handleDownloadPdf = async (type: 'full' | 'incorrect') => {
-        const targetRef = type === 'full' ? printableFullRef : printableIncorrectRef;
-        const setIsDownloading = type === 'full' ? setIsDownloadingFull : setIsDownloadingIncorrect;
-        const reportName = type === 'full' ? 'Full-Report' : 'Incorrect-Answers';
+    const handleDownloadPdf = async (type: 'full' | 'incorrect' | 'result') => {
+        let targetRef, setIsDownloading, reportName;
+
+        if (type === 'full') {
+            targetRef = printableFullRef;
+            setIsDownloading = setIsDownloadingFull;
+            reportName = 'Full-Report';
+        } else if (type === 'incorrect') {
+            targetRef = printableIncorrectRef;
+            setIsDownloading = setIsDownloadingIncorrect;
+            reportName = 'Incorrect-Answers';
+        } else { // type === 'result'
+            targetRef = printableResultRef;
+            setIsDownloading = setIsDownloadingResult;
+            reportName = 'Result-Summary';
+        }
 
         if (!targetRef.current || !submission) return;
         setIsDownloading(true);
 
-        const canvas = await html2canvas(targetRef.current);
+        const canvas = await html2canvas(targetRef.current, { scale: 2 });
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
         
@@ -93,14 +110,19 @@ export default function ResultsPage() {
         let heightLeft = canvasHeight;
         let position = 0;
 
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight);
-        heightLeft -= pdfHeight;
-
-        while (heightLeft > 0) {
-            position = -heightLeft;
-            pdf.addPage();
+        // For single-page reports like 'result', no looping is needed.
+        if (type === 'result') {
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, canvasHeight);
+        } else {
             pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight);
             heightLeft -= pdfHeight;
+
+            while (heightLeft > 0) {
+                position = -heightLeft;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, canvasHeight);
+                heightLeft -= pdfHeight;
+            }
         }
         
         pdf.save(`Test-Report-${reportName}-${submission.studentName.replace(/\s+/g, '_')}.pdf`);
@@ -163,13 +185,17 @@ export default function ResultsPage() {
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                            <Button onClick={() => handleDownloadPdf('full')} disabled={isDownloadingFull} className="w-full sm:w-auto">
-                                {isDownloadingFull ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
-                                {isDownloadingFull ? "Generating..." : "Download Full Report"}
+                            <Button onClick={() => handleDownloadPdf('result')} disabled={isDownloadingResult} className="w-full sm:w-auto" variant="outline">
+                                {isDownloadingResult ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <FileDown className="mr-2 h-4 w-4"/>}
+                                {isDownloadingResult ? "Generating..." : "Download Result Only"}
                             </Button>
                              <Button onClick={() => handleDownloadPdf('incorrect')} disabled={isDownloadingIncorrect} className="w-full sm:w-auto" variant="secondary">
                                 {isDownloadingIncorrect ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
                                 {isDownloadingIncorrect ? "Generating..." : "Download Incorrect Only"}
+                            </Button>
+                            <Button onClick={() => handleDownloadPdf('full')} disabled={isDownloadingFull} className="w-full sm:w-auto">
+                                {isDownloadingFull ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
+                                {isDownloadingFull ? "Generating..." : "Download Full Report"}
                             </Button>
                         </div>
                     </div>
@@ -192,20 +218,23 @@ export default function ResultsPage() {
                     <CardContent>
                         {submission.incorrectAnswerDetails.length > 0 ? (
                             <Accordion type="single" collapsible className="w-full">
-                                {submission.incorrectAnswerDetails.map((item, index) => (
-                                    <AccordionItem value={`item-${index}`} key={index}>
-                                        <AccordionTrigger className="text-left hover:no-underline">
-                                            <div className="flex-1">
-                                                <p className="font-semibold">{item.question_en}</p>
-                                                <p className="text-sm text-muted-foreground">{item.question_hi}</p>
-                                            </div>
-                                        </AccordionTrigger>
-                                        <AccordionContent className="p-4 bg-secondary/50 rounded-md space-y-2">
-                                            <div><span className="font-semibold">Student's Answer: </span><Badge variant="destructive">{item.userSelectedAnswer}</Badge></div>
-                                            <div><span className="font-semibold">Correct Answer: </span><Badge className="bg-green-500 hover:bg-green-600">{item.correct_option}</Badge></div>
-                                        </AccordionContent>
-                                    </AccordionItem>
-                                ))}
+                                {submission.incorrectAnswerDetails.map((item, index) => {
+                                    const originalQuestionNumber = allQuestions.findIndex(q => q.question_en === item.question_en) + 1;
+                                    return (
+                                        <AccordionItem value={`item-${index}`} key={index}>
+                                            <AccordionTrigger className="text-left hover:no-underline">
+                                                <div className="flex-1">
+                                                    <p className="font-semibold">{originalQuestionNumber}. {item.question_en}</p>
+                                                    <p className="text-sm text-muted-foreground">{item.question_hi}</p>
+                                                </div>
+                                            </AccordionTrigger>
+                                            <AccordionContent className="p-4 bg-secondary/50 rounded-md space-y-2">
+                                                <div><span className="font-semibold">Student's Answer: </span><Badge variant="destructive">{item.userSelectedAnswer}</Badge></div>
+                                                <div><span className="font-semibold">Correct Answer: </span><Badge className="bg-green-500 hover:bg-green-600">{item.correct_option}</Badge></div>
+                                            </AccordionContent>
+                                        </AccordionItem>
+                                    )
+                                })}
                             </Accordion>
                         ) : (
                             <p className="text-muted-foreground text-center p-4">The student answered all questions correctly!</p>
@@ -216,6 +245,7 @@ export default function ResultsPage() {
             <div className="fixed -left-[9999px] top-0 -z-50">
                {submission && <PrintableResult ref={printableFullRef} submission={submission} />}
                {submission && <PrintableIncorrectAnswers ref={printableIncorrectRef} submission={submission} />}
+               {submission && <PrintableResultOnly ref={printableResultRef} submission={submission} />}
             </div>
         </main>
         </>
