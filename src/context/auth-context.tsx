@@ -67,8 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Student check with universal password, using the student database
     if (password_input === 'CSA321') {
-        const usersRef = collection(studentDb, 'users');
-        const q = query(usersRef, where('enrollment_number', '==', userId));
+        const studentsRef = collection(studentDb, 'students');
+        const q = query(studentsRef, where('enrollment_number', '==', userId));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
