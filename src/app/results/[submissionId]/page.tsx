@@ -79,7 +79,7 @@ export default function ResultsPage() {
         if (!targetRef.current || !submission) return;
         setIsDownloading(true);
 
-        const canvas = await html2canvas(targetRef.current, { scale: 2 });
+        const canvas = await html2canvas(targetRef.current);
         const imgData = canvas.toDataURL('image/png');
         const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
         
