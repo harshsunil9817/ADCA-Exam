@@ -155,8 +155,8 @@ export default function ResultsPage() {
                                             </div>
                                         </AccordionTrigger>
                                         <AccordionContent className="p-4 bg-secondary/50 rounded-md">
-                                            <p className="mb-2"><span className="font-semibold">Your Answer: </span><Badge variant="destructive">{item.userSelectedAnswer}</Badge></p>
-                                            <p><span className="font-semibold">Correct Answer: </span><Badge className="bg-green-500 hover:bg-green-600">{item.correct_option}</Badge></p>
+                                            <div className="mb-2"><span className="font-semibold">Your Answer: </span><Badge variant="destructive">{item.userSelectedAnswer}</Badge></div>
+                                            <div><span className="font-semibold">Correct Answer: </span><Badge className="bg-green-500 hover:bg-green-600">{item.correct_option}</Badge></div>
                                         </AccordionContent>
                                     </AccordionItem>
                                 ))}
