@@ -95,7 +95,7 @@ function UserManagement() {
 
         // 2. Fetch students who are enrolled in the ADCA course using the found ID
         const studentsSourceRef = collection(studentDb, 'students');
-        const studentsQuery = query(studentsSourceRef, where("course", "==", adcaCourseId));
+        const studentsQuery = query(studentsSourceRef, where("courseID", "==", adcaCourseId));
         const studentsSnapshot = await getDocs(studentsQuery);
 
         const fetchedStudents = studentsSnapshot.docs.map(doc => ({
