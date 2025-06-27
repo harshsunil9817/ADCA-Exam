@@ -22,18 +22,23 @@ const firebaseConfigStudent = {
   appId: "1:966241306387:web:5eed5b9ddc3ec7ed843ce6"
 };
 
-function initializeFirebaseApp(config: object, name: string): FirebaseApp {
+// A helper function to initialize an app if it doesn't already exist.
+// This is important for Next.js's hot-reloading environment which can cause errors if you try to re-initialize an app.
+function initializeNamedApp(name: string, config: object): FirebaseApp {
     const apps = getApps();
     const existingApp = apps.find(app => app.name === name);
-    return existingApp ? existingApp : initializeApp(config, name);
+    if (existingApp) {
+        return existingApp;
+    }
+    return initializeApp(config, name);
 }
 
-// Initialize the default app (for submissions)
-const app = initializeFirebaseApp(firebaseConfigApp, 'DEFAULT');
-const appDb = getFirestore(app);
+// Initialize the primary app for submissions (named 'primary')
+const primaryApp = initializeNamedApp('primary', firebaseConfigApp);
+const appDb = getFirestore(primaryApp);
 
-// Initialize the student data app
-const studentApp = initializeFirebaseApp(firebaseConfigStudent, 'studentDB');
+// Initialize the secondary app for student data (named 'studentDB')
+const studentApp = initializeNamedApp('studentDB', firebaseConfigStudent);
 const studentDb = getFirestore(studentApp);
 
 export { appDb, studentDb };
