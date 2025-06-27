@@ -9,12 +9,16 @@ import { appDb } from "@/lib/firebase";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import type { Submission } from "@/lib/types";
 import { deleteSubmission } from "@/actions/test";
+import { saveQuestions } from "@/actions/questions";
+import { questions as defaultQuestions } from "@/data/questions";
+
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -28,7 +32,7 @@ import {
 } from "@/components/ui/table";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Loader2, Trash2 } from "lucide-react";
+import { FileText, Loader2, Terminal, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -40,6 +44,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 
 // Submissions List Component
 function SubmissionsList() {
@@ -182,6 +190,97 @@ function SubmissionsList() {
 }
 
 
+function QuestionEditor() {
+    const [jsonContent, setJsonContent] = useState(JSON.stringify(defaultQuestions, null, 2));
+    const [isSaving, setIsSaving] = useState(false);
+    const { toast } = useToast();
+
+    const handleSave = async () => {
+        setIsSaving(true);
+        try {
+            JSON.parse(jsonContent); // Pre-check for valid JSON
+        } catch (e) {
+            toast({
+                variant: "destructive",
+                title: "Invalid JSON",
+                description: "The content is not valid JSON. Please correct it before saving.",
+            });
+            setIsSaving(false);
+            return;
+        }
+
+        const result = await saveQuestions(jsonContent);
+
+        if (result.success) {
+            toast({
+                title: "Questions Saved",
+                description: "The question file has been updated successfully. You may need to restart the server for changes to apply.",
+            });
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Error Saving Questions",
+                description: result.error || "An unknown error occurred.",
+            });
+        }
+        setIsSaving(false);
+    };
+
+    const exampleJson = `{
+  "id": 101,
+  "topic": "Example Topic",
+  "question_en": "This is a sample question.",
+  "question_hi": "यह एक नमूना प्रश्न है।",
+  "options": {
+    "A": { "en": "Option A", "hi": "विकल्प ए" },
+    "B": { "en": "Option B", "hi": "विकल्प बी" },
+    "C": { "en": "Option C", "hi": "विकल्प सी" },
+    "D": { "en": "Option D", "hi": "विकल्प डी" }
+  },
+  "correct_option": "A"
+}`;
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Add/Edit Questions</CardTitle>
+                <CardDescription>
+                    Edit the questions in JSON format below. Make sure the format is correct before saving.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                 <Alert>
+                    <Terminal className="h-4 w-4" />
+                    <AlertTitle>JSON Format Example</AlertTitle>
+                    <AlertDescription>
+                        Your JSON data must be an array `[]` of question objects, with each object structured like this:
+                        <pre className="mt-2 w-full rounded-md bg-muted p-4 text-xs overflow-x-auto">
+                            <code>[ ... , {exampleJson}, ... ]</code>
+                        </pre>
+                    </AlertDescription>
+                </Alert>
+                <Textarea
+                    value={jsonContent}
+                    onChange={(e) => setJsonContent(e.target.value)}
+                    rows={25}
+                    className="font-mono text-sm"
+                    placeholder="Enter questions as an array of JSON objects here..."
+                />
+            </CardContent>
+            <CardFooter className="justify-end gap-2">
+                <Button variant="outline" onClick={() => setJsonContent('[\n  \n]')}>
+                    Clear All (New JSON)
+                </Button>
+                <Button onClick={handleSave} disabled={isSaving}>
+                    {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                    Save Changes
+                </Button>
+            </CardFooter>
+        </Card>
+    );
+}
+
+
 // Main Admin Page
 export default function AdminPage() {
   const { user, loading } = useAuth();
@@ -202,9 +301,20 @@ export default function AdminPage() {
     <Header />
     <main className="container mx-auto p-4 md:p-8">
       <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-      <p className="text-muted-foreground mb-8">View test results and submissions.</p>
+      <p className="text-muted-foreground mb-8">Manage test submissions and questions.</p>
       
-      <SubmissionsList />
+      <Tabs defaultValue="submissions" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+              <TabsTrigger value="submissions">Submissions</TabsTrigger>
+              <TabsTrigger value="questions">Add/Edit Questions</TabsTrigger>
+          </TabsList>
+          <TabsContent value="submissions" className="mt-6">
+              <SubmissionsList />
+          </TabsContent>
+          <TabsContent value="questions" className="mt-6">
+              <QuestionEditor />
+          </TabsContent>
+      </Tabs>
 
     </main>
     </>
