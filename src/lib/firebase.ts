@@ -1,3 +1,5 @@
+import 'server-only';
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
