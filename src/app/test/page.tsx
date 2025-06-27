@@ -22,6 +22,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { appDb } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function TestPage() {
   const { user, loading: authLoading } = useAuth();
@@ -105,6 +106,10 @@ export default function TestPage() {
     }
   };
 
+  const handleJumpToQuestion = (index: number) => {
+    setCurrentQuestionIndex(index);
+  };
+
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -140,42 +145,76 @@ export default function TestPage() {
           </CardContent>
         </Card>
 
-        <div className="flex-grow">
-          {currentQuestion && (
-            <Card key={currentQuestion.id} className="h-full flex flex-col">
-              <CardHeader>
-                <CardTitle className="flex gap-4">
-                  <span>{currentQuestionIndex + 1}.</span>
-                  <div className="flex-1">
-                      <p className="font-semibold">{currentQuestion.question_en}</p>
-                      <p className="font-normal text-muted-foreground text-lg">{currentQuestion.question_hi}</p>
-                  </div>
-                </CardTitle>
-                <CardDescription>Topic: {currentQuestion.topic}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <RadioGroup
-                  onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
-                  value={answers.get(currentQuestion.id)}
-                  className="h-full"
-                >
-                  {Object.entries(currentQuestion.options).map(([key, option]) => (
-                    <Label 
-                      key={key} 
-                      htmlFor={`${currentQuestion.id}-${key}`}
-                      className="flex items-center space-x-3 p-3 rounded-md border has-[:checked]:bg-accent has-[:checked]:border-primary cursor-pointer transition-colors"
-                    >
-                      <RadioGroupItem value={key} id={`${currentQuestion.id}-${key}`} />
-                      <div className="flex-1">
-                          <p>{option.en}</p>
-                          <p className="text-muted-foreground">{option.hi}</p>
-                      </div>
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </CardContent>
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 flex-grow">
+          <div className="lg:col-span-3">
+            {currentQuestion && (
+              <Card key={currentQuestion.id} className="h-full flex flex-col">
+                <CardHeader>
+                  <CardTitle className="flex gap-4">
+                    <span>{currentQuestionIndex + 1}.</span>
+                    <div className="flex-1">
+                        <p className="font-semibold">{currentQuestion.question_en}</p>
+                        <p className="font-normal text-muted-foreground text-lg">{currentQuestion.question_hi}</p>
+                    </div>
+                  </CardTitle>
+                  <CardDescription>Topic: {currentQuestion.topic}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <RadioGroup
+                    onValueChange={(value) => handleAnswerChange(currentQuestion.id, value)}
+                    value={answers.get(currentQuestion.id)}
+                    className="h-full"
+                  >
+                    {Object.entries(currentQuestion.options).map(([key, option]) => (
+                      <Label 
+                        key={key} 
+                        htmlFor={`${currentQuestion.id}-${key}`}
+                        className="flex items-center space-x-3 p-3 rounded-md border has-[:checked]:bg-accent has-[:checked]:border-primary cursor-pointer transition-colors"
+                      >
+                        <RadioGroupItem value={key} id={`${currentQuestion.id}-${key}`} />
+                        <div className="flex-1">
+                            <p>{option.en}</p>
+                            <p className="text-muted-foreground">{option.hi}</p>
+                        </div>
+                      </Label>
+                    ))}
+                  </RadioGroup>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+          
+          <div className="lg:col-span-1">
+             <Card className="sticky top-8">
+                <CardHeader>
+                    <CardTitle className="text-lg">Question Navigator</CardTitle>
+                    <CardDescription>Click a number to jump to a question.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <ScrollArea className="h-72">
+                        <div className="grid grid-cols-5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-2 pr-4">
+                            {questions.map((q, index) => (
+                                <Button
+                                    key={q.id}
+                                    variant={
+                                        currentQuestionIndex === index
+                                        ? "default"
+                                        : answers.has(q.id)
+                                        ? "secondary"
+                                        : "outline"
+                                    }
+                                    size="icon"
+                                    className="h-9 w-9"
+                                    onClick={() => handleJumpToQuestion(index)}
+                                >
+                                    {index + 1}
+                                </Button>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </CardContent>
             </Card>
-          )}
+          </div>
         </div>
         
         <div className="mt-auto pt-8 flex justify-between items-center">
