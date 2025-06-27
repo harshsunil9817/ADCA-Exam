@@ -68,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Student check with universal password
     if (password_input === 'CSA321') {
         const usersRef = collection(db, 'users');
-        const q = query(usersRef, where('userId', '==', userId));
+        const q = query(usersRef, where('enrollment_number', '==', userId));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
@@ -76,7 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const loggedInUser: User = {
                 id: querySnapshot.docs[0].id,
                 name: userData.name,
-                userId: userData.userId,
+                userId: userId, // The enrollment number is the user ID for the session
                 role: 'student',
             };
             

@@ -33,7 +33,7 @@ export default function LoginPage() {
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: "Please enter both User ID and Password.",
+        description: "Please enter both Enrollment Number and Password.",
       });
       setIsLoading(false);
       return;
@@ -86,11 +86,11 @@ export default function LoginPage() {
         <form onSubmit={handleLogin}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="userId">User ID (Email)</Label>
+              <Label htmlFor="userId">Enrollment Number</Label>
               <Input
                 id="userId"
-                type="email"
-                placeholder="user@example.com"
+                type="text"
+                placeholder="Enter your enrollment number"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 required
