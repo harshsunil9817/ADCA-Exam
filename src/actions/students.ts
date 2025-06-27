@@ -6,8 +6,8 @@ import { collection, getDocs, doc, setDoc, deleteDoc, query, orderBy, getDoc } f
 import type { Student } from "@/lib/types";
 
 export async function getStudents(): Promise<Student[]> {
-    const usersCollection = collection(studentDb, 'users');
-    const q = query(usersCollection, orderBy('__name__'));
+    const studentsCollection = collection(studentDb, 'students');
+    const q = query(studentsCollection, orderBy('__name__'));
     const snapshot = await getDocs(q);
     if (snapshot.empty) {
         return [];
@@ -25,13 +25,10 @@ export async function addOrUpdateStudent(id: string, name: string): Promise<{ su
     }
    
     try {
-        // For 'add' operations, check if the student already exists.
-        const docRef = doc(studentDb, "users", id);
+        const docRef = doc(studentDb, "students", id);
         const docSnap = await getDoc(docRef);
-        // This check logic is tricky because we use the same function for add and update.
-        // We assume the UI prevents adding an existing ID. The check in auth-context is more important.
         
-        const studentRef = doc(studentDb, 'users', id);
+        const studentRef = doc(studentDb, 'students', id);
         await setDoc(studentRef, { name: name });
         return { success: true };
     } catch (error) {
@@ -45,7 +42,7 @@ export async function deleteStudent(id: string): Promise<{ success: boolean; err
         return { success: false, error: 'Student ID is required.' };
     }
     try {
-        const studentRef = doc(studentDb, 'users', id);
+        const studentRef = doc(studentDb, 'students', id);
         await deleteDoc(studentRef);
         return { success: true };
     } catch (error) {
@@ -56,7 +53,7 @@ export async function deleteStudent(id: string): Promise<{ success: boolean; err
 
 export async function getStudentName(id: string): Promise<string | null> {
     try {
-        const docRef = doc(studentDb, 'users', id);
+        const docRef = doc(studentDb, 'students', id);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
             return docSnap.data().name as string;
