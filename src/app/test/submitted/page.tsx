@@ -1,6 +1,8 @@
+
 "use client";
 
 import React, { Suspense } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,6 +16,9 @@ function SubmittedPageContent() {
         <main className="container mx-auto p-4 md:p-8 flex items-center justify-center min-h-screen">
             <Card className="w-full max-w-2xl text-center">
                 <CardHeader>
+                    <div className="flex justify-center items-center mb-4">
+                        <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="NIELIT Logo" width={200} height={400} className="object-contain" />
+                    </div>
                     <div className="mx-auto bg-green-100 rounded-full p-4 w-fit">
                         <CheckCircle className="h-16 w-16 text-green-600" />
                     </div>

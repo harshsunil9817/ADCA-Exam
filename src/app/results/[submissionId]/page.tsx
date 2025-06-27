@@ -4,6 +4,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Submission } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -196,6 +197,9 @@ export default function ResultsPage() {
         <main className="container mx-auto p-4 md:p-8">
             <Card className="mb-8 bg-card/80 backdrop-blur-sm">
                 <CardHeader>
+                    <div className="flex justify-center items-center mb-4">
+                        <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="NIELIT Logo" width={200} height={400} className="object-contain" />
+                    </div>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                         <div className="flex items-center gap-4">
                             <Button variant="outline" size="icon" asChild>

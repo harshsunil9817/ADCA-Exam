@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Loader2, UserCheck } from 'lucide-react';
 import { Header } from '@/components/header';
+import Image from "next/image";
 
 export default function ConfirmDetailsPage() {
     const { user, loading } = useAuth();
@@ -35,7 +36,10 @@ export default function ConfirmDetailsPage() {
             <Header />
             <main className="container mx-auto p-4 md:p-8 flex items-center justify-center" style={{minHeight: 'calc(100vh - 80px)'}}>
                 <Card className="w-full max-w-lg shadow-lg">
-                    <CardHeader>
+                    <CardHeader className="text-center">
+                        <div className="flex justify-center items-center mb-4">
+                           <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="NIELIT Logo" width={200} height={400} className="object-contain" />
+                        </div>
                         <CardTitle className="text-2xl">Confirm Your Details</CardTitle>
                         <CardDescription>
                             Please verify that the following information is correct before starting your test.
