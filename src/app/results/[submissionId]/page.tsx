@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { appDb } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import type { Submission } from '@/lib/types';
@@ -10,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Header } from '@/components/header';
-import { AlertCircle, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import jsPDF from 'jspdf';
@@ -135,17 +136,27 @@ export default function ResultsPage() {
         <Header />
         <main className="container mx-auto p-4 md:p-8">
             <Card className="mb-8 bg-card/80 backdrop-blur-sm">
-                <CardHeader className="flex flex-row justify-between items-center">
-                    <div>
-                        <CardTitle className="text-3xl font-bold">Test Result for {submission.studentName}</CardTitle>
-                        <CardDescription>
-                            Date of Submission: {new Date(submission.date).toLocaleString()}
-                        </CardDescription>
+                <CardHeader>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="flex items-center gap-4">
+                            <Button variant="outline" size="icon" asChild>
+                                <Link href="/admin">
+                                    <ArrowLeft className="h-4 w-4" />
+                                    <span className="sr-only">Back</span>
+                                </Link>
+                            </Button>
+                            <div>
+                                <CardTitle className="text-3xl font-bold">Test Result for {submission.studentName}</CardTitle>
+                                <CardDescription>
+                                    Date of Submission: {new Date(submission.date).toLocaleString()}
+                                </CardDescription>
+                            </div>
+                        </div>
+                        <Button onClick={handleDownloadPdf} disabled={isDownloading} className="w-full sm:w-auto">
+                            {isDownloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
+                            {isDownloading ? "Generating..." : "Download Report"}
+                        </Button>
                     </div>
-                    <Button onClick={handleDownloadPdf} disabled={isDownloading}>
-                        {isDownloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
-                        {isDownloading ? "Generating..." : "Download Report"}
-                    </Button>
                 </CardHeader>
             </Card>
 
