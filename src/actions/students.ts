@@ -53,3 +53,17 @@ export async function deleteStudent(id: string): Promise<{ success: boolean; err
         return { success: false, error: 'Failed to delete student.' };
     }
 }
+
+export async function getStudentName(id: string): Promise<string | null> {
+    try {
+        const docRef = doc(studentDb, 'users', id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return docSnap.data().name as string;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching student name:", error);
+        return null;
+    }
+}

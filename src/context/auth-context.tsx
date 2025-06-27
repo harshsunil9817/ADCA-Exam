@@ -4,10 +4,9 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
-import { studentDb } from '@/lib/firebase';
-import { doc, getDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { hasUserSubmitted } from '@/actions/test';
+import { getStudentName } from '@/actions/students';
 
 interface AuthResult {
   user: User | null;
@@ -94,26 +93,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { user: null, error: 'used' };
     }
 
-     // Check if student exists in the student database
-    const userDocRef = doc(studentDb, 'users', userId);
-    const userDocSnap = await getDoc(userDocRef);
-
-    if (!userDocSnap.exists()) {
-        // User not found in student database, return generic error
-        return { user: null, error: 'generic' };
-    }
-
     // Student password check (universal password)
     if (password_input !== 'CSA321') {
         return { user: null, error: 'password' };
     }
 
+    // Check if student exists in the student database using a server action
+    const studentName = await getStudentName(userId);
+    if (!studentName) {
+        // User not found in student database, return generic error
+        return { user: null, error: 'generic' };
+    }
+    
     // If all checks pass, create the user object
-    const studentData = userDocSnap.data();
     const loggedInUser: User = {
-        id: userDocSnap.id,
-        name: studentData.name || userId, // Use name from DB, fallback to userId
-        userId: userDocSnap.id,
+        id: userId,
+        name: studentName, // Use name from server action
+        userId: userId,
         role: 'student',
     };
     
