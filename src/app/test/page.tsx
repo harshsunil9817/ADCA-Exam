@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -157,7 +158,6 @@ export default function TestPage() {
                         <p className="font-normal text-muted-foreground text-lg">{currentQuestion.question_hi}</p>
                     </div>
                   </CardTitle>
-                  <CardDescription>Topic: {currentQuestion.topic}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <RadioGroup
