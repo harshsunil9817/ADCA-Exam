@@ -4,7 +4,7 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy } from "firebase/firestore";
 import type { Answer, Submission, User } from "@/lib/types";
-import { questions } from "@/data/questions";
+import { papers } from "@/data/questions";
 
 // Config for the primary app (submissions)
 const firebaseConfigApp = {
@@ -21,7 +21,12 @@ const primaryApp: FirebaseApp = getApps().find(app => app.name === 'primary') ||
 const appDb = getFirestore(primaryApp);
 
 
-export async function submitTest(answers: Answer[], user: User) {
+export async function submitTest(answers: Answer[], user: User, paperId: string) {
+  const questions = papers[paperId];
+  if (!questions) {
+    throw new Error(`Paper with ID '${paperId}' not found.`);
+  }
+
   let score = 0;
   let correctAnswers = 0;
   let incorrectAnswers = 0;
@@ -51,11 +56,12 @@ export async function submitTest(answers: Answer[], user: User) {
   const totalQuestions = questions.length;
   const attemptedQuestions = answers.length;
   const notAttemptedQuestions = totalQuestions - attemptedQuestions;
-  const percentage = (correctAnswers / totalQuestions) * 100;
+  const percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
 
   const submissionData = {
     userId: user.id,
     studentName: user.name,
+    paperId: paperId,
     date: Date.now(),
     answers,
     score,
@@ -82,11 +88,11 @@ export async function deleteSubmission(submissionId: string) {
 }
 
 
-// Server action to check if a user has already submitted a test.
-export async function hasUserSubmitted(userId: string): Promise<boolean> {
-  if (!userId) return false;
+// Server action to check if a user has already submitted a test for a specific paper.
+export async function hasUserSubmitted(userId: string, paperId: string): Promise<boolean> {
+  if (!userId || !paperId) return false;
   const submissionsRef = collection(appDb, "submissions");
-  const q = query(submissionsRef, where("userId", "==", userId));
+  const q = query(submissionsRef, where("userId", "==", userId), where("paperId", "==", paperId));
   const querySnapshot = await getDocs(q);
   return !querySnapshot.empty;
 }

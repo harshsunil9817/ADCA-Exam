@@ -24,8 +24,6 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Query only by courseId to avoid the need for a composite index.
-        // Sorting will be handled in the code after fetching.
         const q = query(studentsCollection, where("courseId", "==", "ADCA"));
         const snapshot = await getDocs(q);
         
@@ -36,7 +34,8 @@ export async function getStudents(): Promise<Student[]> {
         const students = snapshot.docs.map(doc => ({
             docId: doc.id,
             enrollmentNumber: doc.data().enrollmentNumber as string,
-            name: doc.data().name as string
+            name: doc.data().name as string,
+            assignedPaper: (doc.data().assignedPaper || 'M1') as string, // Default to M1 if not set
         }));
 
         // Sort the results by enrollment number here in the code
@@ -51,9 +50,9 @@ export async function getStudents(): Promise<Student[]> {
 }
 
 // Adds a new student record
-export async function addStudent(enrollmentNumber: string, name: string): Promise<{ success: boolean; error?: string }> {
-    if (!enrollmentNumber || !name) {
-        return { success: false, error: 'Enrollment Number and Name are required.' };
+export async function addStudent(enrollmentNumber: string, name: string, assignedPaper: string): Promise<{ success: boolean; error?: string }> {
+    if (!enrollmentNumber || !name || !assignedPaper) {
+        return { success: false, error: 'Enrollment Number, Name, and Assigned Paper are required.' };
     }
    
     try {
@@ -66,7 +65,8 @@ export async function addStudent(enrollmentNumber: string, name: string): Promis
         await addDoc(collection(studentDb, "students"), {
             enrollmentNumber,
             name,
-            courseId: "ADCA" // Automatically assign the ADCA course ID
+            assignedPaper,
+            courseId: "ADCA" 
         });
         return { success: true };
     } catch (error) {
@@ -76,22 +76,26 @@ export async function addStudent(enrollmentNumber: string, name: string): Promis
     }
 }
 
-// Updates a student's name
-export async function updateStudentName(docId: string, name: string): Promise<{ success: boolean; error?: string }> {
-    if (!docId || !name) {
-        return { success: false, error: 'Student Doc ID and Name are required.' };
+// Updates a student's name and assigned paper
+export async function updateStudent(docId: string, data: { name: string; assignedPaper: string }): Promise<{ success: boolean; error?: string }> {
+    if (!docId || !data.name || !data.assignedPaper) {
+        return { success: false, error: 'Student Doc ID, Name, and Assigned Paper are required.' };
     }
    
     try {
         const studentRef = doc(studentDb, 'students', docId);
-        await updateDoc(studentRef, { name });
+        await updateDoc(studentRef, { 
+            name: data.name,
+            assignedPaper: data.assignedPaper
+        });
         return { success: true };
     } catch (error) {
         const firebaseError = error as { code?: string; message?: string };
-        console.error("🔥 FIREBASE ERROR (updateStudentName):", firebaseError.code, firebaseError.message);
-        return { success: false, error: `Failed to save student data. Reason: ${firebaseError.code}` };
+        console.error("🔥 FIREBASE ERROR (updateStudent):", firebaseError.code, firebaseError.message);
+        return { success: false, error: `Failed to update student data. Reason: ${firebaseError.code}` };
     }
 }
+
 
 // Deletes a student record by document ID
 export async function deleteStudent(docId: string): Promise<{ success: boolean; error?: string }> {
@@ -126,7 +130,8 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Stude
         return {
             name: studentData.name as string,
             fatherName: studentData.fatherName as string,
-            dob: studentData.dob as { day: string; month: string; year: string; }
+            dob: studentData.dob as { day: string; month: string; year: string; },
+            assignedPaper: (studentData.assignedPaper || 'M1') as string, // Default to M1
         };
 
     } catch (error) {

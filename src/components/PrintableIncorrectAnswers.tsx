@@ -1,6 +1,6 @@
 
 import type { Submission } from '@/lib/types';
-import { questions as allQuestions } from '@/data/questions';
+import { papers } from '@/data/questions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
@@ -20,7 +20,8 @@ const getOptionClasses = (userAnswerKey: string | undefined, correctAnswerKey: s
 
 export const PrintableIncorrectAnswers = React.forwardRef<HTMLDivElement, PrintableIncorrectAnswersProps>(({ submission }, ref) => {
   const answerMap = new Map(submission.answers.map(a => [a.questionId, a.selectedOption]));
-  
+  const allQuestions = papers[submission.paperId] || [];
+
   // Find the full question objects for the incorrect answers
   const incorrectQuestionIds = new Set(submission.incorrectAnswerDetails.map(detail => {
     const question = allQuestions.find(q => q.question_en === detail.question_en);
@@ -35,7 +36,7 @@ export const PrintableIncorrectAnswers = React.forwardRef<HTMLDivElement, Printa
           <CardHeader>
               <CardTitle className="text-3xl font-bold">Incorrect Answers Report: {submission.studentName}</CardTitle>
               <CardDescription className="text-gray-700">
-                  Date: {new Date(submission.date).toLocaleString()}
+                  Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()}
               </CardDescription>
           </CardHeader>
           <CardContent>

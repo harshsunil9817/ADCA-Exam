@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/auth-context";
-import { questions } from "@/data/questions";
+import { papers } from "@/data/questions";
 import type { Answer, Question } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,59 +30,64 @@ export default function TestPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [shuffledQuestions, setShuffledQuestions] = useState<Question[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<number, string>>(new Map());
   const [timeLeft, setTimeLeft] = useState(60 * 60); // 60 minutes
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user || !user.assignedPaper) {
+        router.push("/");
+        return;
+    }
+
+    const paperQuestions = papers[user.assignedPaper] || [];
     // Fisher-Yates shuffle algorithm to randomize questions
-    const array = [...questions];
+    const array = [...paperQuestions];
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [array[i], array[j]] = [array[j], array[i]];
     }
-    setShuffledQuestions(array);
-  }, []); // Empty dependency array ensures this runs only once on mount
-
-  const answeredCount = useMemo(() => answers.size, [answers]);
-  const progressValue = shuffledQuestions.length > 0 ? (answeredCount / shuffledQuestions.length) * 100 : 0;
-  
-  const currentQuestion = shuffledQuestions[currentQuestionIndex];
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/");
-    }
+    setQuestions(array);
   }, [user, authLoading, router]);
+
+  const answeredCount = useMemo(() => {
+    // We filter out empty/undefined answers before getting the size
+    return Array.from(answers.values()).filter(Boolean).length;
+  }, [answers]);
+
+  const progressValue = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
+  
+  const currentQuestion = questions[currentQuestionIndex];
 
   useEffect(() => {
     if (authLoading || !user) return;
 
     const checkSubmission = async () => {
-      const alreadySubmitted = await hasUserSubmitted(user.id);
+      if (!user.assignedPaper) return;
+      const alreadySubmitted = await hasUserSubmitted(user.id, user.assignedPaper);
       if (alreadySubmitted) {
-          // This logic relies on the submission check in auth-context, 
-          // but as a fallback, we redirect here too.
+          toast({ variant: 'destructive', title: 'Already Submitted', description: `You have already taken the ${user.assignedPaper} paper.` });
           router.replace(`/test/submitted`); 
       }
     };
 
     checkSubmission();
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, toast]);
 
   const handleSubmit = useCallback(async () => {
     setIsSubmitting(true);
-    if (!user) {
-        toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in.' });
+    if (!user || !user.assignedPaper) {
+        toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in or no paper is assigned.' });
         setIsSubmitting(false);
         return;
     }
     
     try {
         const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-        const submissionId = await submitTest(answersArray, user);
+        const submissionId = await submitTest(answersArray, user, user.assignedPaper);
         toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
         router.push(`/test/submitted?submissionId=${submissionId}`);
     } catch (error) {
@@ -108,7 +113,7 @@ export default function TestPage() {
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < shuffledQuestions.length - 1) {
+    if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     }
   };
@@ -129,7 +134,7 @@ export default function TestPage() {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  if (authLoading || !user || shuffledQuestions.length === 0) {
+  if (authLoading || !user || questions.length === 0) {
     return (
         <div className="flex items-center justify-center h-screen w-full">
             <Loader2 className="w-12 h-12 animate-spin text-primary" />
@@ -143,9 +148,9 @@ export default function TestPage() {
       <main className="container mx-auto py-8 px-4 flex flex-col" style={{minHeight: 'calc(100vh - 80px)'}}>
         <Card className="mb-8">
           <CardHeader className="text-center">
-            <CardTitle className="text-3xl">Computer Skill Academy - ADCA Test</CardTitle>
+            <CardTitle className="text-3xl">Computer Skill Academy - ADCA Test ({user.assignedPaper})</CardTitle>
             <CardDescription>
-              Answer all 100 questions. You have one hour to complete the test.
+              Answer all questions. You have one hour to complete the test.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -156,7 +161,7 @@ export default function TestPage() {
               <div className="w-full md:w-1/2">
                   <div className="flex justify-between mb-1">
                       <span className="font-medium">Progress</span>
-                      <span className="text-sm text-muted-foreground">{answeredCount} of {shuffledQuestions.length} answered</span>
+                      <span className="text-sm text-muted-foreground">{answeredCount} of {questions.length} answered</span>
                   </div>
                   <Progress value={progressValue} />
               </div>
@@ -210,7 +215,7 @@ export default function TestPage() {
                 <CardContent>
                     <ScrollArea className="h-72">
                         <div className="grid grid-cols-5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-2 pr-4">
-                            {shuffledQuestions.map((q, index) => (
+                            {questions.map((q, index) => (
                                 <Button
                                     key={q.id}
                                     variant={
@@ -254,7 +259,7 @@ export default function TestPage() {
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure you want to submit?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            You have answered {answeredCount} out of {shuffledQuestions.length} questions. You cannot change your answers after submitting.
+                            You have answered {answeredCount} out of {questions.length} questions. You cannot change your answers after submitting.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -268,7 +273,7 @@ export default function TestPage() {
 
             <Button
                 onClick={handleNext}
-                disabled={currentQuestionIndex === shuffledQuestions.length - 1 || isSubmitting}
+                disabled={currentQuestionIndex === questions.length - 1 || isSubmitting}
                 size="lg"
             >
                 Next <ArrowRight className="ml-2 h-4 w-4" />

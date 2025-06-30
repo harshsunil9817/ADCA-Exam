@@ -8,8 +8,8 @@ import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
 import { deleteSubmission, getSubmissions } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
-import { getStudents, addStudent, updateStudentName, deleteStudent } from "@/actions/students";
-import { questions as defaultQuestions } from "@/data/questions";
+import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
+import { papers as defaultPapers } from "@/data/questions";
 
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -49,7 +49,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -58,6 +57,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 // Submissions List Component
@@ -126,7 +126,8 @@ function SubmissionsList() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Student Name (UserID)</TableHead>
+                <TableHead>Student Name</TableHead>
+                <TableHead>Paper</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Score</TableHead>
                 <TableHead className="text-right">Percentage</TableHead>
@@ -138,6 +139,7 @@ function SubmissionsList() {
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-10" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-5 w-10 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-5 w-16 ml-auto" /></TableCell>
@@ -148,6 +150,7 @@ function SubmissionsList() {
                 submissions.map((sub) => (
                   <TableRow key={sub.id}>
                     <TableCell className="font-medium">{sub.studentName}</TableCell>
+                    <TableCell className="font-mono text-center">{sub.paperId}</TableCell>
                     <TableCell>{new Date(sub.date).toLocaleString()}</TableCell>
                     <TableCell className="text-right">{`${sub.correctAnswers}/${sub.totalQuestions}`}</TableCell>
                     <TableCell className="text-right">{sub.percentage.toFixed(2)}%</TableCell>
@@ -172,7 +175,7 @@ function SubmissionsList() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center">No submissions yet.</TableCell>
+                  <TableCell colSpan={6} className="text-center">No submissions yet.</TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -206,30 +209,37 @@ function SubmissionsList() {
 
 
 function QuestionEditor() {
-    const [jsonContent, setJsonContent] = useState(JSON.stringify(defaultQuestions, null, 2));
+    const [jsonContents, setJsonContents] = useState({
+        "M1": JSON.stringify(defaultPapers['M1'], null, 2),
+        "M2": JSON.stringify(defaultPapers['M2'], null, 2),
+        "M3": JSON.stringify(defaultPapers['M3'], null, 2),
+        "M4": JSON.stringify(defaultPapers['M4'], null, 2),
+    });
+    const [activePaper, setActivePaper] = useState('M1');
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
 
     const handleSave = async () => {
         setIsSaving(true);
+        const currentJson = jsonContents[activePaper as keyof typeof jsonContents];
         try {
-            JSON.parse(jsonContent); // Pre-check for valid JSON
+            JSON.parse(currentJson); // Pre-check for valid JSON
         } catch (e) {
             toast({
                 variant: "destructive",
                 title: "Invalid JSON",
-                description: "The content is not valid JSON. Please correct it before saving.",
+                description: `The content for paper ${activePaper} is not valid JSON. Please correct it.`,
             });
             setIsSaving(false);
             return;
         }
 
-        const result = await saveQuestions(jsonContent);
+        const result = await saveQuestions(activePaper, currentJson);
 
         if (result.success) {
             toast({
                 title: "Questions Saved",
-                description: "The question file has been updated successfully. You may need to restart the server for changes to apply.",
+                description: `The questions for paper ${activePaper} have been updated successfully.`,
             });
         } else {
             toast({
@@ -241,54 +251,51 @@ function QuestionEditor() {
         setIsSaving(false);
     };
 
-    const exampleJson = `{
-  "id": 101,
-  "topic": "Example Topic",
-  "question_en": "This is a sample question.",
-  "question_hi": "यह एक नमूना प्रश्न है।",
-  "options": {
-    "A": { "en": "Option A", "hi": "विकल्प ए" },
-    "B": { "en": "Option B", "hi": "विकल्प बी" },
-    "C": { "en": "Option C", "hi": "विकल्प सी" },
-    "D": { "en": "Option D", "hi": "विकल्प डी" }
-  },
-  "correct_option": "A"
-}`;
+    const handleJsonChange = (value: string) => {
+        setJsonContents(prev => ({
+            ...prev,
+            [activePaper]: value
+        }));
+    };
 
     return (
         <Card>
             <CardHeader>
                 <CardTitle>Add/Edit Questions</CardTitle>
                 <CardDescription>
-                    Edit the questions in JSON format below. Make sure the format is correct before saving.
+                    Select a paper and edit its questions in JSON format.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-                 <Alert>
-                    <Terminal className="h-4 w-4" />
-                    <AlertTitle>JSON Format Example</AlertTitle>
-                    <AlertDescription>
-                        Your JSON data must be an array \`[]\` of question objects, with each object structured like this:
-                        <pre className="mt-2 w-full rounded-md bg-muted p-4 text-xs overflow-x-auto">
-                            <code>[ ... , {exampleJson}, ... ]</code>
-                        </pre>
-                    </AlertDescription>
-                </Alert>
-                <Textarea
-                    value={jsonContent}
-                    onChange={(e) => setJsonContent(e.target.value)}
-                    rows={25}
-                    className="font-mono text-sm"
-                    placeholder="Enter questions as an array of JSON objects here..."
-                />
+                 <Tabs value={activePaper} onValueChange={setActivePaper} className="w-full">
+                    <TabsList>
+                        <TabsTrigger value="M1">Paper M1</TabsTrigger>
+                        <TabsTrigger value="M2">Paper M2</TabsTrigger>
+                        <TabsTrigger value="M3">Paper M3</TabsTrigger>
+                        <TabsTrigger value="M4">Paper M4</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value={activePaper} className="mt-4">
+                        <Alert>
+                            <Terminal className="h-4 w-4" />
+                            <AlertTitle>Editing Paper {activePaper}</AlertTitle>
+                            <AlertDescription>
+                                Your JSON data must be an array `[]` of question objects. Any changes here will only affect paper {activePaper}.
+                            </AlertDescription>
+                        </Alert>
+                        <Textarea
+                            value={jsonContents[activePaper as keyof typeof jsonContents]}
+                            onChange={(e) => handleJsonChange(e.target.value)}
+                            rows={20}
+                            className="font-mono text-sm mt-4"
+                            placeholder="Enter questions as an array of JSON objects here..."
+                        />
+                    </TabsContent>
+                </Tabs>
             </CardContent>
             <CardFooter className="justify-end gap-2">
-                <Button variant="outline" onClick={() => setJsonContent('[\n  \n]')}>
-                    Clear All (New JSON)
-                </Button>
                 <Button onClick={handleSave} disabled={isSaving}>
                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                    Save Changes
+                    Save Changes to {activePaper}
                 </Button>
             </CardFooter>
         </Card>
@@ -302,8 +309,8 @@ function StudentManager() {
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [currentStudent, setCurrentStudent] = useState<Student | null>(null); // For add/edit form
-    const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '' });
+    const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
+    const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '', assignedPaper: 'M1' });
     const { toast } = useToast();
 
     const fetchStudents = async () => {
@@ -325,13 +332,13 @@ function StudentManager() {
 
     const handleAddClick = () => {
         setCurrentStudent(null);
-        setFormValues({ enrollmentNumber: '', name: '' });
+        setFormValues({ enrollmentNumber: '', name: '', assignedPaper: 'M1' });
         setIsDialogOpen(true);
     };
 
     const handleEditClick = (student: Student) => {
         setCurrentStudent(student);
-        setFormValues({ enrollmentNumber: student.enrollmentNumber, name: student.name });
+        setFormValues({ enrollmentNumber: student.enrollmentNumber, name: student.name, assignedPaper: student.assignedPaper });
         setIsDialogOpen(true);
     };
     
@@ -357,18 +364,15 @@ function StudentManager() {
         e.preventDefault();
         setIsSaving(true);
         
-        const fullEnrollmentNumber = formValues.enrollmentNumber;
-        const studentName = formValues.name;
-        
         let result;
         if (currentStudent) { // Editing existing student
-            result = await updateStudentName(currentStudent.docId, studentName);
+            result = await updateStudent(currentStudent.docId, { name: formValues.name, assignedPaper: formValues.assignedPaper });
         } else { // Adding new student
-            result = await addStudent(fullEnrollmentNumber, studentName);
+            result = await addStudent(formValues.enrollmentNumber, formValues.name, formValues.assignedPaper);
         }
 
         if (result.success) {
-            toast({ title: "Success", description: `Student data for ${studentName} has been saved.` });
+            toast({ title: "Success", description: `Student data for ${formValues.name} has been saved.` });
             setIsDialogOpen(false);
             fetchStudents();
         } else {
@@ -383,7 +387,7 @@ function StudentManager() {
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="flex items-center gap-2"><Users /> Manage Students</CardTitle>
-                    <CardDescription>Add, edit, or remove student records for the ADCA course.</CardDescription>
+                    <CardDescription>Add, edit, or remove student records and assign test papers.</CardDescription>
                 </div>
                 <Button onClick={handleAddClick}><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button>
             </CardHeader>
@@ -393,6 +397,7 @@ function StudentManager() {
                         <TableRow>
                             <TableHead className="w-[200px]">Enrollment #</TableHead>
                             <TableHead>Student Name</TableHead>
+                            <TableHead className="w-[150px]">Assigned Paper</TableHead>
                             <TableHead className="text-right w-[120px]">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -402,6 +407,7 @@ function StudentManager() {
                             <TableRow key={i}>
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-48" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                                 <TableCell className="text-right"><Skeleton className="h-9 w-[84px] ml-auto" /></TableCell>
                             </TableRow>
                             ))
@@ -410,6 +416,7 @@ function StudentManager() {
                                 <TableRow key={student.docId}>
                                     <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
                                     <TableCell className="font-medium">{student.name}</TableCell>
+                                    <TableCell>{student.assignedPaper}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex gap-2 justify-end">
                                             <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => handleEditClick(student)}>
@@ -426,7 +433,7 @@ function StudentManager() {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={3} className="text-center h-24">No students found for the ADCA course.</TableCell>
+                                <TableCell colSpan={4} className="text-center h-24">No students found for the ADCA course.</TableCell>
                             </TableRow>
                         )}
                     </TableBody>
@@ -436,37 +443,54 @@ function StudentManager() {
 
         {/* Add/Edit Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[480px]">
                 <form onSubmit={handleSave}>
                     <DialogHeader>
                         <DialogTitle>{currentStudent ? 'Edit Student' : 'Add New Student'}</DialogTitle>
                         <DialogDescription>
-                            {currentStudent ? "Update the student's name." : "Enter the new student's details."}
+                            {currentStudent ? "Update the student's details." : "Enter the new student's details."}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="enrollmentNumber" className="text-right">Enrollment #</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="enrollmentNumber">Enrollment #</Label>
                             <Input
                             id="enrollmentNumber"
                             value={formValues.enrollmentNumber}
                             onChange={(e) => setFormValues({ ...formValues, enrollmentNumber: e.target.value })}
-                            className="col-span-3"
                             required
                             disabled={!!currentStudent || isSaving}
                             placeholder="e.g., CSA250001"
                             />
                         </div>
-                        <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="name" className="text-right">Name</Label>
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Name</Label>
                             <Input
                             id="name"
                             value={formValues.name}
                             onChange={(e) => setFormValues({ ...formValues, name: e.target.value })}
-                            className="col-span-3"
                             required
                             disabled={isSaving}
                             />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="assignedPaper">Assign Paper</Label>
+                             <Select
+                                value={formValues.assignedPaper}
+                                onValueChange={(value) => setFormValues({ ...formValues, assignedPaper: value })}
+                                required
+                                disabled={isSaving}
+                            >
+                                <SelectTrigger id="assignedPaper">
+                                    <SelectValue placeholder="Select a paper" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="M1">M1 Paper</SelectItem>
+                                    <SelectItem value="M2">M2 Paper</SelectItem>
+                                    <SelectItem value="M3">M3 Paper</SelectItem>
+                                    <SelectItem value="M4">M4 Paper</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                     <DialogFooter>
@@ -503,7 +527,6 @@ function StudentManager() {
             </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-
         </>
     );
 }

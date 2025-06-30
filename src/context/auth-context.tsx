@@ -81,18 +81,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userId: 'admin',
         name: 'Admin',
         role: 'admin',
+        assignedPaper: '' // Admin doesn't have one
       };
       sessionStorage.setItem('user', JSON.stringify(adminUser));
       setUser(adminUser);
       return { user: adminUser };
     }
-
-    // Check if user has already submitted a test using the server action
-    const alreadySubmitted = await hasUserSubmitted(userId);
-    if (alreadySubmitted) {
-        return { user: null, error: 'used' };
-    }
-
+    
     // Student password check (universal password)
     if (password_input !== 'CSA321') {
         return { user: null, error: 'password' };
@@ -104,6 +99,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // User not found in student database, return generic error
         return { user: null, error: 'generic' };
     }
+
+    // Check if user has already submitted a test for their assigned paper
+    const alreadySubmitted = await hasUserSubmitted(userId, studentDetails.assignedPaper);
+    if (alreadySubmitted) {
+        return { user: null, error: 'used' };
+    }
     
     // If all checks pass, create the user object
     const loggedInUser: User = {
@@ -112,7 +113,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         userId: userId,
         role: 'student',
         fatherName: studentDetails.fatherName,
-        dob: studentDetails.dob
+        dob: studentDetails.dob,
+        assignedPaper: studentDetails.assignedPaper,
     };
     
     sessionStorage.setItem('user', JSON.stringify(loggedInUser));

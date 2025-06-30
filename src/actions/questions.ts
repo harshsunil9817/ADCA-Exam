@@ -6,25 +6,26 @@ import path from 'path';
 
 // This function saves the new questions to the questions.ts file.
 // It's a server action that can be called from client components.
-export async function saveQuestions(jsonString: string): Promise<{ success: boolean; error?: string }> {
+export async function saveQuestions(paperId: string, jsonString: string): Promise<{ success: boolean; error?: string }> {
     try {
+        if (!['M1', 'M2', 'M3', 'M4'].includes(paperId)) {
+            return { success: false, error: "Invalid paper ID specified." };
+        }
+
         // First, parse the string to ensure it's valid JSON.
-        // This will throw an error if the JSON is malformed.
         const parsedQuestions = JSON.parse(jsonString);
 
-        // Basic validation: check if it's an array
         if (!Array.isArray(parsedQuestions)) {
             return { success: false, error: "The root of the JSON must be an array '[]'." };
         }
         
-        const filePath = path.join(process.cwd(), 'src/data/questions.ts');
+        // Define the path to the specific paper's JSON file
+        const filePath = path.join(process.cwd(), `src/data/${paperId.toLowerCase()}.json`);
 
         // Re-stringify with formatting to ensure the saved file is readable.
         const formattedJson = JSON.stringify(parsedQuestions, null, 2);
-
-        const fileContent = `import type { Question } from "@/lib/types";\n\nexport const questions: Question[] = ${formattedJson};\n`;
         
-        await fs.writeFile(filePath, fileContent, 'utf-8');
+        await fs.writeFile(filePath, formattedJson, 'utf-8');
 
         return { success: true };
     } catch (error) {
@@ -32,7 +33,6 @@ export async function saveQuestions(jsonString: string): Promise<{ success: bool
         if (error instanceof SyntaxError) {
             return { success: false, error: "Invalid JSON format. Please check for syntax errors." };
         }
-        // Handle potential file system errors
         const fsError = error as { code?: string };
         if (fsError.code) {
              return { success: false, error: `File system error: ${fsError.code}` };

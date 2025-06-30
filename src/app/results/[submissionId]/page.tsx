@@ -19,7 +19,7 @@ import html2canvas from 'html2canvas';
 import { PrintableResult } from '@/components/PrintableResult';
 import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswers';
 import { PrintableResultOnly } from '@/components/PrintableResultOnly';
-import { questions as allQuestions } from '@/data/questions';
+import { papers } from '@/data/questions';
 import { getSubmissionById } from '@/actions/test';
 
 const StatCard = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string | number, color?: string }) => (
@@ -191,6 +191,8 @@ export default function ResultsPage() {
         )
     }
 
+    const allQuestions = papers[submission.paperId] || [];
+
     return (
         <>
         <Header />
@@ -211,7 +213,7 @@ export default function ResultsPage() {
                             <div>
                                 <CardTitle className="text-3xl font-bold">Test Result for {submission.studentName}</CardTitle>
                                 <CardDescription>
-                                    Date of Submission: {new Date(submission.date).toLocaleString()}
+                                    Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()}
                                 </CardDescription>
                             </div>
                         </div>

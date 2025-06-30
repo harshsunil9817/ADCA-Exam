@@ -6,18 +6,21 @@ export interface User {
   role: "student" | "admin";
   fatherName?: string; // Optional because admin doesn't have it
   dob?: { day: string; month: string; year: string; }; // Optional
+  assignedPaper: string; // e.g., "M1", "M2"
 }
 
 export interface Student {
   docId: string; // The actual firestore document ID
   enrollmentNumber: string; // The enrollment number e.g. "CSA250006"
   name: string;
+  assignedPaper: string;
 }
 
 export interface StudentDetails {
   name: string;
   fatherName: string;
   dob: { day: string; month: string; year: string; };
+  assignedPaper: string;
 }
 
 export interface Option {
@@ -47,6 +50,7 @@ export interface Submission {
   id: string;
   userId: string;
   studentName: string;
+  paperId: string; // The paper that was taken, e.g., "M1"
   date: number; // Stored as timestamp
   answers: Answer[];
   score: number;

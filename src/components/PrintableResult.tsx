@@ -1,6 +1,6 @@
 
 import type { Submission } from '@/lib/types';
-import { questions as allQuestions } from '@/data/questions';
+import { papers } from '@/data/questions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
@@ -27,6 +27,7 @@ const getOptionClasses = (userAnswerKey: string | undefined, correctAnswerKey: s
 
 export const PrintableResult = React.forwardRef<HTMLDivElement, PrintableResultProps>(({ submission }, ref) => {
   const answerMap = new Map(submission.answers.map(a => [a.questionId, a.selectedOption]));
+  const allQuestions = papers[submission.paperId] || [];
   
   return (
     <div ref={ref} className="p-10 bg-white text-black w-[800px]">
@@ -34,7 +35,7 @@ export const PrintableResult = React.forwardRef<HTMLDivElement, PrintableResultP
           <CardHeader>
               <CardTitle className="text-3xl font-bold">Test Report: {submission.studentName}</CardTitle>
               <CardDescription className="text-gray-700">
-                  Date: {new Date(submission.date).toLocaleString()}
+                  Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()}
               </CardDescription>
           </CardHeader>
           <CardContent>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, UserCheck, ArrowLeft } from 'lucide-react';
+import { Loader2, UserCheck, ArrowLeft, FileText } from 'lucide-react';
 import { Header } from '@/components/header';
 import Image from "next/image";
 
@@ -57,6 +57,10 @@ export default function ConfirmDetailsPage() {
                         <div className="flex justify-between">
                             <span className="font-medium text-muted-foreground">Date of Birth:</span>
                             <span className="font-bold">{`${user.dob?.day}/${user.dob?.month}/${user.dob?.year}`}</span>
+                        </div>
+                         <div className="flex justify-between items-center bg-blue-50 border border-blue-200 p-3 rounded-md">
+                            <span className="font-medium text-muted-foreground flex items-center gap-2"><FileText size={20} /> Assigned Paper:</span>
+                            <span className="font-bold text-blue-700 text-xl">{user.assignedPaper}</span>
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col sm:flex-row gap-2">
