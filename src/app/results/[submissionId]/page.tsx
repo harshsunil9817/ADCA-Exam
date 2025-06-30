@@ -11,16 +11,16 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Header } from '@/components/header';
-import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PrintableResult } from '@/components/PrintableResult';
 import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswers';
 import { PrintableResultOnly } from '@/components/PrintableResultOnly';
 import { papers } from '@/data/questions';
-import { getSubmissionById, updateSubmission } from '@/actions/test';
+import { getSubmissionById, updateSubmission, deleteSubmission } from '@/actions/test';
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -31,6 +31,16 @@ import {
   DialogTitle,
   DialogClose
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -63,6 +73,8 @@ export default function ResultsPage() {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [editedCorrectAnswers, setEditedCorrectAnswers] = useState<number | string>("");
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         if (authLoading) return;
@@ -144,6 +156,30 @@ export default function ResultsPage() {
             });
         }
         setIsSaving(false);
+    };
+
+    const handleDeleteResult = async () => {
+        if (!submission) return;
+
+        setIsDeleting(true);
+        try {
+            await deleteSubmission(submission.id);
+            toast({
+                title: "Submission Deleted",
+                description: `The result for ${submission.studentName} has been permanently deleted.`,
+            });
+            router.push('/admin');
+        } catch (error) {
+            console.error("Failed to delete submission:", error);
+            toast({
+                variant: "destructive",
+                title: "Error Deleting Result",
+                description: "There was a problem deleting the submission.",
+            });
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteDialogOpen(false);
+        }
     };
 
     const handleDownloadPdf = async (type: 'full' | 'incorrect' | 'result') => {
@@ -297,6 +333,10 @@ export default function ResultsPage() {
                                 <Edit className="mr-2 h-4 w-4"/>
                                 Edit Result
                             </Button>
+                            <Button onClick={() => setIsDeleteDialogOpen(true)} variant="destructive">
+                                <Trash2 className="mr-2 h-4 w-4"/>
+                                Delete Result
+                            </Button>
                             <Button onClick={() => handleDownloadPdf('result')} disabled={isDownloadingResult} className="w-full sm:w-auto" variant="outline">
                                 {isDownloadingResult ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <FileDown className="mr-2 h-4 w-4"/>}
                                 {isDownloadingResult ? "Generating..." : "Download Result Only"}
@@ -396,6 +436,29 @@ export default function ResultsPage() {
                 </form>
             </DialogContent>
         </Dialog>
+
+        <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete the test result for <span className="font-bold">{submission?.studentName}</span>. This allows them to retake the test.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setIsDeleteDialogOpen(false)} disabled={isDeleting}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction 
+                        onClick={handleDeleteResult} 
+                        disabled={isDeleting}
+                        className={buttonVariants({ variant: "destructive" })}
+                    >
+                        {isDeleting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</> : "Yes, delete result"}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
         </>
     );
 }
+
+    
