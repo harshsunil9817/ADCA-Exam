@@ -21,6 +21,12 @@ const nextConfig: NextConfig = {
         hostname: 'drive.google.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fra.cloud.appwrite.io',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
