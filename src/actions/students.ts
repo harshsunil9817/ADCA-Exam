@@ -117,7 +117,8 @@ export async function deleteStudent(docId: string): Promise<{ success: boolean; 
 export async function getStudentDetails(enrollmentNumber: string): Promise<StudentDetails | null> {
     try {
         const studentsRef = collection(studentDb, 'students');
-        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber), where("courseId", "==", "ADCA"));
+        // Simplified query to avoid needing a composite index.
+        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -125,7 +126,14 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Stude
             return null;
         }
         
-        const studentData = querySnapshot.docs[0].data();
+        const studentDoc = querySnapshot.docs[0];
+        const studentData = studentDoc.data();
+
+        // Check the courseId in the code to ensure they are an ADCA student.
+        if (studentData.courseId !== 'ADCA') {
+            console.log(`Student ${enrollmentNumber} found, but is not in the ADCA course.`);
+            return null;
+        }
 
         return {
             name: studentData.name as string,
