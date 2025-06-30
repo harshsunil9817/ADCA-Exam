@@ -281,7 +281,12 @@ export default function ResultsPage() {
                                 </Link>
                             </Button>
                             <div>
-                                <CardTitle className="text-3xl font-bold">Test Result for {submission.studentName}</CardTitle>
+                                <div className="flex items-center gap-4">
+                                    <CardTitle className="text-3xl font-bold">Test Result for {submission.studentName}</CardTitle>
+                                    <Badge className={submission.percentage >= 30 ? 'bg-green-500 text-primary-foreground hover:bg-green-600' : 'bg-red-500 text-destructive-foreground hover:bg-red-600'}>
+                                        {submission.percentage >= 30 ? 'PASS' : 'FAIL'}
+                                    </Badge>
+                                </div>
                                 <CardDescription>
                                     Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()}
                                 </CardDescription>

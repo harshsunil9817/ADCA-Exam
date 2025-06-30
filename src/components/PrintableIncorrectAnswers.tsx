@@ -34,7 +34,12 @@ export const PrintableIncorrectAnswers = React.forwardRef<HTMLDivElement, Printa
     <div ref={ref} className="p-10 bg-white text-black w-[800px]">
       <Card className="mb-8 border-black report-header-card">
           <CardHeader>
-              <CardTitle className="text-3xl font-bold">Incorrect Answers Report: {submission.studentName}</CardTitle>
+              <div className="flex justify-between items-center">
+                  <CardTitle className="text-3xl font-bold">Incorrect Answers Report: {submission.studentName}</CardTitle>
+                  <div className={`text-2xl font-bold p-2 rounded ${submission.percentage >= 30 ? 'bg-green-200 text-green-800' : 'bg-red-200 text-red-800'}`}>
+                      {submission.percentage >= 30 ? 'PASS' : 'FAIL'}
+                  </div>
+              </div>
               <CardDescription className="text-gray-700">
                   Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()}
               </CardDescription>
