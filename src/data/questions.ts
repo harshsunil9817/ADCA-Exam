@@ -1,8 +1,8 @@
 import type { Question } from "@/lib/types";
-import m1Questions from "./m1.json";
-import m2Questions from "./m2.json";
-import m3Questions from "./m3.json";
-import m4Questions from "./m4.json";
+import m1Questions from "./m1.json" with { type: "json" };
+import m2Questions from "./m2.json" with { type: "json" };
+import m3Questions from "./m3.json" with { type: "json" };
+import m4Questions from "./m4.json" with { type: "json" };
 
 export interface PaperCollection {
     [key: string]: Question[];
