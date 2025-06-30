@@ -40,6 +40,17 @@ export default function ConfirmDetailsPage() {
                         <div className="flex justify-center items-center mb-4">
                            <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="NIELIT Logo" width={200} height={400} className="object-contain" />
                         </div>
+                        {user.photoUrl && (
+                             <div className="flex justify-center items-center mb-4">
+                                <Image
+                                    src={user.photoUrl}
+                                    alt="Student Photo"
+                                    width={120}
+                                    height={120}
+                                    className="rounded-full border-4 border-primary object-cover w-[120px] h-[120px]"
+                                />
+                            </div>
+                        )}
                         <CardTitle className="text-2xl">Confirm Your Details</CardTitle>
                         <CardDescription>
                             Please verify that the following information is correct before starting your test.

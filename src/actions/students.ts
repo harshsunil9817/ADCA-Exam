@@ -140,6 +140,7 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Stude
             fatherName: studentData.fatherName as string,
             dob: studentData.dob as { day: string; month: string; year: string; },
             assignedPaper: (studentData.assignedPaper || 'M1') as string, // Default to M1
+            photoUrl: studentData.photoUrl as string,
         };
 
     } catch (error) {

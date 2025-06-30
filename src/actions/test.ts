@@ -2,7 +2,7 @@
 "use server";
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy } from "firebase/firestore";
+import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc } from "firebase/firestore";
 import type { Answer, Submission, User } from "@/lib/types";
 import { papers } from "@/data/questions";
 
@@ -85,6 +85,23 @@ export async function deleteSubmission(submissionId: string) {
   }
   const submissionRef = doc(appDb, "submissions", submissionId);
   await deleteDoc(submissionRef);
+}
+
+// Server action to update a submission, typically for manual score correction.
+export async function updateSubmission(submissionId: string, data: Partial<Submission>): Promise<{ success: boolean; error?: string }> {
+    if (!submissionId) {
+        return { success: false, error: 'Submission ID is required.' };
+    }
+
+    try {
+        const submissionRef = doc(appDb, 'submissions', submissionId);
+        await updateDoc(submissionRef, data);
+        return { success: true };
+    } catch (error) {
+        const firebaseError = error as { code?: string; message?: string };
+        console.error("🔥 FIREBASE ERROR (updateSubmission):", firebaseError.code, firebaseError.message);
+        return { success: false, error: `Failed to update submission. Reason: ${firebaseError.code}` };
+    }
 }
 
 

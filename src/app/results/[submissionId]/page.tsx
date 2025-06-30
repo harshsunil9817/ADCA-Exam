@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Header } from '@/components/header';
-import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Button } from '@/components/ui/button';
 import jsPDF from 'jspdf';
@@ -20,7 +20,19 @@ import { PrintableResult } from '@/components/PrintableResult';
 import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswers';
 import { PrintableResultOnly } from '@/components/PrintableResultOnly';
 import { papers } from '@/data/questions';
-import { getSubmissionById } from '@/actions/test';
+import { getSubmissionById, updateSubmission } from '@/actions/test';
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const StatCard = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string | number, color?: string }) => (
     <Card>
@@ -47,6 +59,10 @@ export default function ResultsPage() {
     const printableFullRef = useRef<HTMLDivElement>(null);
     const printableIncorrectRef = useRef<HTMLDivElement>(null);
     const printableResultRef = useRef<HTMLDivElement>(null);
+    const { toast } = useToast();
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [editedCorrectAnswers, setEditedCorrectAnswers] = useState<number | string>("");
 
     useEffect(() => {
         if (authLoading) return;
@@ -75,6 +91,60 @@ export default function ResultsPage() {
 
         fetchSubmission();
     }, [submissionId, user, authLoading, router]);
+
+    const handleEditClick = () => {
+        if (!submission) return;
+        setEditedCorrectAnswers(submission.correctAnswers);
+        setIsEditDialogOpen(true);
+    };
+
+    const handleSaveResult = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!submission) return;
+
+        setIsSaving(true);
+        const correct = Number(editedCorrectAnswers);
+
+        if (isNaN(correct) || correct < 0 || correct > submission.totalQuestions) {
+            toast({
+                variant: "destructive",
+                title: "Invalid Input",
+                description: `Please enter a number between 0 and ${submission.totalQuestions}.`
+            });
+            setIsSaving(false);
+            return;
+        }
+
+        const incorrect = submission.totalQuestions - correct;
+        const score = correct; // Assuming 1 point per correct answer
+        const percentage = (correct / submission.totalQuestions) * 100;
+        
+        const updatedData: Partial<Submission> = {
+            correctAnswers: correct,
+            incorrectAnswers: incorrect,
+            score: score,
+            percentage: percentage,
+        };
+
+        const result = await updateSubmission(submission.id, updatedData);
+
+        if (result.success) {
+            toast({
+                title: "Result Updated",
+                description: "The submission score has been successfully updated."
+            });
+            // Optimistically update local state to reflect changes immediately
+            setSubmission(prev => prev ? { ...prev, ...updatedData } : null);
+            setIsEditDialogOpen(false);
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Update Failed",
+                description: result.error || "An unknown error occurred."
+            });
+        }
+        setIsSaving(false);
+    };
 
     const handleDownloadPdf = async (type: 'full' | 'incorrect' | 'result') => {
         let targetRef: React.RefObject<HTMLDivElement>;
@@ -218,6 +288,10 @@ export default function ResultsPage() {
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Button onClick={handleEditClick} variant="outline">
+                                <Edit className="mr-2 h-4 w-4"/>
+                                Edit Result
+                            </Button>
                             <Button onClick={() => handleDownloadPdf('result')} disabled={isDownloadingResult} className="w-full sm:w-auto" variant="outline">
                                 {isDownloadingResult ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <FileDown className="mr-2 h-4 w-4"/>}
                                 {isDownloadingResult ? "Generating..." : "Download Result Only"}
@@ -281,6 +355,42 @@ export default function ResultsPage() {
                {submission && <PrintableResultOnly ref={printableResultRef} submission={submission} />}
             </div>
         </main>
+        
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent>
+                <form onSubmit={handleSaveResult}>
+                    <DialogHeader>
+                        <DialogTitle>Edit Result for {submission?.studentName}</DialogTitle>
+                        <DialogDescription>
+                            Manually adjust the number of correct answers. Other scores will be recalculated automatically.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <Label htmlFor="correct-answers">Correct Answers</Label>
+                        <Input
+                            id="correct-answers"
+                            type="number"
+                            value={editedCorrectAnswers}
+                            onChange={(e) => setEditedCorrectAnswers(e.target.value)}
+                            max={submission?.totalQuestions}
+                            min="0"
+                            required
+                        />
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Total questions: {submission?.totalQuestions}
+                        </p>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary" disabled={isSaving}>Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={isSaving}>
+                            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save Changes'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
         </>
     );
 }

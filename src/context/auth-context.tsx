@@ -115,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         fatherName: studentDetails.fatherName,
         dob: studentDetails.dob,
         assignedPaper: studentDetails.assignedPaper,
+        photoUrl: studentDetails.photoUrl,
     };
     
     sessionStorage.setItem('user', JSON.stringify(loggedInUser));

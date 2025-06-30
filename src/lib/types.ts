@@ -7,6 +7,7 @@ export interface User {
   fatherName?: string; // Optional because admin doesn't have it
   dob?: { day: string; month: string; year: string; }; // Optional
   assignedPaper: string; // e.g., "M1", "M2"
+  photoUrl?: string;
 }
 
 export interface Student {
@@ -21,6 +22,7 @@ export interface StudentDetails {
   fatherName: string;
   dob: { day: string; month: string; year: string; };
   assignedPaper: string;
+  photoUrl?: string;
 }
 
 export interface Option {

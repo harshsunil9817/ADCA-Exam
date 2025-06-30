@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Loader2, Terminal, Trash2, Users, UserPlus, Edit } from "lucide-react";
+import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -64,8 +64,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 function SubmissionsList() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [submissionToDelete, setSubmissionToDelete] = useState<Submission | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [submissionToReset, setSubmissionToReset] = useState<Submission | null>(null);
+  const [isResetting, setIsResetting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -88,27 +88,27 @@ function SubmissionsList() {
     fetchSubmissions();
   }, [toast]);
 
-  const handleDeleteSubmission = async () => {
-    if (!submissionToDelete) return;
+  const handleResetSubmission = async () => {
+    if (!submissionToReset) return;
 
-    setIsDeleting(true);
+    setIsResetting(true);
     try {
-      await deleteSubmission(submissionToDelete.id);
-      setSubmissions(submissions.filter(s => s.id !== submissionToDelete.id));
+      await deleteSubmission(submissionToReset.id);
+      setSubmissions(submissions.filter(s => s.id !== submissionToReset.id));
       toast({
-        title: "Submission Deleted",
-        description: `The submission for ${submissionToDelete.studentName} has been deleted.`,
+        title: "Retake Allowed",
+        description: `${submissionToReset.studentName} can now retake the test for paper ${submissionToReset.paperId}.`,
       });
     } catch (error) {
-      console.error("Error deleting submission:", error);
+      console.error("Error resetting submission:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete the submission.",
+        description: "Failed to allow retake.",
       });
     } finally {
-      setIsDeleting(false);
-      setSubmissionToDelete(null);
+      setIsResetting(false);
+      setSubmissionToReset(null);
     }
   };
 
@@ -160,14 +160,14 @@ function SubmissionsList() {
                           <Link href={`/results/${sub.id}`}>View Result</Link>
                         </Button>
                          <Button 
-                            variant="destructive" 
+                            variant="secondary" 
                             size="icon"
                             className="h-9 w-9"
-                            onClick={() => setSubmissionToDelete(sub)}
-                            disabled={isDeleting && submissionToDelete?.id === sub.id}
+                            onClick={() => setSubmissionToReset(sub)}
+                            disabled={isResetting && submissionToReset?.id === sub.id}
                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Delete</span>
+                            <RefreshCcw className="h-4 w-4" />
+                            <span className="sr-only">Allow Retake</span>
                         </Button>
                       </div>
                     </TableCell>
@@ -183,22 +183,21 @@ function SubmissionsList() {
         </CardContent>
       </Card>
 
-      <AlertDialog open={!!submissionToDelete} onOpenChange={(open) => !open && setSubmissionToDelete(null)}>
+      <AlertDialog open={!!submissionToReset} onOpenChange={(open) => !open && setSubmissionToReset(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>Allow student to retake test?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the test submission for <span className="font-bold">{submissionToDelete?.studentName}</span>.
+              This will delete the current submission for <span className="font-bold">{submissionToReset?.studentName}</span> on paper <span className="font-bold">{submissionToReset?.paperId}</span>. This allows them to take the test again. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setSubmissionToDelete(null)} disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={() => setSubmissionToReset(null)} disabled={isResetting}>Cancel</AlertDialogCancel>
             <AlertDialogAction 
-                onClick={handleDeleteSubmission} 
-                disabled={isDeleting}
-                className={buttonVariants({ variant: "destructive" })}
+                onClick={handleResetSubmission} 
+                disabled={isResetting}
             >
-                {isDeleting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</> : "Yes, delete submission"}
+                {isResetting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Resetting...</> : "Yes, allow retake"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -424,7 +423,7 @@ function StudentManager() {
                                                 <span className="sr-only">Edit</span>
                                             </Button>
                                             <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => handleDeleteClick(student)}>
-                                                <Trash2 className="h-4 w-4" />
+                                                <RefreshCcw className="h-4 w-4" />
                                                 <span className="sr-only">Delete</span>
                                             </Button>
                                         </div>
