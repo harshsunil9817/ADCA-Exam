@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw } from "lucide-react";
+import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,6 +66,7 @@ function SubmissionsList() {
   const [loading, setLoading] = useState(true);
   const [submissionToReset, setSubmissionToReset] = useState<Submission | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -88,6 +89,13 @@ function SubmissionsList() {
     fetchSubmissions();
   }, [toast]);
 
+  const filteredSubmissions = useMemo(() => {
+    if (activeFilter === "all") {
+      return submissions;
+    }
+    return submissions.filter(sub => sub.paperId === activeFilter);
+  }, [submissions, activeFilter]);
+
   const handleResetSubmission = async () => {
     if (!submissionToReset) return;
 
@@ -96,7 +104,7 @@ function SubmissionsList() {
       await deleteSubmission(submissionToReset.id);
       setSubmissions(submissions.filter(s => s.id !== submissionToReset.id));
       toast({
-        title: "Retake Allowed",
+        title: "Re-exam Allowed",
         description: `${submissionToReset.studentName} can now retake the test for paper ${submissionToReset.paperId}.`,
       });
     } catch (error) {
@@ -104,7 +112,7 @@ function SubmissionsList() {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to allow retake.",
+        description: "Failed to allow re-exam.",
       });
     } finally {
       setIsResetting(false);
@@ -119,10 +127,20 @@ function SubmissionsList() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><FileText /> Test Submissions</CardTitle>
           <CardDescription>
-            View all submitted test papers from students.
+            View and filter submitted test papers. You can also allow a student to retake a test.
           </CardDescription>
         </CardHeader>
         <CardContent>
+          <Tabs value={activeFilter} onValueChange={setActiveFilter} className="mb-4">
+              <TabsList>
+                  <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsTrigger value="M1">Paper M1</TabsTrigger>
+                  <TabsTrigger value="M2">Paper M2</TabsTrigger>
+                  <TabsTrigger value="M3">Paper M3</TabsTrigger>
+                  <TabsTrigger value="M4">Paper M4</TabsTrigger>
+              </TabsList>
+          </Tabs>
+
           <Table>
             <TableHeader>
               <TableRow>
@@ -146,8 +164,8 @@ function SubmissionsList() {
                     <TableCell className="text-right"><Skeleton className="h-9 w-[124px] ml-auto" /></TableCell>
                   </TableRow>
                 ))
-              ) : submissions.length > 0 ? (
-                submissions.map((sub) => (
+              ) : filteredSubmissions.length > 0 ? (
+                filteredSubmissions.map((sub) => (
                   <TableRow key={sub.id}>
                     <TableCell className="font-medium">{sub.studentName}</TableCell>
                     <TableCell className="font-mono text-center">{sub.paperId}</TableCell>
@@ -167,7 +185,7 @@ function SubmissionsList() {
                             disabled={isResetting && submissionToReset?.id === sub.id}
                          >
                             <RefreshCcw className="h-4 w-4" />
-                            <span className="sr-only">Allow Retake</span>
+                            <span className="sr-only">Allow Re-exam</span>
                         </Button>
                       </div>
                     </TableCell>
@@ -175,7 +193,9 @@ function SubmissionsList() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center">No submissions yet.</TableCell>
+                  <TableCell colSpan={6} className="text-center h-24">
+                     {activeFilter === 'all' ? 'No submissions yet.' : `No submissions found for paper ${activeFilter}.`}
+                  </TableCell>
                 </TableRow>
               )}
             </TableBody>
@@ -186,7 +206,7 @@ function SubmissionsList() {
       <AlertDialog open={!!submissionToReset} onOpenChange={(open) => !open && setSubmissionToReset(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Allow student to retake test?</AlertDialogTitle>
+            <AlertDialogTitle>Allow student to re-exam?</AlertDialogTitle>
             <AlertDialogDescription>
               This will delete the current submission for <span className="font-bold">{submissionToReset?.studentName}</span> on paper <span className="font-bold">{submissionToReset?.paperId}</span>. This allows them to take the test again. This action cannot be undone.
             </AlertDialogDescription>
@@ -197,7 +217,7 @@ function SubmissionsList() {
                 onClick={handleResetSubmission} 
                 disabled={isResetting}
             >
-                {isResetting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Resetting...</> : "Yes, allow retake"}
+                {isResetting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Resetting...</> : "Yes, allow re-exam"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -423,7 +443,7 @@ function StudentManager() {
                                                 <span className="sr-only">Edit</span>
                                             </Button>
                                             <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => handleDeleteClick(student)}>
-                                                <RefreshCcw className="h-4 w-4" />
+                                                <Trash2 className="h-4 w-4" />
                                                 <span className="sr-only">Delete</span>
                                             </Button>
                                         </div>
