@@ -47,7 +47,7 @@ export default function ConfirmDetailsPage() {
                                     alt="Student Photo"
                                     width={120}
                                     height={120}
-                                    className="rounded-full border-4 border-primary object-cover w-[120px] h-[120px]"
+                                    className="rounded-full border-4 border-primary object-cover"
                                 />
                             </div>
                         )}
