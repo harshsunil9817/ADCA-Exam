@@ -37,9 +37,6 @@ export default function ConfirmDetailsPage() {
             <main className="container mx-auto p-4 md:p-8 flex items-center justify-center" style={{minHeight: 'calc(100vh - 80px)'}}>
                 <Card className="w-full max-w-lg shadow-lg">
                     <CardHeader className="text-center">
-                        <div className="flex justify-center items-center mb-4">
-                           <Image src="https://drive.google.com/uc?export=view&id=1vHRrnuM9NfkaFIgdQihUoKP4z5b1uUu6" alt="NIELIT Logo" width={200} height={400} className="object-contain" />
-                        </div>
                         {user.photoUrl && (
                              <div className="flex justify-center items-center mb-4">
                                 <Image
