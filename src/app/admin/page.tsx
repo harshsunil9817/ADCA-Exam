@@ -350,10 +350,11 @@ interface StudentRowProps {
   onUpdate: () => void;
   onRowClick: () => void;
   onDelete: (student: Student) => void;
+  onEdit: (student: Student) => void;
   isSelected: boolean;
 }
 
-function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, isSelected }: StudentRowProps) {
+function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, onEdit, isSelected }: StudentRowProps) {
     const [selectedPaper, setSelectedPaper] = useState("");
     const [isAuthorizing, setIsAuthorizing] = useState(false);
     const { toast } = useToast();
@@ -382,6 +383,11 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, isSe
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
         onDelete(student);
+    };
+    
+    const handleEdit = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onEdit(student);
     };
 
 
@@ -412,6 +418,10 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, isSe
                     <Button onClick={handleAuthorize} disabled={isAuthorizing || !selectedPaper} size="sm">
                         {isAuthorizing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Authorize'}
                     </Button>
+                    <Button onClick={handleEdit} variant="outline" size="icon" className="h-9 w-9" title="Edit Student">
+                        <Edit className="h-4 w-4" />
+                        <span className="sr-only">Edit Student</span>
+                    </Button>
                     <Button onClick={handleDelete} variant="destructive" size="icon" className="h-9 w-9" title="Delete Student">
                          <Trash2 className="h-4 w-4" />
                         <span className="sr-only">Delete Student</span>
@@ -434,14 +444,21 @@ interface StudentManagerProps {
 function StudentManager({ students, submissions, loading, onUpdate, onStudentSelect, selectedStudent }: StudentManagerProps) {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
+    const [studentToEdit, setStudentToEdit] = useState<Student | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '' });
+    const [editedName, setEditedName] = useState("");
     const { toast } = useToast();
 
     const handleAddClick = () => {
         setFormValues({ enrollmentNumber: '', name: '' });
         setIsAddDialogOpen(true);
+    };
+
+    const handleEditClick = (student: Student) => {
+        setStudentToEdit(student);
+        setEditedName(student.name);
     };
 
     const handleDeleteClick = (student: Student) => {
@@ -452,7 +469,6 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
         if (!studentToDelete) return;
         setIsDeleting(true);
 
-        // First, attempt to delete all associated submissions
         const submissionDeletionResult = await deleteSubmissionsForUser(studentToDelete.enrollmentNumber);
 
         if (!submissionDeletionResult.success) {
@@ -466,14 +482,11 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
             return;
         }
 
-        // If submission deletion is successful, delete the student
         const studentDeletionResult = await deleteStudent(studentToDelete.docId);
         if (studentDeletionResult.success) {
             toast({ title: "Student Deleted", description: `Student ${studentToDelete.name} and all their submissions have been removed.` });
-            onUpdate(); // Refetch all data to update the UI
+            onUpdate();
         } else {
-            // This is a tricky state. Submissions are gone, but student is not.
-            // The admin should be notified to maybe try again.
             toast({ 
                 variant: "destructive", 
                 title: "Partial Deletion Error", 
@@ -500,6 +513,21 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
         setIsSaving(false);
     };
     
+    const handleSaveEdit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!studentToEdit || !editedName) return;
+        setIsSaving(true);
+        const result = await updateStudent(studentToEdit.docId, { name: editedName });
+        if (result.success) {
+            toast({ title: "Student Updated", description: "The student's name has been updated." });
+            onUpdate();
+            setStudentToEdit(null);
+        } else {
+            toast({ variant: "destructive", title: "Update Failed", description: result.error });
+        }
+        setIsSaving(false);
+    };
+
     return (
         <>
         <Card>
@@ -517,7 +545,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
                             <TableHead className="w-[200px]">Enrollment #</TableHead>
                             <TableHead>Student Name</TableHead>
                             <TableHead>Currently Assigned</TableHead>
-                            <TableHead className="text-right w-[260px]">Actions</TableHead>
+                            <TableHead className="text-right w-[310px]">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -527,7 +555,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-48" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                                <TableCell className="text-right"><Skeleton className="h-9 w-[250px] ml-auto" /></TableCell>
+                                <TableCell className="text-right"><Skeleton className="h-9 w-[300px] ml-auto" /></TableCell>
                             </TableRow>
                             ))
                         ) : students.length > 0 ? (
@@ -540,6 +568,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
                                   onUpdate={onUpdate}
                                   onRowClick={() => onStudentSelect(student)}
                                   onDelete={handleDeleteClick}
+                                  onEdit={handleEditClick}
                                   isSelected={selectedStudent?.docId === student.docId}
                                 />
                             })
@@ -597,6 +626,47 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
                 </form>
             </DialogContent>
         </Dialog>
+        
+        {/* Edit Student Dialog */}
+        <Dialog open={!!studentToEdit} onOpenChange={setStudentToEdit}>
+            <DialogContent className="sm:max-w-[480px]">
+                <form onSubmit={handleSaveEdit}>
+                    <DialogHeader>
+                        <DialogTitle>Edit Student</DialogTitle>
+                        <DialogDescription>Update the student's details. The enrollment number cannot be changed.</DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="editEnrollmentNumber">Enrollment # (Read-only)</Label>
+                            <Input
+                            id="editEnrollmentNumber"
+                            value={studentToEdit?.enrollmentNumber || ""}
+                            readOnly
+                            disabled
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="editedName">Name</Label>
+                            <Input
+                            id="editedName"
+                            value={editedName}
+                            onChange={(e) => setEditedName(e.target.value)}
+                            required
+                            disabled={isSaving}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary" disabled={isSaving}>Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={isSaving}>
+                            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save Changes'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
 
 
         {/* Delete Confirmation Dialog */}
@@ -644,16 +714,13 @@ export default function AdminPage() {
         getStudents(),
       ]);
 
-      // Find submissions missing a paperId and update them in the database.
       const submissionsToUpdate = subs.filter(sub => !sub.paperId);
       if (submissionsToUpdate.length > 0) {
-        // This runs the updates in the background.
         await Promise.all(
             submissionsToUpdate.map(sub => updateSubmission(sub.id, { paperId: 'M1' }))
         );
       }
 
-      // Create the updated list for the UI with 'M1' as a fallback.
       const updatedSubs = subs.map(sub => ({...sub, paperId: sub.paperId || 'M1'}));
       
       setSubmissions(updatedSubs);
@@ -671,7 +738,7 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (loading) return; // Wait for auth to finish
+    if (loading) return;
     if (!user || user.role !== "admin") {
       router.push("/");
     } else {
