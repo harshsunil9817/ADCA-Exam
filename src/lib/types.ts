@@ -6,7 +6,7 @@ export interface User {
   role: "student" | "admin";
   fatherName?: string; // Optional because admin doesn't have it
   dob?: { day: string; month: string; year: string; }; // Optional
-  assignedPaper: string; // e.g., "M1", "M2"
+  assignedPaper: string; // e.g., "M1", "M2". Determined at login.
   photoUrl?: string;
 }
 
@@ -14,15 +14,15 @@ export interface Student {
   docId: string; // The actual firestore document ID
   enrollmentNumber: string; // The enrollment number e.g. "CSA250006"
   name: string;
-  assignedPaper: string;
+  // assignedPaper is no longer stored, it's determined dynamically.
 }
 
 export interface StudentDetails {
   name: string;
   fatherName: string;
   dob: { day: string; month: string; year: string; };
-  assignedPaper: string;
   photoUrl?: string;
+  // assignedPaper is no longer stored.
 }
 
 export interface Option {

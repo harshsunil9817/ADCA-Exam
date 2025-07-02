@@ -18,7 +18,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { submitTest, hasUserSubmitted } from "@/actions/test";
+import { submitTest } from "@/actions/test";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
@@ -38,8 +38,9 @@ export default function TestPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user || !user.assignedPaper) {
-        router.push("/");
+    if (!user || !user.assignedPaper || user.assignedPaper === 'COMPLETED_ALL') {
+        toast({ variant: 'destructive', title: 'No Test Available', description: 'There is no test for you to take at this time.' });
+        router.push("/test/confirm");
         return;
     }
 
@@ -51,7 +52,7 @@ export default function TestPage() {
       [array[i], array[j]] = [array[j], array[i]];
     }
     setQuestions(array);
-  }, [user, authLoading, router]);
+  }, [user, authLoading, router, toast]);
 
   const answeredCount = useMemo(() => {
     // We filter out empty/undefined answers before getting the size
@@ -61,21 +62,6 @@ export default function TestPage() {
   const progressValue = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
   
   const currentQuestion = questions[currentQuestionIndex];
-
-  useEffect(() => {
-    if (authLoading || !user) return;
-
-    const checkSubmission = async () => {
-      if (!user.assignedPaper) return;
-      const alreadySubmitted = await hasUserSubmitted(user.id, user.assignedPaper);
-      if (alreadySubmitted) {
-          toast({ variant: 'destructive', title: 'Already Submitted', description: `You have already taken the ${user.assignedPaper} paper.` });
-          router.replace(`/test/submitted`); 
-      }
-    };
-
-    checkSubmission();
-  }, [user, authLoading, router, toast]);
 
   const handleSubmit = useCallback(async () => {
     setIsSubmitting(true);

@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/table";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw, Trash2 } from "lucide-react";
+import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw, Trash2, CheckCircle, XCircle, MoreHorizontal } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,14 +51,15 @@ import {
   DialogTitle,
   DialogClose
 } from "@/components/ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
+const paperOrder = ["M1", "M2", "M3", "M4"];
 
 // Submissions List Component
 function SubmissionsList() {
@@ -323,43 +324,43 @@ function QuestionEditor() {
 
 function StudentManager() {
     const [students, setStudents] = useState<Student[]>([]);
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
-    const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '', assignedPaper: '' });
+    const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '' });
     const { toast } = useToast();
 
-    const fetchStudents = async () => {
+    const fetchData = async () => {
         setLoading(true);
         try {
-            const studentList = await getStudents();
-            // Sort students by enrollment number client-side to maintain a consistent order
-            studentList.sort((a, b) => a.enrollmentNumber.localeCompare(b.enrollmentNumber));
+            const [studentList, submissionList] = await Promise.all([getStudents(), getSubmissions()]);
             setStudents(studentList);
+            setSubmissions(submissionList);
         } catch (error) {
-            console.error("Error fetching students:", error);
-            toast({ variant: "destructive", title: "Error", description: "Failed to fetch student list." });
+            console.error("Error fetching data:", error);
+            toast({ variant: "destructive", title: "Error", description: "Failed to fetch student or submission data." });
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchStudents();
+        fetchData();
     }, []);
 
     const handleAddClick = () => {
         setCurrentStudent(null);
-        setFormValues({ enrollmentNumber: '', name: '', assignedPaper: '' });
+        setFormValues({ enrollmentNumber: '', name: '' });
         setIsDialogOpen(true);
     };
 
     const handleEditClick = (student: Student) => {
         setCurrentStudent(student);
-        setFormValues({ enrollmentNumber: student.enrollmentNumber, name: student.name, assignedPaper: student.assignedPaper });
+        setFormValues({ enrollmentNumber: student.enrollmentNumber, name: student.name });
         setIsDialogOpen(true);
     };
     
@@ -373,7 +374,7 @@ function StudentManager() {
         const result = await deleteStudent(studentToDelete.docId);
         if (result.success) {
             toast({ title: "Student Deleted", description: `Student ${studentToDelete.name} has been removed.` });
-            fetchStudents(); // Refetch to update the list
+            fetchData(); // Refetch to update the list
         } else {
             toast({ variant: "destructive", title: "Error", description: result.error });
         }
@@ -387,19 +388,44 @@ function StudentManager() {
         
         let result;
         if (currentStudent) { // Editing existing student
-            result = await updateStudent(currentStudent.docId, { name: formValues.name, assignedPaper: formValues.assignedPaper });
+            result = await updateStudent(currentStudent.docId, { name: formValues.name });
         } else { // Adding new student
-            result = await addStudent(formValues.enrollmentNumber, formValues.name, formValues.assignedPaper);
+            result = await addStudent(formValues.enrollmentNumber, formValues.name);
         }
 
         if (result.success) {
             toast({ title: "Success", description: `Student data for ${formValues.name} has been saved.` });
             setIsDialogOpen(false);
-            fetchStudents();
+            fetchData();
         } else {
             toast({ variant: "destructive", title: "Error", description: result.error });
         }
         setIsSaving(false);
+    };
+    
+    const handleResetPaper = async (submissionId: string) => {
+        const submission = submissions.find(s => s.id === submissionId);
+        if (!submission) return;
+
+        // Optimistically update UI before calling server
+        const originalSubmissions = [...submissions];
+        setSubmissions(prev => prev.filter(s => s.id !== submissionId));
+        
+        try {
+            await deleteSubmission(submissionId);
+            toast({
+                title: "Paper Reset",
+                description: `Student ${submission.studentName} can now retake paper ${submission.paperId}.`,
+            });
+        } catch (error) {
+            // Revert UI on failure
+            setSubmissions(originalSubmissions);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: `Failed to reset paper ${submission.paperId}.`,
+            });
+        }
     };
 
     return (
@@ -408,7 +434,7 @@ function StudentManager() {
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="flex items-center gap-2"><Users /> Manage Students</CardTitle>
-                    <CardDescription>Add, edit, or remove student records and assign test papers.</CardDescription>
+                    <CardDescription>Add, edit students, and manage their paper statuses.</CardDescription>
                 </div>
                 <Button onClick={handleAddClick}><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button>
             </CardHeader>
@@ -418,34 +444,32 @@ function StudentManager() {
                         <TableRow>
                             <TableHead className="w-[200px]">Enrollment #</TableHead>
                             <TableHead>Student Name</TableHead>
-                            <TableHead className="w-[150px]">Assigned Paper</TableHead>
-                            <TableHead className="text-right w-[120px]">Actions</TableHead>
+                            <TableHead className="text-right w-[200px]">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                         {loading ? (
+                        {loading ? (
                             Array.from({ length: 5 }).map((_, i) => (
                             <TableRow key={i}>
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                                <TableCell><Skeleton className="h-5 w-20" /></TableCell>
                                 <TableCell className="text-right"><Skeleton className="h-9 w-[84px] ml-auto" /></TableCell>
                             </TableRow>
                             ))
                         ) : students.length > 0 ? (
-                            students.map((student) => (
-                                <TableRow key={student.docId}>
+                            students.map((student) => {
+                                const studentSubmissions = submissions.filter(s => s.userId === student.enrollmentNumber);
+                                return (
+                                <Collapsible asChild key={student.docId}>
+                                <>
+                                <TableRow>
                                     <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
                                     <TableCell className="font-medium">{student.name}</TableCell>
-                                    <TableCell>
-                                        {student.assignedPaper ? (
-                                            student.assignedPaper
-                                        ) : (
-                                            <span className="text-muted-foreground italic">Not Assigned</span>
-                                        )}
-                                    </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex gap-2 justify-end">
+                                            <CollapsibleTrigger asChild>
+                                                <Button variant="ghost" size="sm">Manage Papers</Button>
+                                            </CollapsibleTrigger>
                                             <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => handleEditClick(student)}>
                                                 <Edit className="h-4 w-4" />
                                                 <span className="sr-only">Edit</span>
@@ -457,10 +481,47 @@ function StudentManager() {
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ))
+                                <CollapsibleContent asChild>
+                                    <tr className="bg-muted/50">
+                                        <td colSpan={3} className="p-0">
+                                            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                                {paperOrder.map(paperId => {
+                                                    const submission = studentSubmissions.find(s => s.paperId === paperId);
+                                                    return (
+                                                        <Card key={paperId}>
+                                                            <CardHeader className="pb-2">
+                                                                <CardTitle className="text-base flex justify-between items-center">
+                                                                    {paperId} Paper
+                                                                    {submission ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-muted-foreground" />}
+                                                                </CardTitle>
+                                                            </CardHeader>
+                                                            <CardContent>
+                                                                {submission ? (
+                                                                    <div className="space-y-2 text-sm">
+                                                                        <p>Score: <span className="font-bold">{submission.correctAnswers}/{submission.totalQuestions}</span> ({submission.percentage.toFixed(1)}%)</p>
+                                                                        <p>Date: {new Date(submission.date).toLocaleDateString()}</p>
+                                                                        <Button size="sm" variant="secondary" className="w-full mt-2" onClick={() => handleResetPaper(submission.id)}>
+                                                                            <RefreshCcw className="mr-2 h-4 w-4"/> Reset
+                                                                        </Button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <p className="text-sm text-muted-foreground">Pending</p>
+                                                                )}
+                                                            </CardContent>
+                                                        </Card>
+                                                    );
+                                                })}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </CollapsibleContent>
+                                </>
+                                </Collapsible>
+                                );
+                            })
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={4} className="text-center h-24">No students found.</TableCell>
+                                <TableCell colSpan={3} className="text-center h-24">No students found.</TableCell>
                             </TableRow>
                         )}
                     </TableBody>
@@ -499,25 +560,6 @@ function StudentManager() {
                             required
                             disabled={isSaving}
                             />
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="assignedPaper">Assign Paper</Label>
-                             <Select
-                                value={formValues.assignedPaper}
-                                onValueChange={(value) => setFormValues({ ...formValues, assignedPaper: value })}
-                                required
-                                disabled={isSaving}
-                            >
-                                <SelectTrigger id="assignedPaper">
-                                    <SelectValue placeholder="Select a paper" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="M1">M1 Paper</SelectItem>
-                                    <SelectItem value="M2">M2 Paper</SelectItem>
-                                    <SelectItem value="M3">M3 Paper</SelectItem>
-                                    <SelectItem value="M4">M4 Paper</SelectItem>
-                                </SelectContent>
-                            </Select>
                         </div>
                     </div>
                     <DialogFooter>
@@ -581,20 +623,20 @@ export default function AdminPage() {
       <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
       <p className="text-muted-foreground mb-8">Manage test submissions and application data.</p>
       
-      <Tabs defaultValue="submissions" className="w-full">
+      <Tabs defaultValue="students" className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
+              <TabsTrigger value="students">Manage Students</TabsTrigger>
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
               <TabsTrigger value="questions">Questions</TabsTrigger>
-              <TabsTrigger value="students">Manage Students</TabsTrigger>
           </TabsList>
+          <TabsContent value="students" className="mt-6">
+              <StudentManager />
+          </TabsContent>
           <TabsContent value="submissions" className="mt-6">
               <SubmissionsList />
           </TabsContent>
           <TabsContent value="questions" className="mt-6">
               <QuestionEditor />
-          </TabsContent>
-           <TabsContent value="students" className="mt-6">
-              <StudentManager />
           </TabsContent>
       </Tabs>
 
@@ -602,5 +644,3 @@ export default function AdminPage() {
     </>
   );
 }
-
-    

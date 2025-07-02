@@ -105,13 +105,26 @@ export async function updateSubmission(submissionId: string, data: Partial<Submi
 }
 
 
-// Server action to check if a user has already submitted a test for a specific paper.
-export async function hasUserSubmitted(userId: string, paperId: string): Promise<boolean> {
-  if (!userId || !paperId) return false;
-  const submissionsRef = collection(appDb, "submissions");
-  const q = query(submissionsRef, where("userId", "==", userId), where("paperId", "==", paperId));
-  const querySnapshot = await getDocs(q);
-  return !querySnapshot.empty;
+// Server action to get all completed paper IDs for a user.
+export async function getCompletedPapers(userId: string): Promise<string[]> {
+  if (!userId) return [];
+  try {
+    const submissionsRef = collection(appDb, "submissions");
+    const q = query(submissionsRef, where("userId", "==", userId));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.empty) {
+        return [];
+    }
+
+    // Use a Set to get unique paper IDs
+    const paperIds = new Set(querySnapshot.docs.map(doc => doc.data().paperId as string));
+    return Array.from(paperIds);
+
+  } catch(error) {
+    console.error("🔥 FIREBASE ERROR (getCompletedPapers):", error);
+    return [];
+  }
 }
 
 // Server action to get all submissions.
@@ -121,7 +134,6 @@ export async function getSubmissions(): Promise<Submission[]> {
     if (querySnapshot.empty) {
         return [];
     }
-    // Note: We cast to Submission, assuming the data in Firestore matches the type.
     return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Submission);
 }
 

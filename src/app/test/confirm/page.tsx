@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, UserCheck, ArrowLeft, FileText, AlertTriangle } from 'lucide-react';
+import { Loader2, UserCheck, ArrowLeft, FileText, AlertTriangle, PartyPopper } from 'lucide-react';
 import { Header } from '@/components/header';
 import Image from "next/image";
 
@@ -31,7 +31,8 @@ export default function ConfirmDetailsPage() {
         router.push('/test');
     };
     
-    const hasPaperAssigned = user.assignedPaper && user.assignedPaper.trim() !== '';
+    const hasPaperAssigned = user.assignedPaper && user.assignedPaper !== 'COMPLETED_ALL';
+    const allPapersCompleted = user.assignedPaper === 'COMPLETED_ALL';
 
     return (
         <>
@@ -69,17 +70,23 @@ export default function ConfirmDetailsPage() {
                             <span className="font-bold">{`${user.dob?.day}/${user.dob?.month}/${user.dob?.year}`}</span>
                         </div>
                          <div className={`flex justify-between items-center p-3 rounded-md border ${hasPaperAssigned ? 'bg-blue-50 border-blue-200' : 'bg-yellow-50 border-yellow-300'}`}>
-                            <span className="font-medium text-muted-foreground flex items-center gap-2"><FileText size={20} /> Assigned Paper:</span>
-                            {hasPaperAssigned ? (
-                                <span className="font-bold text-blue-700 text-xl">{user.assignedPaper}</span>
-                            ) : (
-                                <span className="font-bold text-yellow-800 text-base">Not Assigned</span>
-                            )}
+                            <span className="font-medium text-muted-foreground flex items-center gap-2"><FileText size={20} /> Next Paper:</span>
+                            {hasPaperAssigned && <span className="font-bold text-blue-700 text-xl">{user.assignedPaper}</span>}
+                            {!hasPaperAssigned && !allPapersCompleted && <span className="font-bold text-yellow-800 text-base">Not Assigned</span>}
+                             {allPapersCompleted && <span className="font-bold text-green-700 text-base">All Completed!</span>}
                         </div>
-                        {!hasPaperAssigned && (
+
+                        {!hasPaperAssigned && !allPapersCompleted && (
                             <div className="text-center text-sm text-destructive-foreground bg-destructive/90 p-3 rounded-md flex items-center justify-center gap-2">
                                 <AlertTriangle className="h-5 w-5" />
                                 <p>No test is assigned to you. Please contact your administrator.</p>
+                            </div>
+                        )}
+
+                        {allPapersCompleted && (
+                             <div className="text-center text-sm text-green-800 bg-green-100 p-3 rounded-md flex items-center justify-center gap-2">
+                                <PartyPopper className="h-5 w-5" />
+                                <p>Congratulations! You have completed all available tests.</p>
                             </div>
                         )}
                     </CardContent>

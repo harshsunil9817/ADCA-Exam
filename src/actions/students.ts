@@ -24,8 +24,7 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Filter to only include students in the "ADCA" course, as requested.
-        // Removed orderBy to avoid needing a composite index. Sorting is now done client-side.
+        // Filter to only include students in the "ADCA" course.
         const q = query(studentsCollection, where("courseId", "==", "ADCA"));
         const snapshot = await getDocs(q);
         
@@ -33,12 +32,16 @@ export async function getStudents(): Promise<Student[]> {
             return [];
         }
         
-        return snapshot.docs.map(doc => ({
+        const studentList = snapshot.docs.map(doc => ({
             docId: doc.id,
             enrollmentNumber: doc.data().enrollmentNumber as string,
             name: doc.data().name as string,
-            assignedPaper: (doc.data().assignedPaper || '') as string, // Default to empty string if not set
         }));
+
+        // Sort client-side to avoid complex indexing requirements
+        studentList.sort((a, b) => a.enrollmentNumber.localeCompare(b.enrollmentNumber));
+        return studentList;
+
     } catch (error) {
         const firebaseError = error as { code?: string; message?: string };
         console.error("🔥 FIREBASE ERROR (getStudents):", firebaseError.code, firebaseError.message);
@@ -57,7 +60,6 @@ export async function getStudentByEnrollment(enrollmentNumber: string, name?: st
         let snapshot = await getDocs(q);
         
         // If not found and a name is provided, fall back to searching by name within the ADCA course.
-        // This handles cases where the enrollment number might have changed.
         if (snapshot.empty && name) {
             q = query(studentsCollection, where("name", "==", name), where("courseId", "==", "ADCA"));
             snapshot = await getDocs(q);
@@ -67,7 +69,6 @@ export async function getStudentByEnrollment(enrollmentNumber: string, name?: st
             return null;
         }
         
-        // Assuming the first result is the correct one in case of name duplicates
         const studentDoc = snapshot.docs[0];
         const studentData = studentDoc.data();
         
@@ -75,7 +76,6 @@ export async function getStudentByEnrollment(enrollmentNumber: string, name?: st
             docId: studentDoc.id,
             enrollmentNumber: studentData.enrollmentNumber as string,
             name: studentData.name as string,
-            assignedPaper: (studentData.assignedPaper || '') as string,
         };
         return student;
 
@@ -87,9 +87,9 @@ export async function getStudentByEnrollment(enrollmentNumber: string, name?: st
 }
 
 // Adds a new student record
-export async function addStudent(enrollmentNumber: string, name: string, assignedPaper: string): Promise<{ success: boolean; error?: string }> {
-    if (!enrollmentNumber || !name || !assignedPaper) {
-        return { success: false, error: 'Enrollment Number, Name, and Assigned Paper are required.' };
+export async function addStudent(enrollmentNumber: string, name: string): Promise<{ success: boolean; error?: string }> {
+    if (!enrollmentNumber || !name) {
+        return { success: false, error: 'Enrollment Number and Name are required.' };
     }
    
     try {
@@ -102,7 +102,6 @@ export async function addStudent(enrollmentNumber: string, name: string, assigne
         await addDoc(collection(studentDb, "students"), {
             enrollmentNumber,
             name,
-            assignedPaper,
             courseId: "ADCA" 
         });
         return { success: true };
@@ -113,8 +112,8 @@ export async function addStudent(enrollmentNumber: string, name: string, assigne
     }
 }
 
-// Updates a student's name and assigned paper
-export async function updateStudent(docId: string, data: Partial<{ name: string; assignedPaper: string }>): Promise<{ success: boolean; error?: string }> {
+// Updates a student's name
+export async function updateStudent(docId: string, data: Partial<{ name: string }>): Promise<{ success: boolean; error?: string }> {
     if (!docId || Object.keys(data).length === 0) {
         return { success: false, error: 'Student Doc ID and data to update are required.' };
     }
@@ -148,7 +147,7 @@ export async function deleteStudent(docId: string): Promise<{ success: boolean; 
 }
 
 // Fetches a student's full details by their enrollment number for login validation
-export async function getStudentDetails(enrollmentNumber: string): Promise<StudentDetails | null> {
+export async function getStudentDetails(enrollmentNumber: string): Promise<Omit<StudentDetails, 'assignedPaper'> | null> {
     try {
         const studentsRef = collection(studentDb, 'students');
         const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber));
@@ -166,7 +165,6 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Stude
             name: studentData.name as string,
             fatherName: studentData.fatherName as string,
             dob: studentData.dob as { day: string; month: string; year: string; },
-            assignedPaper: (studentData.assignedPaper || '') as string, // Default to empty string
             photoUrl: studentData.photoUrl as string,
         };
 

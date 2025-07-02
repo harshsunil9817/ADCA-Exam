@@ -5,12 +5,12 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { hasUserSubmitted } from '@/actions/test';
+import { getCompletedPapers } from '@/actions/test';
 import { getStudentDetails } from '@/actions/students';
 
 interface AuthResult {
   user: User | null;
-  error?: 'password' | 'used' | 'generic';
+  error?: 'password' | 'used' | 'generic' | 'all_completed';
 }
 
 interface AuthContextType {
@@ -21,6 +21,8 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const paperOrder = ['M1', 'M2', 'M3', 'M4'];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -96,17 +98,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check if student exists in the student database and get details
     const studentDetails = await getStudentDetails(userId);
     if (!studentDetails) {
-        // User not found in student database, return generic error
         return { user: null, error: 'generic' };
     }
 
-    // Check if user has already submitted a test for their assigned paper
-    const alreadySubmitted = await hasUserSubmitted(userId, studentDetails.assignedPaper);
-    if (alreadySubmitted) {
-        return { user: null, error: 'used' };
+    // Determine the next paper for the student
+    const completedPapers = await getCompletedPapers(userId);
+    const nextPaper = paperOrder.find(p => !completedPapers.includes(p));
+
+    if (!nextPaper) {
+      // This can happen if all tests are completed.
+      // We still log them in so they can see confirmation, but they can't start a new test.
+       const loggedInUser: User = {
+          id: userId,
+          name: studentDetails.name,
+          userId: userId,
+          role: 'student',
+          fatherName: studentDetails.fatherName,
+          dob: studentDetails.dob,
+          assignedPaper: 'COMPLETED_ALL', // Special status
+          photoUrl: studentDetails.photoUrl,
+      };
+      sessionStorage.setItem('user', JSON.stringify(loggedInUser));
+      setUser(loggedInUser);
+      return { user: loggedInUser };
     }
     
-    // If all checks pass, create the user object
+    // If all checks pass, create the user object with the next paper
     const loggedInUser: User = {
         id: userId,
         name: studentDetails.name,
@@ -114,7 +131,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         role: 'student',
         fatherName: studentDetails.fatherName,
         dob: studentDetails.dob,
-        assignedPaper: studentDetails.assignedPaper,
+        assignedPaper: nextPaper,
         photoUrl: studentDetails.photoUrl,
     };
     
