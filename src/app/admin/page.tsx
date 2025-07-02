@@ -51,7 +51,6 @@ import {
   DialogTitle,
   DialogClose
 } from "@/components/ui/dialog";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -333,6 +332,19 @@ function StudentManager() {
     const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
     const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '' });
     const { toast } = useToast();
+    const [openRows, setOpenRows] = useState<Set<string>>(new Set());
+
+    const toggleRow = (studentId: string) => {
+        setOpenRows(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(studentId)) {
+                newSet.delete(studentId);
+            } else {
+                newSet.add(studentId);
+            }
+            return newSet;
+        });
+    };
 
     const fetchData = async () => {
         setLoading(true);
@@ -460,16 +472,15 @@ function StudentManager() {
                             students.map((student) => {
                                 const studentSubmissions = submissions.filter(s => s.userId === student.enrollmentNumber);
                                 return (
-                                <Collapsible asChild key={student.docId}>
-                                <>
+                                <React.Fragment key={student.docId}>
                                 <TableRow>
                                     <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
                                     <TableCell className="font-medium">{student.name}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex gap-2 justify-end">
-                                            <CollapsibleTrigger asChild>
-                                                <Button variant="ghost" size="sm">Manage Papers</Button>
-                                            </CollapsibleTrigger>
+                                            <Button variant="ghost" size="sm" onClick={() => toggleRow(student.docId)}>
+                                                Manage Papers
+                                            </Button>
                                             <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => handleEditClick(student)}>
                                                 <Edit className="h-4 w-4" />
                                                 <span className="sr-only">Edit</span>
@@ -481,7 +492,7 @@ function StudentManager() {
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                                <CollapsibleContent asChild>
+                                {openRows.has(student.docId) && (
                                     <tr className="bg-muted/50">
                                         <td colSpan={3} className="p-0">
                                             <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -514,9 +525,8 @@ function StudentManager() {
                                             </div>
                                         </td>
                                     </tr>
-                                </CollapsibleContent>
-                                </>
-                                </Collapsible>
+                                )}
+                                </React.Fragment>
                                 );
                             })
                         ) : (
