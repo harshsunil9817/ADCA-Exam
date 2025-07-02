@@ -35,7 +35,7 @@ export async function getStudents(): Promise<Student[]> {
             docId: doc.id,
             enrollmentNumber: doc.data().enrollmentNumber as string,
             name: doc.data().name as string,
-            assignedPaper: (doc.data().assignedPaper || 'M1') as string, // Default to M1 if not set
+            assignedPaper: (doc.data().assignedPaper || '') as string, // Default to empty string if not set
         }));
 
         // Sort the results by enrollment number here in the code
@@ -139,7 +139,7 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Stude
             name: studentData.name as string,
             fatherName: studentData.fatherName as string,
             dob: studentData.dob as { day: string; month: string; year: string; },
-            assignedPaper: (studentData.assignedPaper || 'M1') as string, // Default to M1
+            assignedPaper: (studentData.assignedPaper || '') as string, // Default to empty string
             photoUrl: studentData.photoUrl as string,
         };
 

@@ -329,7 +329,7 @@ function StudentManager() {
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
-    const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '', assignedPaper: 'M1' });
+    const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '', assignedPaper: '' });
     const { toast } = useToast();
 
     const fetchStudents = async () => {
@@ -351,7 +351,7 @@ function StudentManager() {
 
     const handleAddClick = () => {
         setCurrentStudent(null);
-        setFormValues({ enrollmentNumber: '', name: '', assignedPaper: 'M1' });
+        setFormValues({ enrollmentNumber: '', name: '', assignedPaper: '' });
         setIsDialogOpen(true);
     };
 
@@ -435,7 +435,13 @@ function StudentManager() {
                                 <TableRow key={student.docId}>
                                     <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
                                     <TableCell className="font-medium">{student.name}</TableCell>
-                                    <TableCell>{student.assignedPaper}</TableCell>
+                                    <TableCell>
+                                        {student.assignedPaper ? (
+                                            student.assignedPaper
+                                        ) : (
+                                            <span className="text-muted-foreground italic">Not Assigned</span>
+                                        )}
+                                    </TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex gap-2 justify-end">
                                             <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => handleEditClick(student)}>

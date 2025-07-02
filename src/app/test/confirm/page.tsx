@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, UserCheck, ArrowLeft, FileText } from 'lucide-react';
+import { Loader2, UserCheck, ArrowLeft, FileText, AlertTriangle } from 'lucide-react';
 import { Header } from '@/components/header';
 import Image from "next/image";
 
@@ -30,6 +30,8 @@ export default function ConfirmDetailsPage() {
     const handleConfirm = () => {
         router.push('/test');
     };
+    
+    const hasPaperAssigned = user.assignedPaper && user.assignedPaper.trim() !== '';
 
     return (
         <>
@@ -66,17 +68,27 @@ export default function ConfirmDetailsPage() {
                             <span className="font-medium text-muted-foreground">Date of Birth:</span>
                             <span className="font-bold">{`${user.dob?.day}/${user.dob?.month}/${user.dob?.year}`}</span>
                         </div>
-                         <div className="flex justify-between items-center bg-blue-50 border border-blue-200 p-3 rounded-md">
+                         <div className={`flex justify-between items-center p-3 rounded-md border ${hasPaperAssigned ? 'bg-blue-50 border-blue-200' : 'bg-yellow-50 border-yellow-300'}`}>
                             <span className="font-medium text-muted-foreground flex items-center gap-2"><FileText size={20} /> Assigned Paper:</span>
-                            <span className="font-bold text-blue-700 text-xl">{user.assignedPaper}</span>
+                            {hasPaperAssigned ? (
+                                <span className="font-bold text-blue-700 text-xl">{user.assignedPaper}</span>
+                            ) : (
+                                <span className="font-bold text-yellow-800 text-base">Not Assigned</span>
+                            )}
                         </div>
+                        {!hasPaperAssigned && (
+                            <div className="text-center text-sm text-destructive-foreground bg-destructive/90 p-3 rounded-md flex items-center justify-center gap-2">
+                                <AlertTriangle className="h-5 w-5" />
+                                <p>No test is assigned to you. Please contact your administrator.</p>
+                            </div>
+                        )}
                     </CardContent>
                     <CardFooter className="flex flex-col sm:flex-row gap-2">
                         <Button onClick={logout} className="w-full" size="lg" variant="outline">
                             <ArrowLeft className="mr-2 h-5 w-5" />
                             Back to Login
                         </Button>
-                        <Button onClick={handleConfirm} className="w-full" size="lg">
+                        <Button onClick={handleConfirm} className="w-full" size="lg" disabled={!hasPaperAssigned}>
                             <UserCheck className="mr-2 h-5 w-5" />
                             Yes, this is me. Start Test.
                         </Button>
