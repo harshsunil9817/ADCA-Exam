@@ -10,6 +10,7 @@ import { deleteSubmission, getSubmissions } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
 import { papers as defaultPapers } from "@/data/questions";
+import { cn } from "@/lib/utils";
 
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -66,10 +67,12 @@ interface SubmissionsListProps {
   submissions: Submission[];
   loading: boolean;
   onUpdate: () => void;
+  filterStudent: Student | null;
+  onClearFilter: () => void;
 }
 
 // Submissions List Component
-function SubmissionsList({ submissions, loading, onUpdate }: SubmissionsListProps) {
+function SubmissionsList({ submissions, loading, onUpdate, filterStudent, onClearFilter }: SubmissionsListProps) {
   const [submissionToReset, setSubmissionToReset] = useState<Submission | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [resetDate, setResetDate] = useState<Date | undefined>(new Date());
@@ -77,11 +80,17 @@ function SubmissionsList({ submissions, loading, onUpdate }: SubmissionsListProp
   const { toast } = useToast();
 
   const filteredSubmissions = useMemo(() => {
-    if (activeFilter === "all") {
-      return submissions;
+    let subs = submissions;
+
+    if (filterStudent) {
+      subs = subs.filter(s => s.userId === filterStudent.enrollmentNumber || s.studentName === filterStudent.name);
     }
-    return submissions.filter(sub => sub.paperId === activeFilter);
-  }, [submissions, activeFilter]);
+    
+    if (activeFilter === "all") {
+      return subs;
+    }
+    return subs.filter(sub => sub.paperId === activeFilter);
+  }, [submissions, activeFilter, filterStudent]);
 
   const handleResetSubmission = async () => {
     if (!submissionToReset) return;
@@ -112,10 +121,23 @@ function SubmissionsList({ submissions, loading, onUpdate }: SubmissionsListProp
     <>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><FileText /> Test Submissions</CardTitle>
-          <CardDescription>
-            View and filter submitted test papers. You can also allow a student to retake a test.
-          </CardDescription>
+            <div className="flex justify-between items-start">
+                <div>
+                    <CardTitle className="flex items-center gap-2"><FileText /> Test Submissions</CardTitle>
+                    <CardDescription>
+                      {filterStudent 
+                        ? `Showing submissions for ${filterStudent.name}.`
+                        : "View and filter submitted test papers. You can also allow a student to retake a test."
+                      }
+                    </CardDescription>
+                </div>
+                {filterStudent && (
+                    <Button variant="outline" size="sm" onClick={onClearFilter}>
+                        <Users className="mr-2 h-4 w-4" />
+                        Show All Students
+                    </Button>
+                )}
+            </div>
         </CardHeader>
         <CardContent>
           <Tabs value={activeFilter} onValueChange={setActiveFilter} className="mb-4">
@@ -182,7 +204,9 @@ function SubmissionsList({ submissions, loading, onUpdate }: SubmissionsListProp
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center h-24">
-                     {activeFilter === 'all' ? 'No submissions yet.' : `No submissions found for paper ${activeFilter}.`}
+                     {filterStudent 
+                        ? `${filterStudent.name} has no submissions.` 
+                        : (activeFilter === 'all' ? 'No submissions yet.' : `No submissions found for paper ${activeFilter}.`)}
                   </TableCell>
                 </TableRow>
               )}
@@ -324,9 +348,11 @@ interface StudentRowProps {
   student: Student;
   submissions: Submission[];
   onUpdate: () => void;
+  onRowClick: () => void;
+  isSelected: boolean;
 }
 
-function StudentRow({ student, submissions, onUpdate }: StudentRowProps) {
+function StudentRow({ student, submissions, onUpdate, onRowClick, isSelected }: StudentRowProps) {
     const [selectedPaper, setSelectedPaper] = useState("");
     const [isAuthorizing, setIsAuthorizing] = useState(false);
     const { toast } = useToast();
@@ -352,7 +378,7 @@ function StudentRow({ student, submissions, onUpdate }: StudentRowProps) {
     };
 
     return (
-        <TableRow>
+        <TableRow onClick={onRowClick} data-selected={isSelected} className={cn("cursor-pointer", isSelected && "bg-accent/50 hover:bg-accent")}>
             <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
             <TableCell className="font-medium">{student.name}</TableCell>
             <TableCell>
@@ -389,9 +415,11 @@ interface StudentManagerProps {
   submissions: Submission[];
   loading: boolean;
   onUpdate: () => void;
+  onStudentSelect: (student: Student) => void;
+  selectedStudent: Student | null;
 }
 
-function StudentManager({ students, submissions, loading, onUpdate }: StudentManagerProps) {
+function StudentManager({ students, submissions, loading, onUpdate, onStudentSelect, selectedStudent }: StudentManagerProps) {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -443,7 +471,7 @@ function StudentManager({ students, submissions, loading, onUpdate }: StudentMan
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="flex items-center gap-2"><Users /> Manage Students</CardTitle>
-                    <CardDescription>Authorize students to take a test. Completed papers cannot be re-authorized.</CardDescription>
+                    <CardDescription>Authorize students to take a test. Click a student to view their submissions.</CardDescription>
                 </div>
                 <Button onClick={handleAddClick}><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button>
             </CardHeader>
@@ -470,7 +498,14 @@ function StudentManager({ students, submissions, loading, onUpdate }: StudentMan
                         ) : students.length > 0 ? (
                             students.map((student) => {
                                 const studentSubmissions = submissions.filter(s => s.userId === student.enrollmentNumber || s.studentName === student.name);
-                                return <StudentRow key={student.docId} student={student} submissions={studentSubmissions} onUpdate={onUpdate} />
+                                return <StudentRow 
+                                  key={student.docId} 
+                                  student={student} 
+                                  submissions={studentSubmissions} 
+                                  onUpdate={onUpdate}
+                                  onRowClick={() => onStudentSelect(student)}
+                                  isSelected={selectedStudent?.docId === student.docId}
+                                />
                             })
                         ) : (
                             <TableRow>
@@ -561,6 +596,8 @@ export default function AdminPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const [activeTab, setActiveTab] = useState("students");
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -604,6 +641,16 @@ export default function AdminPage() {
     );
   }
 
+  const handleStudentSelect = (student: Student) => {
+    setSelectedStudent(student);
+    setActiveTab('submissions');
+  };
+
+  const handleClearFilter = () => {
+    setSelectedStudent(null);
+  };
+
+
   return (
     <>
     <Header />
@@ -611,7 +658,7 @@ export default function AdminPage() {
       <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
       <p className="text-muted-foreground mb-8">Manage test submissions and application data.</p>
       
-      <Tabs defaultValue="students" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
               <TabsTrigger value="students">Manage Students</TabsTrigger>
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
@@ -622,7 +669,9 @@ export default function AdminPage() {
                 students={students} 
                 submissions={submissions} 
                 loading={isLoadingData} 
-                onUpdate={fetchData} 
+                onUpdate={fetchData}
+                onStudentSelect={handleStudentSelect}
+                selectedStudent={selectedStudent}
             />
           </TabsContent>
           <TabsContent value="submissions" className="mt-6">
@@ -630,6 +679,8 @@ export default function AdminPage() {
                 submissions={submissions}
                 loading={isLoadingData}
                 onUpdate={fetchData}
+                filterStudent={selectedStudent}
+                onClearFilter={handleClearFilter}
             />
           </TabsContent>
           <TabsContent value="questions" className="mt-6">
@@ -641,5 +692,3 @@ export default function AdminPage() {
     </>
   );
 }
-
-    
