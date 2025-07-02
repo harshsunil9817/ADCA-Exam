@@ -160,7 +160,7 @@ function SubmissionsList() {
               <TableRow>
                 <TableHead>Student Name</TableHead>
                 <TableHead>Paper Taken</TableHead>
-                <TableHead>Currently Assigned</TableHead>
+                <TableHead>Assigned Paper</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Score</TableHead>
                 <TableHead className="text-right">Percentage</TableHead>
@@ -187,7 +187,7 @@ function SubmissionsList() {
                     <TableRow key={sub.id}>
                       <TableCell className="font-medium">{sub.studentName}</TableCell>
                       <TableCell className="font-mono text-center">{sub.paperId}</TableCell>
-                      <TableCell className="font-mono text-center">{assignedPaper || 'N/A'}</TableCell>
+                      <TableCell className="font-mono text-center">{assignedPaper || <span className="text-muted-foreground italic">N/A</span>}</TableCell>
                       <TableCell>{new Date(sub.date).toLocaleString()}</TableCell>
                       <TableCell className="text-right">{`${sub.correctAnswers}/${sub.totalQuestions}`}</TableCell>
                       <TableCell className="text-right">{sub.percentage.toFixed(2)}%</TableCell>

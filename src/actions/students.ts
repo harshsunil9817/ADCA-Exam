@@ -24,8 +24,8 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        const q = query(studentsCollection, where("courseId", "==", "ADCA"));
-        const snapshot = await getDocs(q);
+        // Removed the restrictive where("courseId", ...) filter to fetch ALL students, ensuring old records are included.
+        const snapshot = await getDocs(studentsCollection);
         
         if (snapshot.empty) {
             return [];
