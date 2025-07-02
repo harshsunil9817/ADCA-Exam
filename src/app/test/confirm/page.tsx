@@ -44,8 +44,8 @@ export default function ConfirmDetailsPage() {
                                 <Image
                                     src={user.photoUrl}
                                     alt="Student Photo"
-                                    width={400}
-                                    height={300}
+                                    width={250}
+                                    height={400}
                                     className="rounded-md border-4 border-primary object-cover"
                                 />
                             </div>
