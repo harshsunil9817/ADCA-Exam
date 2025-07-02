@@ -54,7 +54,8 @@ export async function getStudentByEnrollment(enrollmentNumber: string): Promise<
     if (!enrollmentNumber) return null;
     try {
         const studentsCollection = collection(studentDb, 'students');
-        const q = query(studentsCollection, where("enrollmentNumber", "==", enrollmentNumber), where("courseId", "==", "ADCA"));
+        // Simplified query to avoid needing a composite index.
+        const q = query(studentsCollection, where("enrollmentNumber", "==", enrollmentNumber));
         const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
@@ -62,11 +63,18 @@ export async function getStudentByEnrollment(enrollmentNumber: string): Promise<
         }
         
         const studentDoc = snapshot.docs[0];
+        const studentData = studentDoc.data();
+
+        // Check the courseId in the code to ensure they are an ADCA student.
+        if (studentData.courseId !== 'ADCA') {
+            return null;
+        }
+        
         const student: Student = {
             docId: studentDoc.id,
-            enrollmentNumber: studentDoc.data().enrollmentNumber as string,
-            name: studentDoc.data().name as string,
-            assignedPaper: (studentDoc.data().assignedPaper || '') as string,
+            enrollmentNumber: studentData.enrollmentNumber as string,
+            name: studentData.name as string,
+            assignedPaper: (studentData.assignedPaper || '') as string,
         };
         return student;
 
