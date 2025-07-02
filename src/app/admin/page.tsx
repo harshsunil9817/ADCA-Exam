@@ -349,10 +349,11 @@ interface StudentRowProps {
   submissions: Submission[];
   onUpdate: () => void;
   onRowClick: () => void;
+  onDelete: (student: Student) => void;
   isSelected: boolean;
 }
 
-function StudentRow({ student, submissions, onUpdate, onRowClick, isSelected }: StudentRowProps) {
+function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, isSelected }: StudentRowProps) {
     const [selectedPaper, setSelectedPaper] = useState("");
     const [isAuthorizing, setIsAuthorizing] = useState(false);
     const { toast } = useToast();
@@ -361,7 +362,8 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, isSelected }: 
         return submissions.map(s => s.paperId);
     }, [submissions]);
 
-    const handleAuthorize = async () => {
+    const handleAuthorize = async (e: React.MouseEvent) => {
+        e.stopPropagation();
         if (!selectedPaper) {
             toast({ variant: "destructive", title: "No Paper Selected", description: "Please select a paper to authorize." });
             return;
@@ -377,6 +379,12 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, isSelected }: 
         setIsAuthorizing(false);
     };
 
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onDelete(student);
+    };
+
+
     return (
         <TableRow onClick={onRowClick} data-selected={isSelected} className={cn("cursor-pointer", isSelected && "bg-accent/50 hover:bg-accent")}>
             <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
@@ -391,7 +399,7 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, isSelected }: 
             <TableCell className="text-right">
                 <div className="flex gap-2 justify-end items-center">
                     <Select value={selectedPaper} onValueChange={setSelectedPaper}>
-                        <SelectTrigger className="w-[120px] h-9">
+                        <SelectTrigger onClick={(e) => e.stopPropagation()} className="w-[120px] h-9">
                             <SelectValue placeholder="Select Paper" />
                         </SelectTrigger>
                         <SelectContent>
@@ -403,6 +411,10 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, isSelected }: 
                     </Select>
                     <Button onClick={handleAuthorize} disabled={isAuthorizing || !selectedPaper} size="sm">
                         {isAuthorizing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Authorize'}
+                    </Button>
+                    <Button onClick={handleDelete} variant="destructive" size="icon" className="h-9 w-9" title="Delete Student">
+                         <Trash2 className="h-4 w-4" />
+                        <span className="sr-only">Delete Student</span>
                     </Button>
                 </div>
             </TableCell>
@@ -482,7 +494,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
                             <TableHead className="w-[200px]">Enrollment #</TableHead>
                             <TableHead>Student Name</TableHead>
                             <TableHead>Currently Assigned</TableHead>
-                            <TableHead className="text-right">Authorize New Test</TableHead>
+                            <TableHead className="text-right w-[260px]">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -492,7 +504,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-48" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                                <TableCell className="text-right"><Skeleton className="h-9 w-[200px] ml-auto" /></TableCell>
+                                <TableCell className="text-right"><Skeleton className="h-9 w-[250px] ml-auto" /></TableCell>
                             </TableRow>
                             ))
                         ) : students.length > 0 ? (
@@ -504,6 +516,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
                                   submissions={studentSubmissions} 
                                   onUpdate={onUpdate}
                                   onRowClick={() => onStudentSelect(student)}
+                                  onDelete={handleDeleteClick}
                                   isSelected={selectedStudent?.docId === student.docId}
                                 />
                             })
