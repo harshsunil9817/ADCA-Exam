@@ -63,7 +63,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 // Submissions List Component
 function SubmissionsList() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [submissionToReset, setSubmissionToReset] = useState<Submission | null>(null);
   const [isResetting, setIsResetting] = useState(false);
@@ -71,37 +70,24 @@ function SubmissionsList() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchSubmissionsAndStudents = async () => {
+    const fetchSubmissions = async () => {
       setLoading(true);
       try {
-        const [subs, studentList] = await Promise.all([
-          getSubmissions(),
-          getStudents(),
-        ]);
+        const subs = await getSubmissions();
         setSubmissions(subs);
-        setStudents(studentList);
       } catch (error) {
         console.error("Error fetching data: ", error);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to fetch submissions or student data.",
+          description: "Failed to fetch submissions.",
         });
       } finally {
         setLoading(false);
       }
     };
-    fetchSubmissionsAndStudents();
+    fetchSubmissions();
   }, [toast]);
-  
-  const studentPaperMap = useMemo(() => {
-    const map = new Map<string, string>();
-    students.forEach(student => {
-        map.set(student.enrollmentNumber, student.assignedPaper);
-    });
-    return map;
-  }, [students]);
-
 
   const filteredSubmissions = useMemo(() => {
     if (activeFilter === "all") {
@@ -179,16 +165,10 @@ function SubmissionsList() {
                   </TableRow>
                 ))
               ) : filteredSubmissions.length > 0 ? (
-                filteredSubmissions.map((sub) => {
-                  const assignedPaper = studentPaperMap.get(sub.userId);
-                  const showAssignedInfo = assignedPaper && assignedPaper !== sub.paperId;
-                  return (
+                filteredSubmissions.map((sub) => (
                     <TableRow key={sub.id}>
                       <TableCell className="font-medium">{sub.studentName}</TableCell>
-                      <TableCell className="font-mono text-center">
-                        {sub.paperId}
-                        {showAssignedInfo && <span className="block text-xs text-muted-foreground italic">(Assigned: {assignedPaper})</span>}
-                      </TableCell>
+                      <TableCell className="font-mono text-center">{sub.paperId}</TableCell>
                       <TableCell>{new Date(sub.date).toLocaleString()}</TableCell>
                       <TableCell className="text-right">{`${sub.correctAnswers}/${sub.totalQuestions}`}</TableCell>
                       <TableCell className="text-right">{sub.percentage.toFixed(2)}%</TableCell>
@@ -210,8 +190,7 @@ function SubmissionsList() {
                       </div>
                     </TableCell>
                   </TableRow>
-                  )
-                })
+                ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center h-24">
