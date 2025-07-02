@@ -36,6 +36,7 @@ export async function getStudents(): Promise<Student[]> {
             docId: doc.id,
             enrollmentNumber: doc.data().enrollmentNumber as string,
             name: doc.data().name as string,
+            assignedPaper: doc.data().assignedPaper as string | undefined,
         }));
 
         // Sort client-side to avoid complex indexing requirements
@@ -76,6 +77,7 @@ export async function getStudentByEnrollment(enrollmentNumber: string, name?: st
             docId: studentDoc.id,
             enrollmentNumber: studentData.enrollmentNumber as string,
             name: studentData.name as string,
+            assignedPaper: studentData.assignedPaper as string | undefined,
         };
         return student;
 
@@ -112,8 +114,8 @@ export async function addStudent(enrollmentNumber: string, name: string): Promis
     }
 }
 
-// Updates a student's name
-export async function updateStudent(docId: string, data: Partial<{ name: string }>): Promise<{ success: boolean; error?: string }> {
+// Updates a student's data (name and/or assignedPaper)
+export async function updateStudent(docId: string, data: Partial<{ name: string; assignedPaper: string }>): Promise<{ success: boolean; error?: string }> {
     if (!docId || Object.keys(data).length === 0) {
         return { success: false, error: 'Student Doc ID and data to update are required.' };
     }
@@ -147,10 +149,10 @@ export async function deleteStudent(docId: string): Promise<{ success: boolean; 
 }
 
 // Fetches a student's full details by their enrollment number for login validation
-export async function getStudentDetails(enrollmentNumber: string): Promise<Omit<StudentDetails, 'assignedPaper'> | null> {
+export async function getStudentDetails(enrollmentNumber: string): Promise<StudentDetails | null> {
     try {
         const studentsRef = collection(studentDb, 'students');
-        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber));
+        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber), where("courseId", "==", "ADCA"));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -162,10 +164,12 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Omit<
         const studentData = studentDoc.data();
 
         return {
+            docId: studentDoc.id,
             name: studentData.name as string,
             fatherName: studentData.fatherName as string,
             dob: studentData.dob as { day: string; month: string; year: string; },
             photoUrl: studentData.photoUrl as string,
+            assignedPaper: studentData.assignedPaper as string | undefined,
         };
 
     } catch (error) {

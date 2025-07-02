@@ -57,8 +57,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const paperOrder = ["M1", "M2", "M3", "M4"];
 
 // Submissions List Component
 function SubmissionsList() {
@@ -69,25 +69,26 @@ function SubmissionsList() {
   const [activeFilter, setActiveFilter] = useState("all");
   const { toast } = useToast();
 
+  const fetchSubmissions = async () => {
+    setLoading(true);
+    try {
+      const subs = await getSubmissions();
+      setSubmissions(subs);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch submissions.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchSubmissions = async () => {
-      setLoading(true);
-      try {
-        const subs = await getSubmissions();
-        setSubmissions(subs);
-      } catch (error) {
-        console.error("Error fetching data: ", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to fetch submissions.",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchSubmissions();
-  }, [toast]);
+  }, []);
 
   const filteredSubmissions = useMemo(() => {
     if (activeFilter === "all") {
@@ -102,10 +103,10 @@ function SubmissionsList() {
     setIsResetting(true);
     try {
       await deleteSubmission(submissionToReset.id);
-      setSubmissions(submissions.filter(s => s.id !== submissionToReset.id));
+      fetchSubmissions(); // Refetch the submissions list
       toast({
         title: "Re-exam Allowed",
-        description: `${submissionToReset.studentName} can now retake the test for paper ${submissionToReset.paperId}.`,
+        description: `${submissionToReset.studentName} can now retake the test for paper ${submissionToReset.paperId}. Please re-authorize the test in the 'Manage Students' tab.`,
       });
     } catch (error) {
       console.error("Error resetting submission:", error);
@@ -168,7 +169,7 @@ function SubmissionsList() {
                 filteredSubmissions.map((sub) => (
                     <TableRow key={sub.id}>
                       <TableCell className="font-medium">{sub.studentName}</TableCell>
-                      <TableCell className="font-mono">{sub.paperId}</TableCell>
+                      <TableCell className="font-mono">{sub.paperId || 'M1'}</TableCell>
                       <TableCell>{new Date(sub.date).toLocaleString()}</TableCell>
                       <TableCell className="text-right">{`${sub.correctAnswers}/${sub.totalQuestions}`}</TableCell>
                       <TableCell className="text-right">{sub.percentage.toFixed(2)}%</TableCell>
@@ -183,6 +184,7 @@ function SubmissionsList() {
                             className="h-9 w-9"
                             onClick={() => setSubmissionToReset(sub)}
                             disabled={isResetting && submissionToReset?.id === sub.id}
+                            title="Allow Re-exam"
                          >
                             <RefreshCcw className="h-4 w-4" />
                             <span className="sr-only">Allow Re-exam</span>
@@ -208,7 +210,7 @@ function SubmissionsList() {
           <AlertDialogHeader>
             <AlertDialogTitle>Allow student to re-exam?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will delete the current submission for <span className="font-bold">{submissionToReset?.studentName}</span> on paper <span className="font-bold">{submissionToReset?.paperId}</span>. This allows them to take the test again. This action cannot be undone.
+              This will delete the current submission for <span className="font-bold">{submissionToReset?.studentName}</span> on paper <span className="font-bold">{submissionToReset?.paperId}</span>. This allows them to take the test again once you authorize it. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -321,40 +323,78 @@ function QuestionEditor() {
     );
 }
 
+function StudentRow({ student, onUpdate }: { student: Student; onUpdate: () => void }) {
+    const [selectedPaper, setSelectedPaper] = useState("");
+    const [isAuthorizing, setIsAuthorizing] = useState(false);
+    const { toast } = useToast();
+
+    const handleAuthorize = async () => {
+        if (!selectedPaper) {
+            toast({ variant: "destructive", title: "No Paper Selected", description: "Please select a paper to authorize." });
+            return;
+        }
+        setIsAuthorizing(true);
+        const result = await updateStudent(student.docId, { assignedPaper: selectedPaper });
+        if (result.success) {
+            toast({ title: "Test Authorized", description: `Student ${student.name} is now authorized to take paper ${selectedPaper}.` });
+            onUpdate(); // Refetch student list
+        } else {
+            toast({ variant: "destructive", title: "Authorization Failed", description: result.error });
+        }
+        setIsAuthorizing(false);
+    };
+
+    return (
+        <TableRow>
+            <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
+            <TableCell className="font-medium">{student.name}</TableCell>
+            <TableCell>
+                {student.assignedPaper ? (
+                    <Badge variant="secondary">{student.assignedPaper}</Badge>
+                ) : (
+                    <Badge variant="outline">None</Badge>
+                )}
+            </TableCell>
+            <TableCell className="text-right">
+                <div className="flex gap-2 justify-end items-center">
+                    <Select value={selectedPaper} onValueChange={setSelectedPaper}>
+                        <SelectTrigger className="w-[120px] h-9">
+                            <SelectValue placeholder="Select Paper" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="M1">M1</SelectItem>
+                            <SelectItem value="M2">M2</SelectItem>
+                            <SelectItem value="M3">M3</SelectItem>
+                            <SelectItem value="M4">M4</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button onClick={handleAuthorize} disabled={isAuthorizing || !selectedPaper} size="sm">
+                        {isAuthorizing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Authorize'}
+                    </Button>
+                </div>
+            </TableCell>
+        </TableRow>
+    );
+}
+
 function StudentManager() {
     const [students, setStudents] = useState<Student[]>([]);
-    const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [currentStudent, setCurrentStudent] = useState<Student | null>(null);
     const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '' });
     const { toast } = useToast();
-    const [openRows, setOpenRows] = useState<Set<string>>(new Set());
-
-    const toggleRow = (studentId: string) => {
-        setOpenRows(prev => {
-            const newSet = new Set(prev);
-            if (newSet.has(studentId)) {
-                newSet.delete(studentId);
-            } else {
-                newSet.add(studentId);
-            }
-            return newSet;
-        });
-    };
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [studentList, submissionList] = await Promise.all([getStudents(), getSubmissions()]);
+            const studentList = await getStudents();
             setStudents(studentList);
-            setSubmissions(submissionList);
         } catch (error) {
             console.error("Error fetching data:", error);
-            toast({ variant: "destructive", title: "Error", description: "Failed to fetch student or submission data." });
+            toast({ variant: "destructive", title: "Error", description: "Failed to fetch student data." });
         } finally {
             setLoading(false);
         }
@@ -365,17 +405,10 @@ function StudentManager() {
     }, []);
 
     const handleAddClick = () => {
-        setCurrentStudent(null);
         setFormValues({ enrollmentNumber: '', name: '' });
-        setIsDialogOpen(true);
+        setIsAddDialogOpen(true);
     };
 
-    const handleEditClick = (student: Student) => {
-        setCurrentStudent(student);
-        setFormValues({ enrollmentNumber: student.enrollmentNumber, name: student.name });
-        setIsDialogOpen(true);
-    };
-    
     const handleDeleteClick = (student: Student) => {
         setStudentToDelete(student);
     };
@@ -394,20 +427,14 @@ function StudentManager() {
         setStudentToDelete(null);
     };
     
-    const handleSave = async (e: React.FormEvent) => {
+    const handleSaveNewStudent = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
-        
-        let result;
-        if (currentStudent) { // Editing existing student
-            result = await updateStudent(currentStudent.docId, { name: formValues.name });
-        } else { // Adding new student
-            result = await addStudent(formValues.enrollmentNumber, formValues.name);
-        }
+        const result = await addStudent(formValues.enrollmentNumber, formValues.name);
 
         if (result.success) {
             toast({ title: "Success", description: `Student data for ${formValues.name} has been saved.` });
-            setIsDialogOpen(false);
+            setIsAddDialogOpen(false);
             fetchData();
         } else {
             toast({ variant: "destructive", title: "Error", description: result.error });
@@ -415,38 +442,13 @@ function StudentManager() {
         setIsSaving(false);
     };
     
-    const handleResetPaper = async (submissionId: string) => {
-        const submission = submissions.find(s => s.id === submissionId);
-        if (!submission) return;
-
-        // Optimistically update UI before calling server
-        const originalSubmissions = [...submissions];
-        setSubmissions(prev => prev.filter(s => s.id !== submissionId));
-        
-        try {
-            await deleteSubmission(submissionId);
-            toast({
-                title: "Paper Reset",
-                description: `Student ${submission.studentName} can now retake paper ${submission.paperId}.`,
-            });
-        } catch (error) {
-            // Revert UI on failure
-            setSubmissions(originalSubmissions);
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: `Failed to reset paper ${submission.paperId}.`,
-            });
-        }
-    };
-
     return (
         <>
         <Card>
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="flex items-center gap-2"><Users /> Manage Students</CardTitle>
-                    <CardDescription>Add, edit students, and manage their paper statuses.</CardDescription>
+                    <CardDescription>Authorize students to take a test.</CardDescription>
                 </div>
                 <Button onClick={handleAddClick}><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button>
             </CardHeader>
@@ -456,7 +458,8 @@ function StudentManager() {
                         <TableRow>
                             <TableHead className="w-[200px]">Enrollment #</TableHead>
                             <TableHead>Student Name</TableHead>
-                            <TableHead className="text-right w-[200px]">Actions</TableHead>
+                            <TableHead>Currently Assigned</TableHead>
+                            <TableHead className="text-right">Authorize New Test</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -465,73 +468,17 @@ function StudentManager() {
                             <TableRow key={i}>
                                 <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                                 <TableCell><Skeleton className="h-5 w-48" /></TableCell>
-                                <TableCell className="text-right"><Skeleton className="h-9 w-[84px] ml-auto" /></TableCell>
+                                <TableCell><Skeleton className="h-5 w-16" /></TableCell>
+                                <TableCell className="text-right"><Skeleton className="h-9 w-[200px] ml-auto" /></TableCell>
                             </TableRow>
                             ))
                         ) : students.length > 0 ? (
-                            students.map((student) => {
-                                const studentSubmissions = submissions.filter(s => s.userId === student.enrollmentNumber);
-                                return (
-                                <React.Fragment key={student.docId}>
-                                <TableRow>
-                                    <TableCell className="font-mono">{student.enrollmentNumber}</TableCell>
-                                    <TableCell className="font-medium">{student.name}</TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex gap-2 justify-end">
-                                            <Button variant="ghost" size="sm" onClick={() => toggleRow(student.docId)}>
-                                                Manage Papers
-                                            </Button>
-                                            <Button variant="outline" size="icon" className="h-9 w-9" onClick={() => handleEditClick(student)}>
-                                                <Edit className="h-4 w-4" />
-                                                <span className="sr-only">Edit</span>
-                                            </Button>
-                                            <Button variant="destructive" size="icon" className="h-9 w-9" onClick={() => handleDeleteClick(student)}>
-                                                <Trash2 className="h-4 w-4" />
-                                                <span className="sr-only">Delete</span>
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                                {openRows.has(student.docId) && (
-                                    <tr className="bg-muted/50">
-                                        <td colSpan={3} className="p-0">
-                                            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                                {paperOrder.map(paperId => {
-                                                    const submission = studentSubmissions.find(s => s.paperId === paperId);
-                                                    return (
-                                                        <Card key={paperId}>
-                                                            <CardHeader className="pb-2">
-                                                                <CardTitle className="text-base flex justify-between items-center">
-                                                                    {paperId} Paper
-                                                                    {submission ? <CheckCircle className="h-5 w-5 text-green-500" /> : <XCircle className="h-5 w-5 text-muted-foreground" />}
-                                                                </CardTitle>
-                                                            </CardHeader>
-                                                            <CardContent>
-                                                                {submission ? (
-                                                                    <div className="space-y-2 text-sm">
-                                                                        <p>Score: <span className="font-bold">{submission.correctAnswers}/{submission.totalQuestions}</span> ({submission.percentage.toFixed(1)}%)</p>
-                                                                        <p>Date: {new Date(submission.date).toLocaleDateString()}</p>
-                                                                        <Button size="sm" variant="secondary" className="w-full mt-2" onClick={() => handleResetPaper(submission.id)}>
-                                                                            <RefreshCcw className="mr-2 h-4 w-4"/> Reset
-                                                                        </Button>
-                                                                    </div>
-                                                                ) : (
-                                                                    <p className="text-sm text-muted-foreground">Pending</p>
-                                                                )}
-                                                            </CardContent>
-                                                        </Card>
-                                                    );
-                                                })}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )}
-                                </React.Fragment>
-                                );
-                            })
+                            students.map((student) => (
+                                <StudentRow key={student.docId} student={student} onUpdate={fetchData} />
+                            ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={3} className="text-center h-24">No students found.</TableCell>
+                                <TableCell colSpan={4} className="text-center h-24">No students found.</TableCell>
                             </TableRow>
                         )}
                     </TableBody>
@@ -539,14 +486,14 @@ function StudentManager() {
             </CardContent>
         </Card>
 
-        {/* Add/Edit Dialog */}
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        {/* Add Student Dialog */}
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
             <DialogContent className="sm:max-w-[480px]">
-                <form onSubmit={handleSave}>
+                <form onSubmit={handleSaveNewStudent}>
                     <DialogHeader>
-                        <DialogTitle>{currentStudent ? 'Edit Student' : 'Add New Student'}</DialogTitle>
+                        <DialogTitle>Add New Student</DialogTitle>
                         <DialogDescription>
-                            {currentStudent ? "Update the student's details." : "Enter the new student's details."}
+                            Enter the new student's details.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -557,7 +504,7 @@ function StudentManager() {
                             value={formValues.enrollmentNumber}
                             onChange={(e) => setFormValues({ ...formValues, enrollmentNumber: e.target.value })}
                             required
-                            disabled={!!currentStudent || isSaving}
+                            disabled={isSaving}
                             placeholder="e.g., CSA250001"
                             />
                         </div>

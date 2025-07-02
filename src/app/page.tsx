@@ -73,17 +73,17 @@ export default function LoginPage() {
                 title: "Login Failed",
                 description: "Incorrect password. Please try again.",
             });
-         } else if (result.error === 'used') {
+         } else if (result.error === 'no_test_assigned') {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "This UserID has already taken the test.",
+                description: "No test has been assigned to you. Please contact your administrator.",
             });
          } else {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "Invalid credentials. Please try again.",
+                description: "Invalid UserID. Please check your credentials and try again.",
             });
          }
       }

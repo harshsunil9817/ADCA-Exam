@@ -1,12 +1,13 @@
 
 export interface User {
   id: string; // enrollmentNumber for students
+  docId: string; // Firestore document ID for the student
   name: string;
   userId: string; // Same as id for students
   role: "student" | "admin";
   fatherName?: string; // Optional because admin doesn't have it
   dob?: { day: string; month: string; year: string; }; // Optional
-  assignedPaper: string; // e.g., "M1", "M2". Determined at login.
+  assignedPaper: string; // e.g., "M1", "M2". Determined by admin. Empty string if none.
   photoUrl?: string;
 }
 
@@ -14,15 +15,16 @@ export interface Student {
   docId: string; // The actual firestore document ID
   enrollmentNumber: string; // The enrollment number e.g. "CSA250006"
   name: string;
-  // assignedPaper is no longer stored, it's determined dynamically.
+  assignedPaper?: string; // The paper assigned by the admin
 }
 
 export interface StudentDetails {
+  docId: string; // The actual firestore document ID
   name: string;
   fatherName: string;
   dob: { day: string; month: string; year: string; };
   photoUrl?: string;
-  // assignedPaper is no longer stored.
+  assignedPaper?: string;
 }
 
 export interface Option {

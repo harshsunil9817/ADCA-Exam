@@ -5,6 +5,7 @@ import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc } from "firebase/firestore";
 import type { Answer, Submission, User } from "@/lib/types";
 import { papers } from "@/data/questions";
+import { studentDb } from "@/lib/firebase";
 
 // Config for the primary app (submissions)
 const firebaseConfigApp = {
@@ -75,6 +76,18 @@ export async function submitTest(answers: Answer[], user: User, paperId: string)
   };
 
   const docRef = await addDoc(collection(appDb, "submissions"), submissionData);
+  
+  // After submission, revoke access by clearing the assigned paper
+  if (user.role === 'student' && user.docId) {
+      try {
+          const studentRef = doc(studentDb, 'students', user.docId);
+          await updateDoc(studentRef, { assignedPaper: "" });
+      } catch (error) {
+          console.error("🔥 FIREBASE ERROR (clearing assignedPaper):", error);
+          // This part failing shouldn't block the submission from being recorded.
+      }
+  }
+
 
   return docRef.id;
 }
