@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Header } from '@/components/header';
-import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit, Trash2, Users } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit, Trash2 } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Button, buttonVariants } from '@/components/ui/button';
 import jsPDF from 'jspdf';
@@ -21,7 +21,7 @@ import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswer
 import { PrintableResultOnly } from '@/components/PrintableResultOnly';
 import { papers } from '@/data/questions';
 import { getSubmissionById, updateSubmission, deleteSubmission } from '@/actions/test';
-import { getStudentByEnrollment, updateStudent } from '@/actions/students';
+import { getStudentByEnrollment } from '@/actions/students';
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -44,7 +44,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 const StatCard = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string | number, color?: string }) => (
@@ -78,15 +77,11 @@ export default function ResultsPage() {
     // State for Edit Result Dialog
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editedCorrectAnswers, setEditedCorrectAnswers] = useState<number | string>("");
+    const [isSaving, setIsSaving] = useState(false);
 
     // State for Delete Result Dialog
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-
-    // State for Assign Paper Dialog
-    const [isAssignPaperDialogOpen, setIsAssignPaperDialogOpen] = useState(false);
-    const [newAssignedPaper, setNewAssignedPaper] = useState("");
-    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (authLoading) return;
@@ -195,30 +190,6 @@ export default function ResultsPage() {
         }
     };
     
-    // --- Handlers for Paper Assignment ---
-    const handleAssignPaperClick = () => {
-        if (!student) return;
-        setNewAssignedPaper(student.assignedPaper);
-        setIsAssignPaperDialogOpen(true);
-    };
-
-    const handleSaveAssignedPaper = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!student || !newAssignedPaper) return;
-
-        setIsSaving(true);
-        const result = await updateStudent(student.docId, { assignedPaper: newAssignedPaper });
-
-        if (result.success) {
-            toast({ title: "Success", description: `Assigned paper for ${student.name} updated to ${newAssignedPaper}.` });
-            setStudent(prev => prev ? { ...prev, assignedPaper: newAssignedPaper } : null);
-            setIsAssignPaperDialogOpen(false);
-        } else {
-            toast({ variant: "destructive", title: "Error", description: result.error });
-        }
-        setIsSaving(false);
-    };
-
     const handleDownloadPdf = async (type: 'full' | 'incorrect' | 'result') => {
         let targetRef: React.RefObject<HTMLDivElement>;
         let setIsDownloading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -366,10 +337,6 @@ export default function ResultsPage() {
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                            <Button onClick={handleAssignPaperClick} variant="outline" disabled={!student}>
-                                <Users className="mr-2 h-4 w-4"/>
-                                Assign Paper
-                            </Button>
                             <Button onClick={handleEditClick} variant="outline">
                                 <Edit className="mr-2 h-4 w-4"/>
                                 Edit Result
@@ -478,52 +445,6 @@ export default function ResultsPage() {
                 </form>
             </DialogContent>
         </Dialog>
-        
-        {/* Assign Paper Dialog */}
-        <Dialog open={isAssignPaperDialogOpen} onOpenChange={setIsAssignPaperDialogOpen}>
-            <DialogContent>
-                <form onSubmit={handleSaveAssignedPaper}>
-                    <DialogHeader>
-                        <DialogTitle>Assign New Paper for {student?.name}</DialogTitle>
-                        <DialogDescription>
-                            Select a new test paper. This will not affect this result, but will be their assigned paper for the next time they log in.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4 space-y-4">
-                        <div className="space-y-2">
-                             <Label htmlFor="assigned-paper-select">Paper</Label>
-                             <Select
-                                value={newAssignedPaper}
-                                onValueChange={setNewAssignedPaper}
-                                required
-                            >
-                                <SelectTrigger id="assigned-paper-select">
-                                    <SelectValue placeholder="Select a paper" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="M1">M1 Paper</SelectItem>
-                                    <SelectItem value="M2">M2 Paper</SelectItem>
-                                    <SelectItem value="M3">M3 Paper</SelectItem>
-                                    <SelectItem value="M4">M4 Paper</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                            Currently Assigned: <span className="font-semibold">{student?.assignedPaper || 'None'}</span>
-                        </p>
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type="button" variant="secondary" disabled={isSaving}>Cancel</Button>
-                        </DialogClose>
-                        <Button type="submit" disabled={isSaving}>
-                            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save Assignment'}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
