@@ -44,9 +44,9 @@ export default function ConfirmDetailsPage() {
                                 <Image
                                     src={user.photoUrl}
                                     alt="Student Photo"
-                                    width={120}
-                                    height={120}
-                                    className="rounded-full border-4 border-primary object-cover"
+                                    width={200}
+                                    height={400}
+                                    className="rounded-md border-4 border-primary object-cover"
                                 />
                             </div>
                         )}
@@ -76,7 +76,7 @@ export default function ConfirmDetailsPage() {
                         {!hasPaperAssigned && (
                             <div className="text-center text-sm text-destructive-foreground bg-destructive/90 p-3 rounded-md flex items-center justify-center gap-2">
                                 <AlertTriangle className="h-5 w-5" />
-                                <p>No test is assigned to you. Please contact your administrator.</p>
+                                <p>No test has been assigned to you. Please contact your administrator.</p>
                             </div>
                         )}
                     </CardContent>
