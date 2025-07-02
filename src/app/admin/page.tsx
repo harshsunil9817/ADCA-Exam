@@ -168,7 +168,7 @@ function SubmissionsList() {
                 filteredSubmissions.map((sub) => (
                     <TableRow key={sub.id}>
                       <TableCell className="font-medium">{sub.studentName}</TableCell>
-                      <TableCell className="font-mono text-center">{sub.paperId}</TableCell>
+                      <TableCell className="font-mono">{sub.paperId}</TableCell>
                       <TableCell>{new Date(sub.date).toLocaleString()}</TableCell>
                       <TableCell className="text-right">{`${sub.correctAnswers}/${sub.totalQuestions}`}</TableCell>
                       <TableCell className="text-right">{sub.percentage.toFixed(2)}%</TableCell>
@@ -336,6 +336,8 @@ function StudentManager() {
         setLoading(true);
         try {
             const studentList = await getStudents();
+            // Sort students by enrollment number client-side to maintain a consistent order
+            studentList.sort((a, b) => a.enrollmentNumber.localeCompare(b.enrollmentNumber));
             setStudents(studentList);
         } catch (error) {
             console.error("Error fetching students:", error);

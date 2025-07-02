@@ -25,7 +25,8 @@ export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
         // Filter to only include students in the "ADCA" course, as requested.
-        const q = query(studentsCollection, where("courseId", "==", "ADCA"), orderBy("enrollmentNumber"));
+        // Removed orderBy to avoid needing a composite index. Sorting is now done client-side.
+        const q = query(studentsCollection, where("courseId", "==", "ADCA"));
         const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
