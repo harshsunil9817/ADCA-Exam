@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Header } from '@/components/header';
-import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit, Trash2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit, Trash2, AlertTriangle, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Button, buttonVariants } from '@/components/ui/button';
 import jsPDF from 'jspdf';
@@ -23,6 +23,7 @@ import { papers } from '@/data/questions';
 import { getSubmissionById, updateSubmission, deleteSubmission } from '@/actions/test';
 import { getStudentByEnrollment } from '@/actions/students';
 import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
   Dialog,
   DialogContent,
@@ -74,14 +75,14 @@ export default function ResultsPage() {
     const printableResultRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
     
-    // State for Edit Result Dialog
+    // State for Dialogs
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [editedCorrectAnswers, setEditedCorrectAnswers] = useState<number | string>("");
     const [isSaving, setIsSaving] = useState(false);
-
-    // State for Delete Result Dialog
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isMismatched, setIsMismatched] = useState(false);
+    const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
 
     useEffect(() => {
         if (authLoading) return;
@@ -99,6 +100,9 @@ export default function ResultsPage() {
                     setSubmission(sub);
                     const studentData = await getStudentByEnrollment(sub.userId, sub.studentName);
                     setStudent(studentData);
+                    if (studentData && sub.userId !== studentData.enrollmentNumber) {
+                        setIsMismatched(true);
+                    }
                 } else {
                     console.error("No such submission!");
                 }
@@ -188,6 +192,23 @@ export default function ResultsPage() {
             setIsDeleting(false);
             setIsDeleteDialogOpen(false);
         }
+    };
+    
+    const handleSyncId = async () => {
+        if (!submission || !student) return;
+
+        setIsSaving(true);
+        const result = await updateSubmission(submission.id, { userId: student.enrollmentNumber });
+
+        if (result.success) {
+            toast({ title: "Student ID Synced", description: "The submission is now correctly linked to the student." });
+            setSubmission(prev => prev ? { ...prev, userId: student!.enrollmentNumber } : null);
+            setIsMismatched(false);
+            setIsSyncDialogOpen(false);
+        } else {
+            toast({ variant: "destructive", title: "Sync Failed", description: result.error || "An unknown error occurred." });
+        }
+        setIsSaving(false);
     };
     
     const handleDownloadPdf = async (type: 'full' | 'incorrect' | 'result') => {
@@ -332,7 +353,7 @@ export default function ResultsPage() {
                                     </Badge>
                                 </div>
                                 <CardDescription>
-                                    Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()} | Currently Assigned: {student?.assignedPaper || 'N/A'}
+                                    Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()} | UserID in Record: {submission.userId}
                                 </CardDescription>
                             </div>
                         </div>
@@ -361,6 +382,22 @@ export default function ResultsPage() {
                     </div>
                 </CardHeader>
             </Card>
+
+            {isMismatched && student && (
+                <Alert variant="destructive" className="mb-8">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Student ID Mismatch Detected!</AlertTitle>
+                    <AlertDescription>
+                        The UserID on this submission (<span className="font-mono">{submission.userId}</span>) doesn't match the current Enrollment # (<span className="font-mono">{student.enrollmentNumber}</span>) for {student.name}. This can happen if the student's Enrollment # was changed after the test was taken.
+                    </AlertDescription>
+                    <div className="mt-4">
+                        <Button onClick={() => setIsSyncDialogOpen(true)} variant="outline">
+                            <RefreshCw className="mr-2 h-4 w-4"/>
+                            Sync Submission UserID to {student.enrollmentNumber}
+                        </Button>
+                    </div>
+                </Alert>
+            )}
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
                  <StatCard icon={<HelpCircle className="h-4 w-4 text-muted-foreground" />} title="Attempted" value={`${submission.attemptedQuestions}/${submission.totalQuestions}`} />
@@ -463,6 +500,26 @@ export default function ResultsPage() {
                         className={buttonVariants({ variant: "destructive" })}
                     >
                         {isDeleting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</> : "Yes, delete result"}
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+        
+        {/* Sync ID Confirmation Dialog */}
+        <AlertDialog open={isSyncDialogOpen} onOpenChange={setIsSyncDialogOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Confirm Student ID Sync</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This submission's UserID <span className="font-mono bg-muted p-1 rounded">{submission?.userId}</span> does not match the found student's Enrollment # <span className="font-mono bg-muted p-1 rounded">{student?.enrollmentNumber}</span>.
+                        <br /><br />
+                        Do you want to permanently update this submission's UserID to <span className="font-bold">{student?.enrollmentNumber}</span> to match the student record?
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setIsSyncDialogOpen(false)} disabled={isSaving}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleSyncId} disabled={isSaving}>
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Syncing...</> : "Yes, Sync ID"}
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>
