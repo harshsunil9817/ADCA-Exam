@@ -77,7 +77,7 @@ export default function LoginPage() {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "No test has been assigned to you. Please contact your administrator.",
+                description: "no test found nielet not assined any test for you",
             });
          } else {
             toast({
