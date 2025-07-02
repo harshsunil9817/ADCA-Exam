@@ -102,7 +102,7 @@ export default function ResultsPage() {
                 const sub = await getSubmissionById(submissionId);
                 if (sub) {
                     setSubmission(sub);
-                    const studentData = await getStudentByEnrollment(sub.userId);
+                    const studentData = await getStudentByEnrollment(sub.userId, sub.studentName);
                     setStudent(studentData);
                 } else {
                     console.error("No such submission!");

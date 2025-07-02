@@ -20,12 +20,13 @@ const studentApp: FirebaseApp = getApps().find(app => app.name === 'studentDB') 
 const studentDb = getFirestore(studentApp);
 
 
-// Fetches all students for the admin panel
+// Fetches all students for the admin panel, filtered by course "ADCA"
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Removed the restrictive where("courseId", ...) filter to fetch ALL students, ensuring old records are included.
-        const snapshot = await getDocs(query(studentsCollection, orderBy("enrollmentNumber")));
+        // Filter to only include students in the "ADCA" course, as requested.
+        const q = query(studentsCollection, where("courseId", "==", "ADCA"), orderBy("enrollmentNumber"));
+        const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
             return [];
@@ -44,18 +45,28 @@ export async function getStudents(): Promise<Student[]> {
     }
 }
 
-// Fetches a single student by enrollment number
-export async function getStudentByEnrollment(enrollmentNumber: string): Promise<Student | null> {
+// Fetches a single student by enrollment number, with a fallback to search by name.
+export async function getStudentByEnrollment(enrollmentNumber: string, name?: string): Promise<Student | null> {
     if (!enrollmentNumber) return null;
     try {
         const studentsCollection = collection(studentDb, 'students');
-        const q = query(studentsCollection, where("enrollmentNumber", "==", enrollmentNumber));
-        const snapshot = await getDocs(q);
+        
+        // First, try to find the student by their enrollment number.
+        let q = query(studentsCollection, where("enrollmentNumber", "==", enrollmentNumber));
+        let snapshot = await getDocs(q);
+        
+        // If not found and a name is provided, fall back to searching by name within the ADCA course.
+        // This handles cases where the enrollment number might have changed.
+        if (snapshot.empty && name) {
+            q = query(studentsCollection, where("name", "==", name), where("courseId", "==", "ADCA"));
+            snapshot = await getDocs(q);
+        }
         
         if (snapshot.empty) {
             return null;
         }
         
+        // Assuming the first result is the correct one in case of name duplicates
         const studentDoc = snapshot.docs[0];
         const studentData = studentDoc.data();
         
