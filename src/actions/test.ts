@@ -2,7 +2,7 @@
 "use server";
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc, writeBatch } from "firebase/firestore";
 import type { Answer, Submission, User } from "@/lib/types";
 import { papers } from "@/data/questions";
 import { studentDb } from "@/lib/firebase";
@@ -90,6 +90,34 @@ export async function submitTest(answers: Answer[], user: User, paperId: string)
 
 
   return docRef.id;
+}
+
+export async function deleteSubmissionsForUser(userId: string): Promise<{ success: boolean; error?: string }> {
+    if (!userId) {
+        return { success: false, error: 'User ID is required.' };
+    }
+
+    try {
+        const submissionsRef = collection(appDb, "submissions");
+        const q = query(submissionsRef, where("userId", "==", userId));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return { success: true }; // No submissions to delete is a success case.
+        }
+
+        const batch = writeBatch(appDb);
+        querySnapshot.docs.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        return { success: true };
+    } catch (error) {
+        const firebaseError = error as { code?: string; message?: string };
+        console.error("🔥 FIREBASE ERROR (deleteSubmissionsForUser):", firebaseError.code, firebaseError.message);
+        return { success: false, error: `Failed to delete user submissions. Reason: ${firebaseError.code}` };
+    }
 }
 
 export async function deleteSubmission(submissionId: string) {

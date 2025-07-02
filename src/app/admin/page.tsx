@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
-import { deleteSubmission, getSubmissions, updateSubmission } from "@/actions/test";
+import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
 import { papers as defaultPapers } from "@/data/questions";
@@ -451,13 +451,36 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
     const handleConfirmDelete = async () => {
         if (!studentToDelete) return;
         setIsDeleting(true);
-        const result = await deleteStudent(studentToDelete.docId);
-        if (result.success) {
-            toast({ title: "Student Deleted", description: `Student ${studentToDelete.name} has been removed.` });
-            onUpdate(); // Refetch to update the list
-        } else {
-            toast({ variant: "destructive", title: "Error", description: result.error });
+
+        // First, attempt to delete all associated submissions
+        const submissionDeletionResult = await deleteSubmissionsForUser(studentToDelete.enrollmentNumber);
+
+        if (!submissionDeletionResult.success) {
+            toast({
+                variant: "destructive",
+                title: "Deletion Error",
+                description: `Could not delete submissions for ${studentToDelete.name}. Please try again.`,
+            });
+            setIsDeleting(false);
+            setStudentToDelete(null);
+            return;
         }
+
+        // If submission deletion is successful, delete the student
+        const studentDeletionResult = await deleteStudent(studentToDelete.docId);
+        if (studentDeletionResult.success) {
+            toast({ title: "Student Deleted", description: `Student ${studentToDelete.name} and all their submissions have been removed.` });
+            onUpdate(); // Refetch all data to update the UI
+        } else {
+            // This is a tricky state. Submissions are gone, but student is not.
+            // The admin should be notified to maybe try again.
+            toast({ 
+                variant: "destructive", 
+                title: "Partial Deletion Error", 
+                description: `Submissions for ${studentToDelete.name} were deleted, but the student record could not be removed. Please try deleting the student again.` 
+            });
+        }
+        
         setIsDeleting(false);
         setStudentToDelete(null);
     };
@@ -582,7 +605,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
             <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the student <span className="font-bold">{studentToDelete?.name} ({studentToDelete?.enrollmentNumber})</span> and all associated data.
+                This action cannot be undone. This will permanently delete the student <span className="font-bold">{studentToDelete?.name} ({studentToDelete?.enrollmentNumber})</span> and all of their associated submissions.
                 </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
