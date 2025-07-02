@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
-import { deleteSubmission, getSubmissions } from "@/actions/test";
+import { deleteSubmission, getSubmissions, updateSubmission } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
 import { papers as defaultPapers } from "@/data/questions";
@@ -608,15 +608,26 @@ export default function AdminPage() {
         getStudents(),
       ]);
 
+      // Find submissions missing a paperId and update them in the database.
+      const submissionsToUpdate = subs.filter(sub => !sub.paperId);
+      if (submissionsToUpdate.length > 0) {
+        // This runs the updates in the background.
+        await Promise.all(
+            submissionsToUpdate.map(sub => updateSubmission(sub.id, { paperId: 'M1' }))
+        );
+      }
+
+      // Create the updated list for the UI with 'M1' as a fallback.
       const updatedSubs = subs.map(sub => ({...sub, paperId: sub.paperId || 'M1'}));
+      
       setSubmissions(updatedSubs);
       setStudents(studentList);
     } catch (error) {
-      console.error("Error fetching data: ", error);
+      console.error("Error fetching or updating data: ", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to fetch dashboard data.",
+        description: "Failed to fetch or update dashboard data.",
       });
     } finally {
       setIsLoadingData(false);
