@@ -25,23 +25,18 @@ export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
         // Removed the restrictive where("courseId", ...) filter to fetch ALL students, ensuring old records are included.
-        const snapshot = await getDocs(studentsCollection);
+        const snapshot = await getDocs(query(studentsCollection, orderBy("enrollmentNumber")));
         
         if (snapshot.empty) {
             return [];
         }
         
-        const students = snapshot.docs.map(doc => ({
+        return snapshot.docs.map(doc => ({
             docId: doc.id,
             enrollmentNumber: doc.data().enrollmentNumber as string,
             name: doc.data().name as string,
             assignedPaper: (doc.data().assignedPaper || '') as string, // Default to empty string if not set
         }));
-
-        // Sort the results by enrollment number here in the code
-        students.sort((a, b) => a.enrollmentNumber.localeCompare(b.enrollmentNumber));
-
-        return students;
     } catch (error) {
         const firebaseError = error as { code?: string; message?: string };
         console.error("🔥 FIREBASE ERROR (getStudents):", firebaseError.code, firebaseError.message);

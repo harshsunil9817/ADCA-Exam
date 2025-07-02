@@ -458,7 +458,7 @@ function StudentManager() {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={4} className="text-center h-24">No students found for the ADCA course.</TableCell>
+                                <TableCell colSpan={4} className="text-center h-24">No students found.</TableCell>
                             </TableRow>
                         )}
                     </TableBody>
