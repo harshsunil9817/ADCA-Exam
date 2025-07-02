@@ -37,15 +37,15 @@ export default function ConfirmDetailsPage() {
         <>
             <Header />
             <main className="container mx-auto p-4 md:p-8 flex items-center justify-center" style={{minHeight: 'calc(100vh - 80px)'}}>
-                <Card className="w-full max-w-lg shadow-lg">
+                <Card className="w-full max-w-2xl shadow-lg">
                     <CardHeader className="text-center">
                         {user.photoUrl && (
                              <div className="flex justify-center items-center mb-4">
                                 <Image
                                     src={user.photoUrl}
                                     alt="Student Photo"
-                                    width={200}
-                                    height={400}
+                                    width={400}
+                                    height={300}
                                     className="rounded-md border-4 border-primary object-cover"
                                 />
                             </div>
