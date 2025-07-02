@@ -113,17 +113,14 @@ export async function addStudent(enrollmentNumber: string, name: string, assigne
 }
 
 // Updates a student's name and assigned paper
-export async function updateStudent(docId: string, data: { name: string; assignedPaper: string }): Promise<{ success: boolean; error?: string }> {
-    if (!docId || !data.name || !data.assignedPaper) {
-        return { success: false, error: 'Student Doc ID, Name, and Assigned Paper are required.' };
+export async function updateStudent(docId: string, data: Partial<{ name: string; assignedPaper: string }>): Promise<{ success: boolean; error?: string }> {
+    if (!docId || Object.keys(data).length === 0) {
+        return { success: false, error: 'Student Doc ID and data to update are required.' };
     }
    
     try {
         const studentRef = doc(studentDb, 'students', docId);
-        await updateDoc(studentRef, { 
-            name: data.name,
-            assignedPaper: data.assignedPaper
-        });
+        await updateDoc(studentRef, data);
         return { success: true };
     } catch (error) {
         const firebaseError = error as { code?: string; message?: string };

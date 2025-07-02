@@ -207,8 +207,7 @@ export default function ResultsPage() {
         if (!student || !newAssignedPaper) return;
 
         setIsSaving(true);
-        // We need the student's name to pass to updateStudent, even though we only change the paper
-        const result = await updateStudent(student.docId, { name: student.name, assignedPaper: newAssignedPaper });
+        const result = await updateStudent(student.docId, { assignedPaper: newAssignedPaper });
 
         if (result.success) {
             toast({ title: "Success", description: `Assigned paper for ${student.name} updated to ${newAssignedPaper}.` });
@@ -550,5 +549,3 @@ export default function ResultsPage() {
         </>
     );
 }
-
-    
