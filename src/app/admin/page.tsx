@@ -159,8 +159,7 @@ function SubmissionsList() {
             <TableHeader>
               <TableRow>
                 <TableHead>Student Name</TableHead>
-                <TableHead>Paper Taken</TableHead>
-                <TableHead>Assigned Paper</TableHead>
+                <TableHead>Paper</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="text-right">Score</TableHead>
                 <TableHead className="text-right">Percentage</TableHead>
@@ -173,7 +172,6 @@ function SubmissionsList() {
                   <TableRow key={i}>
                     <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-16" /></TableCell>
-                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
                     <TableCell><Skeleton className="h-5 w-32" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-5 w-10 ml-auto" /></TableCell>
                     <TableCell className="text-right"><Skeleton className="h-5 w-16 ml-auto" /></TableCell>
@@ -183,11 +181,14 @@ function SubmissionsList() {
               ) : filteredSubmissions.length > 0 ? (
                 filteredSubmissions.map((sub) => {
                   const assignedPaper = studentPaperMap.get(sub.userId);
+                  const showAssignedInfo = assignedPaper && assignedPaper !== sub.paperId;
                   return (
                     <TableRow key={sub.id}>
                       <TableCell className="font-medium">{sub.studentName}</TableCell>
-                      <TableCell className="font-mono text-center">{sub.paperId}</TableCell>
-                      <TableCell className="font-mono text-center">{assignedPaper || <span className="text-muted-foreground italic">N/A</span>}</TableCell>
+                      <TableCell className="font-mono text-center">
+                        {sub.paperId}
+                        {showAssignedInfo && <span className="block text-xs text-muted-foreground italic">(Assigned: {assignedPaper})</span>}
+                      </TableCell>
                       <TableCell>{new Date(sub.date).toLocaleString()}</TableCell>
                       <TableCell className="text-right">{`${sub.correctAnswers}/${sub.totalQuestions}`}</TableCell>
                       <TableCell className="text-right">{sub.percentage.toFixed(2)}%</TableCell>
@@ -213,7 +214,7 @@ function SubmissionsList() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center h-24">
+                  <TableCell colSpan={6} className="text-center h-24">
                      {activeFilter === 'all' ? 'No submissions yet.' : `No submissions found for paper ${activeFilter}.`}
                   </TableCell>
                 </TableRow>
@@ -620,3 +621,5 @@ export default function AdminPage() {
     </>
   );
 }
+
+    
