@@ -5,13 +5,13 @@ import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import type { Submission } from '@/lib/types';
+import type { Submission, Student } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Header } from '@/components/header';
-import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit, Trash2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, HelpCircle, Target, BookMarked, Download, Loader2, FileDown, Edit, Trash2, Users } from 'lucide-react';
 import { useAuth } from '@/context/auth-context';
 import { Button, buttonVariants } from '@/components/ui/button';
 import jsPDF from 'jspdf';
@@ -21,6 +21,7 @@ import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswer
 import { PrintableResultOnly } from '@/components/PrintableResultOnly';
 import { papers } from '@/data/questions';
 import { getSubmissionById, updateSubmission, deleteSubmission } from '@/actions/test';
+import { getStudentByEnrollment, updateStudent } from '@/actions/students';
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -43,6 +44,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 const StatCard = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string | number, color?: string }) => (
     <Card>
@@ -62,6 +65,7 @@ export default function ResultsPage() {
     const { user, loading: authLoading } = useAuth();
     const submissionId = params.submissionId as string;
     const [submission, setSubmission] = useState<Submission | null>(null);
+    const [student, setStudent] = useState<Student | null>(null);
     const [loading, setLoading] = useState(true);
     const [isDownloadingFull, setIsDownloadingFull] = useState(false);
     const [isDownloadingIncorrect, setIsDownloadingIncorrect] = useState(false);
@@ -70,11 +74,19 @@ export default function ResultsPage() {
     const printableIncorrectRef = useRef<HTMLDivElement>(null);
     const printableResultRef = useRef<HTMLDivElement>(null);
     const { toast } = useToast();
+    
+    // State for Edit Result Dialog
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
     const [editedCorrectAnswers, setEditedCorrectAnswers] = useState<number | string>("");
+
+    // State for Delete Result Dialog
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
+    // State for Assign Paper Dialog
+    const [isAssignPaperDialogOpen, setIsAssignPaperDialogOpen] = useState(false);
+    const [newAssignedPaper, setNewAssignedPaper] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (authLoading) return;
@@ -84,26 +96,28 @@ export default function ResultsPage() {
         }
         if (!submissionId) return;
 
-        const fetchSubmission = async () => {
+        const fetchSubmissionAndStudent = async () => {
             setLoading(true);
             try {
                 const sub = await getSubmissionById(submissionId);
                 if (sub) {
                     setSubmission(sub);
+                    const studentData = await getStudentByEnrollment(sub.userId);
+                    setStudent(studentData);
                 } else {
                     console.error("No such submission!");
-                    // Optionally, redirect or show a 'not found' message
                 }
             } catch (error) {
-                console.error("Error fetching submission:", error);
+                console.error("Error fetching data:", error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchSubmission();
+        fetchSubmissionAndStudent();
     }, [submissionId, user, authLoading, router]);
-
+    
+    // --- Handlers for Result Editing ---
     const handleEditClick = () => {
         if (!submission) return;
         setEditedCorrectAnswers(submission.correctAnswers);
@@ -145,7 +159,6 @@ export default function ResultsPage() {
                 title: "Result Updated",
                 description: "The submission score has been successfully updated."
             });
-            // Optimistically update local state to reflect changes immediately
             setSubmission(prev => prev ? { ...prev, ...updatedData } : null);
             setIsEditDialogOpen(false);
         } else {
@@ -180,6 +193,31 @@ export default function ResultsPage() {
             setIsDeleting(false);
             setIsDeleteDialogOpen(false);
         }
+    };
+    
+    // --- Handlers for Paper Assignment ---
+    const handleAssignPaperClick = () => {
+        if (!student) return;
+        setNewAssignedPaper(student.assignedPaper);
+        setIsAssignPaperDialogOpen(true);
+    };
+
+    const handleSaveAssignedPaper = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!student || !newAssignedPaper) return;
+
+        setIsSaving(true);
+        // We need the student's name to pass to updateStudent, even though we only change the paper
+        const result = await updateStudent(student.docId, { name: student.name, assignedPaper: newAssignedPaper });
+
+        if (result.success) {
+            toast({ title: "Success", description: `Assigned paper for ${student.name} updated to ${newAssignedPaper}.` });
+            setStudent(prev => prev ? { ...prev, assignedPaper: newAssignedPaper } : null);
+            setIsAssignPaperDialogOpen(false);
+        } else {
+            toast({ variant: "destructive", title: "Error", description: result.error });
+        }
+        setIsSaving(false);
     };
 
     const handleDownloadPdf = async (type: 'full' | 'incorrect' | 'result') => {
@@ -324,11 +362,15 @@ export default function ResultsPage() {
                                     </Badge>
                                 </div>
                                 <CardDescription>
-                                    Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()}
+                                    Paper: {submission.paperId} | Date: {new Date(submission.date).toLocaleString()} | Currently Assigned: {student?.assignedPaper || 'N/A'}
                                 </CardDescription>
                             </div>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                            <Button onClick={handleAssignPaperClick} variant="outline" disabled={!student}>
+                                <Users className="mr-2 h-4 w-4"/>
+                                Assign Paper
+                            </Button>
                             <Button onClick={handleEditClick} variant="outline">
                                 <Edit className="mr-2 h-4 w-4"/>
                                 Edit Result
@@ -339,15 +381,15 @@ export default function ResultsPage() {
                             </Button>
                             <Button onClick={() => handleDownloadPdf('result')} disabled={isDownloadingResult} className="w-full sm:w-auto" variant="outline">
                                 {isDownloadingResult ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <FileDown className="mr-2 h-4 w-4"/>}
-                                {isDownloadingResult ? "Generating..." : "Download Result Only"}
+                                {isDownloadingResult ? "Generating..." : "Result Only"}
                             </Button>
                              <Button onClick={() => handleDownloadPdf('incorrect')} disabled={isDownloadingIncorrect} className="w-full sm:w-auto" variant="secondary">
                                 {isDownloadingIncorrect ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
-                                {isDownloadingIncorrect ? "Generating..." : "Download Incorrect Only"}
+                                {isDownloadingIncorrect ? "Generating..." : "Incorrect Only"}
                             </Button>
                             <Button onClick={() => handleDownloadPdf('full')} disabled={isDownloadingFull} className="w-full sm:w-auto">
                                 {isDownloadingFull ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <Download className="mr-2 h-4 w-4"/>}
-                                {isDownloadingFull ? "Generating..." : "Download Full Report"}
+                                {isDownloadingFull ? "Generating..." : "Full Report"}
                             </Button>
                         </div>
                     </div>
@@ -401,6 +443,7 @@ export default function ResultsPage() {
             </div>
         </main>
         
+        {/* Edit Result Dialog */}
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogContent>
                 <form onSubmit={handleSaveResult}>
@@ -436,7 +479,54 @@ export default function ResultsPage() {
                 </form>
             </DialogContent>
         </Dialog>
+        
+        {/* Assign Paper Dialog */}
+        <Dialog open={isAssignPaperDialogOpen} onOpenChange={setIsAssignPaperDialogOpen}>
+            <DialogContent>
+                <form onSubmit={handleSaveAssignedPaper}>
+                    <DialogHeader>
+                        <DialogTitle>Assign New Paper for {student?.name}</DialogTitle>
+                        <DialogDescription>
+                            Select a new test paper. This will not affect this result, but will be their assigned paper for the next time they log in.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4 space-y-4">
+                        <div className="space-y-2">
+                             <Label htmlFor="assigned-paper-select">Paper</Label>
+                             <Select
+                                value={newAssignedPaper}
+                                onValueChange={setNewAssignedPaper}
+                                required
+                            >
+                                <SelectTrigger id="assigned-paper-select">
+                                    <SelectValue placeholder="Select a paper" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="M1">M1 Paper</SelectItem>
+                                    <SelectItem value="M2">M2 Paper</SelectItem>
+                                    <SelectItem value="M3">M3 Paper</SelectItem>
+                                    <SelectItem value="M4">M4 Paper</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            Currently Assigned: <span className="font-semibold">{student?.assignedPaper || 'None'}</span>
+                        </p>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="secondary" disabled={isSaving}>Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit" disabled={isSaving}>
+                            {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin"/> Saving...</> : 'Save Assignment'}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
 
+
+        {/* Delete Confirmation Dialog */}
         <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
             <AlertDialogContent>
                 <AlertDialogHeader>

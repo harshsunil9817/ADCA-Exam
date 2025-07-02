@@ -49,6 +49,34 @@ export async function getStudents(): Promise<Student[]> {
     }
 }
 
+// Fetches a single student by enrollment number
+export async function getStudentByEnrollment(enrollmentNumber: string): Promise<Student | null> {
+    if (!enrollmentNumber) return null;
+    try {
+        const studentsCollection = collection(studentDb, 'students');
+        const q = query(studentsCollection, where("enrollmentNumber", "==", enrollmentNumber), where("courseId", "==", "ADCA"));
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+            return null;
+        }
+        
+        const studentDoc = snapshot.docs[0];
+        const student: Student = {
+            docId: studentDoc.id,
+            enrollmentNumber: studentDoc.data().enrollmentNumber as string,
+            name: studentDoc.data().name as string,
+            assignedPaper: (studentDoc.data().assignedPaper || '') as string,
+        };
+        return student;
+
+    } catch (error) {
+        const firebaseError = error as { code?: string; message?: string };
+        console.error("🔥 FIREBASE ERROR (getStudentByEnrollment):", firebaseError.code, firebaseError.message);
+        return null;
+    }
+}
+
 // Adds a new student record
 export async function addStudent(enrollmentNumber: string, name: string, assignedPaper: string): Promise<{ success: boolean; error?: string }> {
     if (!enrollmentNumber || !name || !assignedPaper) {
