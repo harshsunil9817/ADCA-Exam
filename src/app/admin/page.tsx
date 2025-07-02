@@ -59,39 +59,22 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
 
+
+interface SubmissionsListProps {
+  submissions: Submission[];
+  loading: boolean;
+  onUpdate: () => void;
+}
 
 // Submissions List Component
-function SubmissionsList() {
-  const [submissions, setSubmissions] = useState<Submission[]>([]);
-  const [loading, setLoading] = useState(true);
+function SubmissionsList({ submissions, loading, onUpdate }: SubmissionsListProps) {
   const [submissionToReset, setSubmissionToReset] = useState<Submission | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [resetDate, setResetDate] = useState<Date | undefined>(new Date());
   const [activeFilter, setActiveFilter] = useState("all");
   const { toast } = useToast();
-
-  const fetchSubmissions = async () => {
-    setLoading(true);
-    try {
-      const subs = await getSubmissions();
-      // Ensure old submissions without a paperId default to 'M1'
-      const updatedSubs = subs.map(sub => ({...sub, paperId: sub.paperId || 'M1'}));
-      setSubmissions(updatedSubs);
-    } catch (error) {
-      console.error("Error fetching data: ", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to fetch submissions.",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSubmissions();
-  }, []);
 
   const filteredSubmissions = useMemo(() => {
     if (activeFilter === "all") {
@@ -106,7 +89,7 @@ function SubmissionsList() {
     setIsResetting(true);
     try {
       await deleteSubmission(submissionToReset.id);
-      fetchSubmissions(); // Refetch the submissions list
+      onUpdate(); // Refetch all data
       toast({
         title: "Re-exam Allowed",
         description: `${submissionToReset.studentName} can now retake the test for paper ${submissionToReset.paperId}. Please re-authorize the test in the 'Manage Students' tab.`,
@@ -208,25 +191,36 @@ function SubmissionsList() {
         </CardContent>
       </Card>
 
-      <AlertDialog open={!!submissionToReset} onOpenChange={(open) => !open && setSubmissionToReset(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Allow student to re-exam?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will delete the current submission for <span className="font-bold">{submissionToReset?.studentName}</span> on paper <span className="font-bold">{submissionToReset?.paperId}</span>. This allows them to take the test again once you authorize it. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setSubmissionToReset(null)} disabled={isResetting}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-                onClick={handleResetSubmission} 
-                disabled={isResetting}
-            >
-                {isResetting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Resetting...</> : "Yes, allow re-exam"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Dialog open={!!submissionToReset} onOpenChange={(open) => !open && setSubmissionToReset(null)}>
+        <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+                <DialogTitle>Allow Re-exam for {submissionToReset?.studentName}?</DialogTitle>
+                <DialogDescription>
+                    This will delete the current submission for paper <span className="font-bold">{submissionToReset?.paperId}</span>. Select a date for your records. The student must be re-authorized to take the test. This action cannot be undone.
+                </DialogDescription>
+            </DialogHeader>
+            <div className="py-4 flex justify-center">
+                <Calendar
+                    mode="single"
+                    selected={resetDate}
+                    onSelect={setResetDate}
+                    className="rounded-md border"
+                    disabled={(date) => date < new Date()}
+                />
+            </div>
+            <DialogFooter className="sm:justify-end">
+                <DialogClose asChild>
+                    <Button type="button" variant="secondary">Cancel</Button>
+                </DialogClose>
+                <Button 
+                    onClick={handleResetSubmission} 
+                    disabled={isResetting || !resetDate}
+                >
+                    {isResetting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Resetting...</> : "Confirm & Reset"}
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
@@ -326,10 +320,20 @@ function QuestionEditor() {
     );
 }
 
-function StudentRow({ student, onUpdate }: { student: Student; onUpdate: () => void }) {
+interface StudentRowProps {
+  student: Student;
+  submissions: Submission[];
+  onUpdate: () => void;
+}
+
+function StudentRow({ student, submissions, onUpdate }: StudentRowProps) {
     const [selectedPaper, setSelectedPaper] = useState("");
     const [isAuthorizing, setIsAuthorizing] = useState(false);
     const { toast } = useToast();
+
+    const completedPapers = useMemo(() => {
+        return submissions.map(s => s.paperId);
+    }, [submissions]);
 
     const handleAuthorize = async () => {
         if (!selectedPaper) {
@@ -365,10 +369,10 @@ function StudentRow({ student, onUpdate }: { student: Student; onUpdate: () => v
                             <SelectValue placeholder="Select Paper" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="M1">M1</SelectItem>
-                            <SelectItem value="M2">M2</SelectItem>
-                            <SelectItem value="M3">M3</SelectItem>
-                            <SelectItem value="M4">M4</SelectItem>
+                            <SelectItem value="M1" disabled={completedPapers.includes('M1')}>M1</SelectItem>
+                            <SelectItem value="M2" disabled={completedPapers.includes('M2')}>M2</SelectItem>
+                            <SelectItem value="M3" disabled={completedPapers.includes('M3')}>M3</SelectItem>
+                            <SelectItem value="M4" disabled={completedPapers.includes('M4')}>M4</SelectItem>
                         </SelectContent>
                     </Select>
                     <Button onClick={handleAuthorize} disabled={isAuthorizing || !selectedPaper} size="sm">
@@ -380,32 +384,20 @@ function StudentRow({ student, onUpdate }: { student: Student; onUpdate: () => v
     );
 }
 
-function StudentManager() {
-    const [students, setStudents] = useState<Student[]>([]);
-    const [loading, setLoading] = useState(true);
+interface StudentManagerProps {
+  students: Student[];
+  submissions: Submission[];
+  loading: boolean;
+  onUpdate: () => void;
+}
+
+function StudentManager({ students, submissions, loading, onUpdate }: StudentManagerProps) {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [formValues, setFormValues] = useState({ enrollmentNumber: '', name: '' });
     const { toast } = useToast();
-
-    const fetchData = async () => {
-        setLoading(true);
-        try {
-            const studentList = await getStudents();
-            setStudents(studentList);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-            toast({ variant: "destructive", title: "Error", description: "Failed to fetch student data." });
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchData();
-    }, []);
 
     const handleAddClick = () => {
         setFormValues({ enrollmentNumber: '', name: '' });
@@ -422,7 +414,7 @@ function StudentManager() {
         const result = await deleteStudent(studentToDelete.docId);
         if (result.success) {
             toast({ title: "Student Deleted", description: `Student ${studentToDelete.name} has been removed.` });
-            fetchData(); // Refetch to update the list
+            onUpdate(); // Refetch to update the list
         } else {
             toast({ variant: "destructive", title: "Error", description: result.error });
         }
@@ -438,7 +430,7 @@ function StudentManager() {
         if (result.success) {
             toast({ title: "Success", description: `Student data for ${formValues.name} has been saved.` });
             setIsAddDialogOpen(false);
-            fetchData();
+            onUpdate();
         } else {
             toast({ variant: "destructive", title: "Error", description: result.error });
         }
@@ -451,7 +443,7 @@ function StudentManager() {
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle className="flex items-center gap-2"><Users /> Manage Students</CardTitle>
-                    <CardDescription>Authorize students to take a test.</CardDescription>
+                    <CardDescription>Authorize students to take a test. Completed papers cannot be re-authorized.</CardDescription>
                 </div>
                 <Button onClick={handleAddClick}><UserPlus className="mr-2 h-4 w-4" /> Add Student</Button>
             </CardHeader>
@@ -476,9 +468,10 @@ function StudentManager() {
                             </TableRow>
                             ))
                         ) : students.length > 0 ? (
-                            students.map((student) => (
-                                <StudentRow key={student.docId} student={student} onUpdate={fetchData} />
-                            ))
+                            students.map((student) => {
+                                const studentSubmissions = submissions.filter(s => s.userId === student.enrollmentNumber || s.studentName === student.name);
+                                return <StudentRow key={student.docId} student={student} submissions={studentSubmissions} onUpdate={onUpdate} />
+                            })
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={4} className="text-center h-24">No students found.</TableCell>
@@ -565,15 +558,50 @@ function StudentManager() {
 export default function AdminPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const { toast } = useToast();
+
+  const fetchData = async () => {
+    setIsLoadingData(true);
+    try {
+      const [subs, studentList] = await Promise.all([
+        getSubmissions(),
+        getStudents(),
+      ]);
+
+      const updatedSubs = subs.map(sub => ({...sub, paperId: sub.paperId || 'M1'}));
+      setSubmissions(updatedSubs);
+      setStudents(studentList);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch dashboard data.",
+      });
+    } finally {
+      setIsLoadingData(false);
+    }
+  };
 
   useEffect(() => {
-    if (!loading && (!user || user.role !== "admin")) {
+    if (loading) return; // Wait for auth to finish
+    if (!user || user.role !== "admin") {
       router.push("/");
+    } else {
+      fetchData();
     }
   }, [user, loading, router]);
 
+
   if (loading || !user || user.role !== 'admin') {
-    return null;
+    return (
+        <div className="flex items-center justify-center h-screen w-full">
+            <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        </div>
+    );
   }
 
   return (
@@ -590,10 +618,19 @@ export default function AdminPage() {
               <TabsTrigger value="questions">Questions</TabsTrigger>
           </TabsList>
           <TabsContent value="students" className="mt-6">
-              <StudentManager />
+            <StudentManager 
+                students={students} 
+                submissions={submissions} 
+                loading={isLoadingData} 
+                onUpdate={fetchData} 
+            />
           </TabsContent>
           <TabsContent value="submissions" className="mt-6">
-              <SubmissionsList />
+            <SubmissionsList 
+                submissions={submissions}
+                loading={isLoadingData}
+                onUpdate={fetchData}
+            />
           </TabsContent>
           <TabsContent value="questions" className="mt-6">
               <QuestionEditor />
@@ -604,3 +641,5 @@ export default function AdminPage() {
     </>
   );
 }
+
+    
