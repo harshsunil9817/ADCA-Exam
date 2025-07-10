@@ -24,10 +24,10 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Get all students with courseId "ADCA"
+        // Get all students with courseName "ADCA"
         const q = query(
             studentsCollection, 
-            where("courseId", "==", "ADCA")
+            where("courseName", "==", "ADCA")
         );
         const snapshot = await getDocs(q);
         
@@ -112,7 +112,7 @@ export async function addStudent(enrollmentNumber: string, name: string): Promis
         await addDoc(collection(studentDb, "students"), {
             enrollmentNumber,
             name,
-            courseId: "ADCA" 
+            courseName: "ADCA" 
         });
         return { success: true };
     } catch (error) {
