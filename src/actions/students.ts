@@ -20,12 +20,12 @@ const studentApp: FirebaseApp = getApps().find(app => app.name === 'studentDB') 
 const studentDb = getFirestore(studentApp);
 
 
-// Fetches all students for the admin panel, filtered by course "ADCA"
+// Fetches all students for the admin panel.
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Filter to only include students in the "ADCA" course.
-        const q = query(studentsCollection, where("courseId", "==", "ADCA"));
+        // Get all students, sorting by enrollment number
+        const q = query(studentsCollection, orderBy("enrollmentNumber"));
         const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
@@ -38,9 +38,7 @@ export async function getStudents(): Promise<Student[]> {
             name: doc.data().name as string,
             assignedPaper: doc.data().assignedPaper as string | undefined,
         }));
-
-        // Sort client-side to avoid complex indexing requirements
-        studentList.sort((a, b) => a.enrollmentNumber.localeCompare(b.enrollmentNumber));
+        
         return studentList;
 
     } catch (error) {
@@ -60,9 +58,9 @@ export async function getStudentByEnrollment(enrollmentNumber: string, name?: st
         let q = query(studentsCollection, where("enrollmentNumber", "==", enrollmentNumber));
         let snapshot = await getDocs(q);
         
-        // If not found and a name is provided, fall back to searching by name within the ADCA course.
+        // If not found and a name is provided, fall back to searching by name.
         if (snapshot.empty && name) {
-            q = query(studentsCollection, where("name", "==", name), where("courseId", "==", "ADCA"));
+            q = query(studentsCollection, where("name", "==", name));
             snapshot = await getDocs(q);
         }
         
@@ -152,7 +150,7 @@ export async function deleteStudent(docId: string): Promise<{ success: boolean; 
 export async function getStudentDetails(enrollmentNumber: string): Promise<StudentDetails | null> {
     try {
         const studentsRef = collection(studentDb, 'students');
-        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber), where("courseId", "==", "ADCA"));
+        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
