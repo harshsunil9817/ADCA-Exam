@@ -24,9 +24,10 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Get all students, sorting by enrollment number
+        // Get all students with courseId "ADCA", sorting by enrollment number
         const q = query(
             studentsCollection, 
+            where("courseId", "==", "ADCA"),
             orderBy("enrollmentNumber")
         );
         const snapshot = await getDocs(q);
