@@ -24,11 +24,10 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Get all students with courseId "ADCA", sorting by enrollment number
+        // Get all students with courseId "ADCA"
         const q = query(
             studentsCollection, 
-            where("courseId", "==", "ADCA"),
-            orderBy("enrollmentNumber")
+            where("courseId", "==", "ADCA")
         );
         const snapshot = await getDocs(q);
         
@@ -36,12 +35,19 @@ export async function getStudents(): Promise<Student[]> {
             return [];
         }
         
-        const studentList = snapshot.docs.map(doc => ({
+        let studentList = snapshot.docs.map(doc => ({
             docId: doc.id,
             enrollmentNumber: doc.data().enrollmentNumber as string,
             name: doc.data().name as string,
             assignedPaper: doc.data().assignedPaper as string | undefined,
         }));
+        
+        // Sort the results by enrollmentNumber in the code
+        studentList.sort((a, b) => {
+            if (a.enrollmentNumber < b.enrollmentNumber) return -1;
+            if (a.enrollmentNumber > b.enrollmentNumber) return 1;
+            return 0;
+        });
         
         return studentList;
 
