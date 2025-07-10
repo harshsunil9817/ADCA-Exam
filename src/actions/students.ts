@@ -20,12 +20,16 @@ const studentApp: FirebaseApp = getApps().find(app => app.name === 'studentDB') 
 const studentDb = getFirestore(studentApp);
 
 
-// Fetches all students for the admin panel.
+// Fetches all students for the admin panel, filtered by course ID.
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Get all students, sorting by enrollment number
-        const q = query(studentsCollection, orderBy("enrollmentNumber"));
+        // Get all students with courseId "ADCA", sorting by enrollment number
+        const q = query(
+            studentsCollection, 
+            where("courseId", "==", "ADCA"),
+            orderBy("enrollmentNumber")
+        );
         const snapshot = await getDocs(q);
         
         if (snapshot.empty) {
