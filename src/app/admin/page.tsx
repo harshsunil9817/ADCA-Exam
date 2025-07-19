@@ -5,7 +5,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
-import type { Submission, Student } from "@/lib/types";
+import type { Submission, Student, Question } from "@/lib/types";
 import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
@@ -261,6 +261,18 @@ function QuestionEditor() {
     const [isSaving, setIsSaving] = useState(false);
     const { toast } = useToast();
 
+    const currentQuestionCount = useMemo(() => {
+        try {
+            const questions: Question[] = JSON.parse(jsonContents[activePaper as keyof typeof jsonContents]);
+            if (Array.isArray(questions)) {
+                return questions.length;
+            }
+            return 'Invalid Format (not an array)';
+        } catch {
+            return 'Invalid JSON';
+        }
+    }, [jsonContents, activePaper]);
+
     const handleSave = async () => {
         setIsSaving(true);
         const currentJson = jsonContents[activePaper as keyof typeof jsonContents];
@@ -321,7 +333,8 @@ function QuestionEditor() {
                             <Terminal className="h-4 w-4" />
                             <AlertTitle>Editing Paper {activePaper}</AlertTitle>
                             <AlertDescription>
-                                Your JSON data must be an array `[]` of question objects. Any changes here will only affect paper {activePaper}.
+                                Your JSON data must be an array `[]` of question objects. Any changes here will only affect paper {activePaper}. 
+                                <span className="font-bold ml-4">Current Question Count: {currentQuestionCount}</span>
                             </AlertDescription>
                         </Alert>
                         <Textarea

@@ -25,6 +25,8 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Header } from "@/components/header";
 
+const TEST_QUESTION_COUNT = 100;
+
 export default function TestPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -44,14 +46,18 @@ export default function TestPage() {
         return;
     }
 
-    const paperQuestions = papers[user.assignedPaper] || [];
-    // Fisher-Yates shuffle algorithm to randomize questions
-    const array = [...paperQuestions];
-    for (let i = array.length - 1; i > 0; i--) {
+    const fullQuestionBank = papers[user.assignedPaper] || [];
+    
+    // Fisher-Yates shuffle algorithm to randomize the entire question bank
+    const shuffledBank = [...fullQuestionBank];
+    for (let i = shuffledBank.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+      [shuffledBank[i], shuffledBank[j]] = [shuffledBank[j], shuffledBank[i]];
     }
-    setQuestions(array);
+
+    // Take the first 100 questions for the test
+    const selectedQuestions = shuffledBank.slice(0, TEST_QUESTION_COUNT);
+    setQuestions(selectedQuestions);
   }, [user, authLoading, router, toast]);
 
   const answeredCount = useMemo(() => {
@@ -73,7 +79,7 @@ export default function TestPage() {
     
     try {
         const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-        const submissionId = await submitTest(answersArray, user, user.assignedPaper);
+        const submissionId = await submitTest(answersArray, user, user.assignedPaper, questions.length);
         toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
         router.push(`/test/submitted?submissionId=${submissionId}`);
     } catch (error) {
@@ -81,7 +87,7 @@ export default function TestPage() {
         toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
         setIsSubmitting(false);
     }
-  }, [answers, user, toast, router]);
+  }, [answers, user, toast, router, questions]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
