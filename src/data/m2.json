@@ -1,2500 +1,3125 @@
 [
   {
     "id": 1,
-    "topic": "What is computer",
-    "question_en": "What is a computer?",
-    "question_hi": "कंप्यूटर क्या है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the primary purpose of the Clipboard in MS Word?",
+    "question_hi": "MS Word में क्लिपबोर्ड का प्राथमिक उद्देश्य क्या है?",
     "options": {
       "A": {
-        "en": "An electronic device that processes data",
-        "hi": "एक इलेक्ट्रॉनिक उपकरण जो डेटा को प्रोसेस करता है"
+        "en": "To temporarily store copied or cut content",
+        "hi": "कॉपी या कट की गई सामग्री को अस्थायी रूप से संग्रहीत करने के लिए"
       },
       "B": {
-        "en": "A mechanical calculating machine",
-        "hi": "एक यांत्रिक गणना मशीन"
+        "en": "To permanently save the document",
+        "hi": "दस्तावेज़ को स्थायी रूप से सहेजने के लिए"
       },
       "C": {
-        "en": "A simple typewriter",
-        "hi": "एक साधारण टाइपराइटर"
+        "en": "To check spelling and grammar",
+        "hi": "वर्तनी और व्याकरण की जांच करने के लिए"
       },
       "D": {
-        "en": "A television set",
-        "hi": "एक टेलीविजन सेट"
+        "en": "To change the font style",
+        "hi": "फ़ॉन्ट शैली को बदलने के लिए"
       }
     },
     "correct_option": "A"
   },
   {
     "id": 2,
-    "topic": "What is computer",
-    "question_en": "Who is known as the 'Father of the Computer'?",
-    "question_hi": "'कंप्यूटर का जनक' किसे कहा जाता है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard in MS Word is described as a storage area that is:",
+    "question_hi": "MS Word में क्लिपबोर्ड को एक भंडारण क्षेत्र के रूप में वर्णित किया गया है जो है:",
     "options": {
       "A": {
-        "en": "Bill Gates",
-        "hi": "बिल गेट्स"
+        "en": "Permanent",
+        "hi": "स्थायी"
       },
       "B": {
-        "en": "Charles Babbage",
-        "hi": "चार्ल्स बैबेज"
+        "en": "Temporary",
+        "hi": "अस्थायी"
       },
       "C": {
-        "en": "Steve Jobs",
-        "hi": "स्टीव जॉब्स"
+        "en": "External",
+        "hi": "बाहरी"
       },
       "D": {
-        "en": "Alan Turing",
-        "hi": "एलन ट्यूरिंग"
+        "en": "Cloud-based",
+        "hi": "क्लाउड-आधारित"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 3,
-    "topic": "What is computer",
-    "question_en": "The basic functions of a computer are Input, Process, and _______.",
-    "question_hi": "कंप्यूटर के मूल कार्य इनपुट, प्रोसेस और _______ हैं।",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which of the following can be stored on the Clipboard?",
+    "question_hi": "निम्नलिखित में से किसे क्लिपबोर्ड पर संग्रहीत किया जा सकता है?",
     "options": {
       "A": {
-        "en": "Print",
-        "hi": "प्रिंट"
+        "en": "Only text",
+        "hi": "केवल टेक्स्ट"
       },
       "B": {
-        "en": "Output",
-        "hi": "आउटपुट"
+        "en": "Only images",
+        "hi": "केवल छवियाँ"
       },
       "C": {
-        "en": "Calculate",
-        "hi": "गणना"
+        "en": "Text, images, and other content",
+        "hi": "टेक्स्ट, छवियाँ, और अन्य सामग्री"
       },
       "D": {
-        "en": "Design",
-        "hi": "डिज़ाइन"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 4,
-    "topic": "What is computer",
-    "question_en": "The term 'COMPUTER' is an acronym for:",
-    "question_hi": "'COMPUTER' शब्द का संक्षिप्त रूप है:",
-    "options": {
-      "A": {
-        "en": "Commonly Operated Machine Particularly Used for Technical and Educational Research",
-        "hi": "कॉमनली ऑपरेटेड मशीन पर्टिकुलरली यूज्ड फॉर टेक्निकल एंड एजुकेशनल रिसर्च"
-      },
-      "B": {
-        "en": "Central Operating Machine for Universal Tasking and Engineering",
-        "hi": "सेंट्रल ऑपरेटिंग मशीन फॉर यूनिवर्सल टास्किंग एंड इंजीनियरिंग"
-      },
-      "C": {
-        "en": "Computerized Operating Machine for Universal Technology",
-        "hi": "कंप्यूटराइज्ड ऑपरेटिंग मशीन फॉर यूनिवर्सल टेक्नोलॉजी"
-      },
-      "D": {
-        "en": "None of the above",
-        "hi": "उपरोक्त में से कोई नहीं"
-      }
-    },
-    "correct_option": "A"
-  },
-  {
-    "id": 5,
-    "topic": "Type computer",
-    "question_en": "Desktop computers, laptops, and tablets are examples of which type of computer?",
-    "question_hi": "डेस्कटॉप कंप्यूटर, लैपटॉप और टैबलेट किस प्रकार के कंप्यूटर के उदाहरण हैं?",
-    "options": {
-      "A": {
-        "en": "Supercomputer",
-        "hi": "सुपर कंप्यूटर"
-      },
-      "B": {
-        "en": "Mainframe Computer",
-        "hi": "मेनफ्रेम कंप्यूटर"
-      },
-      "C": {
-        "en": "Microcomputer",
-        "hi": "माइक्रो कंप्यूटर"
-      },
-      "D": {
-        "en": "Minicomputer",
-        "hi": "मिनी कंप्यूटर"
+        "en": "Only document settings",
+        "hi": "केवल दस्तावेज़ सेटिंग्स"
       }
     },
     "correct_option": "C"
   },
   {
-    "id": 6,
-    "topic": "Type computer",
-    "question_en": "Which type of computer works on continuous physical quantities like pressure or temperature?",
-    "question_hi": "किस प्रकार का कंप्यूटर दबाव या तापमान जैसी निरंतर भौतिक राशियों पर काम करता है?",
+    "id": 4,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What does the 'Cut' operation do to the selected content?",
+    "question_hi": "'कट' ऑपरेशन चयनित सामग्री के साथ क्या करता है?",
     "options": {
       "A": {
-        "en": "Digital Computer",
-        "hi": "डिजिटल कंप्यूटर"
+        "en": "It deletes the content permanently",
+        "hi": "यह सामग्री को स्थायी रूप से हटा देता है"
       },
       "B": {
-        "en": "Analog Computer",
-        "hi": "एनालॉग कंप्यूटर"
+        "en": "It moves the content to the Clipboard",
+        "hi": "यह सामग्री को क्लिपबोर्ड पर ले जाता है"
       },
       "C": {
-        "en": "Hybrid Computer",
-        "hi": "हाइब्रिड कंप्यूटर"
+        "en": "It creates a copy of the content",
+        "hi": "यह सामग्री की एक प्रति बनाता है"
       },
       "D": {
-        "en": "Personal Computer",
-        "hi": "पर्सनल कंप्यूटर"
+        "en": "It saves the content in a new file",
+        "hi": "यह सामग्री को एक नई फ़ाइल में सहेजता है"
       }
     },
     "correct_option": "B"
   },
   {
-    "id": 7,
-    "topic": "Type computer",
-    "question_en": "A computer that combines features of both analog and digital computers is called a:",
-    "question_hi": "एक कंप्यूटर जो एनालॉग और डिजिटल दोनों कंप्यूटरों की विशेषताओं को जोड़ता है, उसे कहा जाता है:",
+    "id": 5,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the function of the 'Copy' operation?",
+    "question_hi": "'कॉपी' ऑपरेशन का क्या कार्य है?",
     "options": {
       "A": {
-        "en": "Supercomputer",
-        "hi": "सुपर कंप्यूटर"
+        "en": "To move content to a new location",
+        "hi": "सामग्री को एक नए स्थान पर ले जाना"
       },
       "B": {
-        "en": "Microcomputer",
-        "hi": "माइक्रो कंप्यूटर"
+        "en": "To duplicate content onto the Clipboard",
+        "hi": "सामग्री को क्लिपबोर्ड पर डुप्लिकेट करना"
       },
       "C": {
-        "en": "Hybrid Computer",
-        "hi": "हाइब्रिड कंप्यूटर"
+        "en": "To delete content from the document",
+        "hi": "दस्तावेज़ से सामग्री हटाना"
       },
       "D": {
-        "en": "Mainframe Computer",
-        "hi": "मेनफ्रेम कंप्यूटर"
+        "en": "To format the selected content",
+        "hi": "चयनित सामग्री को प्रारूपित करना"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 6,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which command is used to insert content from the Clipboard into a document?",
+    "question_hi": "क्लिपबोर्ड से सामग्री को दस्तावेज़ में डालने के लिए किस कमांड का उपयोग किया जाता है?",
+    "options": {
+      "A": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "B": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "C": {
+        "en": "Paste",
+        "hi": "पेस्ट"
+      },
+      "D": {
+        "en": "Insert",
+        "hi": "इन्सर्ट"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 7,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Cut, Copy, and Paste are referred to as:",
+    "question_hi": "कट, कॉपी और पेस्ट को कहा जाता है:",
+    "options": {
+      "A": {
+        "en": "Advanced formatting tools",
+        "hi": "उन्नत स्वरूपण उपकरण"
+      },
+      "B": {
+        "en": "File management commands",
+        "hi": "फ़ाइल प्रबंधन कमांड"
+      },
+      "C": {
+        "en": "Basic operations",
+        "hi": "बुनियादी ऑपरेशन"
+      },
+      "D": {
+        "en": "Printing options",
+        "hi": "मुद्रण विकल्प"
       }
     },
     "correct_option": "C"
   },
   {
     "id": 8,
-    "topic": "Generation of computer",
-    "question_en": "Vacuum tubes were used in which generation of computers?",
-    "question_hi": "वैक्यूम ट्यूब का प्रयोग कंप्यूटर की किस पीढ़ी में किया गया था?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "If you want to move text from one paragraph to another, you should use:",
+    "question_hi": "यदि आप टेक्स्ट को एक पैराग्राफ से दूसरे में ले जाना चाहते हैं, तो आपको उपयोग करना चाहिए:",
     "options": {
       "A": {
-        "en": "First Generation",
-        "hi": "पहली पीढ़ी"
+        "en": "Copy and Paste",
+        "hi": "कॉपी और पेस्ट"
       },
       "B": {
-        "en": "Second Generation",
-        "hi": "दूसरी पीढ़ी"
+        "en": "Cut and Paste",
+        "hi": "कट और पेस्ट"
       },
       "C": {
-        "en": "Third Generation",
-        "hi": "तीसरी पीढ़ी"
+        "en": "Only Cut",
+        "hi": "केवल कट"
       },
       "D": {
-        "en": "Fourth Generation",
-        "hi": "चौथी पीढ़ी"
+        "en": "Only Paste",
+        "hi": "केवल पेस्ट"
       }
     },
-    "correct_option": "A"
+    "correct_option": "B"
   },
   {
     "id": 9,
-    "topic": "Generation of computer",
-    "question_en": "Transistors replaced vacuum tubes in which generation of computers?",
-    "question_hi": "कंप्यूटर की किस पीढ़ी में ट्रांजिस्टर ने वैक्यूम ट्यूब की जगह ले ली?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "To create a duplicate of an image in another part of the document, you should use:",
+    "question_hi": "दस्तावेज़ के दूसरे भाग में किसी छवि का डुप्लिकेट बनाने के लिए, आपको उपयोग करना चाहिए:",
     "options": {
       "A": {
-        "en": "First Generation",
-        "hi": "पहली पीढ़ी"
+        "en": "Cut and Paste",
+        "hi": "कट और पेस्ट"
       },
       "B": {
-        "en": "Second Generation",
-        "hi": "दूसरी पीढ़ी"
+        "en": "Copy and Paste",
+        "hi": "कॉपी और पेस्ट"
       },
       "C": {
-        "en": "Third Generation",
-        "hi": "तीसरी पीढ़ी"
+        "en": "Just Copy",
+        "hi": "सिर्फ कॉपी"
       },
       "D": {
-        "en": "Fourth Generation",
-        "hi": "चौथी पीढ़ी"
+        "en": "Just Drag",
+        "hi": "सिर्फ ड्रैग"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 10,
-    "topic": "Generation of computer",
-    "question_en": "Integrated Circuits (ICs) were the hallmark of which computer generation?",
-    "question_hi": "इंटीग्रेटेड सर्किट (आईसी) किस कंप्यूटर पीढ़ी की पहचान थे?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the key difference between 'Cut' and 'Copy'?",
+    "question_hi": "'कट' और 'कॉपी' के बीच मुख्य अंतर क्या है?",
     "options": {
       "A": {
-        "en": "First Generation",
-        "hi": "पहली पीढ़ी"
+        "en": "Cut is for images, Copy is for text",
+        "hi": "कट छवियों के लिए है, कॉपी टेक्स्ट के लिए है"
       },
       "B": {
-        "en": "Second Generation",
-        "hi": "दूसरी पीढ़ी"
+        "en": "Cut removes the original content, while Copy leaves it",
+        "hi": "कट मूल सामग्री को हटा देता है, जबकि कॉपी उसे छोड़ देती है"
       },
       "C": {
-        "en": "Third Generation",
-        "hi": "तीसरी पीढ़ी"
+        "en": "Copy removes the original content, while Cut leaves it",
+        "hi": "कॉपी मूल सामग्री को हटा देती है, जबकि कट उसे छोड़ देता है"
       },
       "D": {
-        "en": "Fourth Generation",
-        "hi": "चौथी पीढ़ी"
+        "en": "There is no difference",
+        "hi": "कोई अंतर नहीं है"
       }
     },
-    "correct_option": "C"
+    "correct_option": "B"
   },
   {
     "id": 11,
-    "topic": "Generation of computer",
-    "question_en": "Microprocessors were introduced in which generation of computers?",
-    "question_hi": "माइक्रोप्रोसेसर कंप्यूटर की किस पीढ़ी में पेश किए गए थे?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The operation to move content is achieved by using:",
+    "question_hi": "सामग्री को स्थानांतरित करने का ऑपरेशन किसका उपयोग करके प्राप्त किया जाता है:",
     "options": {
       "A": {
-        "en": "First Generation",
-        "hi": "पहली पीढ़ी"
+        "en": "The 'Copy' command",
+        "hi": "'कॉपी' कमांड"
       },
       "B": {
-        "en": "Second Generation",
-        "hi": "दूसरी पीढ़ी"
+        "en": "The 'Cut' and 'Paste' commands",
+        "hi": "'कट' और 'पेस्ट' कमांड"
       },
       "C": {
-        "en": "Third Generation",
-        "hi": "तीसरी पीढ़ी"
+        "en": "The 'Duplicate' command",
+        "hi": "'डुप्लिकेट' कमांड"
       },
       "D": {
-        "en": "Fourth Generation",
-        "hi": "चौथी पीढ़ी"
+        "en": "The 'Save As' command",
+        "hi": "'इस रूप में सहेजें' कमांड"
       }
     },
-    "correct_option": "D"
+    "correct_option": "B"
   },
   {
     "id": 12,
-    "topic": "Generation of computer",
-    "question_en": "Artificial Intelligence is a concept associated with which generation of computers?",
-    "question_hi": "आर्टिफिशियल इंटेलिजेंस (कृत्रिम बुद्धिमत्ता) किस पीढ़ी के कंप्यूटर से जुड़ी एक अवधारणा है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The operation to duplicate content is achieved by using:",
+    "question_hi": "सामग्री को डुप्लिकेट करने का ऑपरेशन किसका उपयोग करके प्राप्त किया जाता है:",
     "options": {
       "A": {
-        "en": "Second Generation",
-        "hi": "दूसरी पीढ़ी"
+        "en": "The 'Cut' command",
+        "hi": "'कट' कमांड"
       },
       "B": {
-        "en": "Third Generation",
-        "hi": "तीसरी पीढ़ी"
+        "en": "The 'Move' command",
+        "hi": "'मूव' कमांड"
       },
       "C": {
-        "en": "Fourth Generation",
-        "hi": "चौथी पीढ़ी"
+        "en": "The 'Copy' and 'Paste' commands",
+        "hi": "'कॉपी' और 'पेस्ट' कमांड"
       },
       "D": {
-        "en": "Fifth Generation",
-        "hi": "पांचवीं पीढ़ी"
+        "en": "The 'Format' command",
+        "hi": "'फॉर्मेट' कमांड"
       }
     },
-    "correct_option": "D"
+    "correct_option": "C"
   },
   {
     "id": 13,
-    "topic": "Calculator",
-    "question_en": "In Windows, what command can be typed in the 'Run' dialog box to open the Calculator application?",
-    "question_hi": "विंडोज में, कैलकुलेटर एप्लिकेशन खोलने के लिए 'रन' डायलॉग बॉक्स में कौन सी कमांड टाइप की जा सकती है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "After you 'Cut' an item, it is stored on the:",
+    "question_hi": "जब आप किसी आइटम को 'कट' करते हैं, तो वह कहाँ संग्रहीत होता है:",
     "options": {
       "A": {
-        "en": "calculator.exe",
-        "hi": "calculator.exe"
-      },
-      "B": {
-        "en": "calc",
-        "hi": "calc"
-      },
-      "C": {
-        "en": "runcalc",
-        "hi": "runcalc"
-      },
-      "D": {
-        "en": "wincalc",
-        "hi": "wincalc"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 14,
-    "topic": "Calculator",
-    "question_en": "Which of the following is a standard mode in the Windows Calculator?",
-    "question_hi": "निम्नलिखित में से कौन सा विंडोज कैलकुलेटर में एक मानक मोड है?",
-    "options": {
-      "A": {
-        "en": "Scientific",
-        "hi": "वैज्ञानिक (Scientific)"
-      },
-      "B": {
-        "en": "Gaming",
-        "hi": "गेमिंग (Gaming)"
-      },
-      "C": {
-        "en": "Drawing",
-        "hi": "ड्राइंग (Drawing)"
-      },
-      "D": {
-        "en": "Music",
-        "hi": "संगीत (Music)"
-      }
-    },
-    "correct_option": "A"
-  },
-  {
-    "id": 15,
-    "topic": "Word pad",
-    "question_en": "WordPad is primarily a ________.",
-    "question_hi": "वर्डपैड मुख्य रूप से एक ________ है।",
-    "options": {
-      "A": {
-        "en": "Spreadsheet Program",
-        "hi": "स्प्रेडशीट प्रोग्राम"
-      },
-      "B": {
-        "en": "Basic Word Processor",
-        "hi": "बेसिक वर्ड प्रोसेसर"
-      },
-      "C": {
-        "en": "Image Editor",
-        "hi": "इमेज एडिटर"
-      },
-      "D": {
-        "en": "Database Application",
-        "hi": "डेटाबेस एप्लीकेशन"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 16,
-    "topic": "Word pad",
-    "question_en": "What is the default file extension for a WordPad document?",
-    "question_hi": "वर्डपैड दस्तावेज़ के लिए डिफ़ॉल्ट फ़ाइल एक्सटेंशन क्या है?",
-    "options": {
-      "A": {
-        "en": ".txt",
-        "hi": ".txt"
-      },
-      "B": {
-        "en": ".doc",
-        "hi": ".doc"
-      },
-      "C": {
-        "en": ".rtf",
-        "hi": ".rtf"
-      },
-      "D": {
-        "en": ".pdf",
-        "hi": ".pdf"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 17,
-    "topic": "Word pad",
-    "question_en": "Compared to Notepad, what is a key feature of WordPad?",
-    "question_hi": "नोटपैड की तुलना में, वर्डपैड की एक प्रमुख विशेषता क्या है?",
-    "options": {
-      "A": {
-        "en": "It can only save in plain text",
-        "hi": "यह केवल प्लेन टेक्स्ट में सेव कर सकता है"
-      },
-      "B": {
-        "en": "It supports text formatting (bold, italics, etc.)",
-        "hi": "यह टेक्स्ट फॉर्मेटिंग (बोल्ड, इटैलिक्स, आदि) का समर्थन करता है"
-      },
-      "C": {
-        "en": "It is used for programming",
-        "hi": "इसका उपयोग प्रोग्रामिंग के लिए किया जाता है"
-      },
-      "D": {
-        "en": "It cannot open .txt files",
-        "hi": "यह .txt फाइलें नहीं खोल सकता"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 18,
-    "topic": "Notepad",
-    "question_en": "Notepad is a simple _______.",
-    "question_hi": "नोटपैड एक साधारण _______ है।",
-    "options": {
-      "A": {
-        "en": "Word Processor",
-        "hi": "वर्ड प्रोसेसर"
-      },
-      "B": {
-        "en": "Text Editor",
-        "hi": "टेक्स्ट एडिटर"
-      },
-      "C": {
-        "en": "Image Viewer",
-        "hi": "इमेज व्यूअर"
-      },
-      "D": {
-        "en": "Web Browser",
-        "hi": "वेब ब्राउज़र"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 19,
-    "topic": "Notepad",
-    "question_en": "What is the default file extension for files created in Notepad?",
-    "question_hi": "नोटपैड में बनाई गई फाइलों के लिए डिफ़ॉल्ट फ़ाइल एक्सटेंशन क्या है?",
-    "options": {
-      "A": {
-        "en": ".doc",
-        "hi": ".doc"
-      },
-      "B": {
-        "en": ".rtf",
-        "hi": ".rtf"
-      },
-      "C": {
-        "en": ".txt",
-        "hi": ".txt"
-      },
-      "D": {
-        "en": ".html",
-        "hi": ".html"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 20,
-    "topic": "Notepad",
-    "question_en": "Can you format text (e.g., make it bold or change color) in Notepad?",
-    "question_hi": "क्या आप नोटपैड में टेक्स्ट को फॉर्मेट कर सकते हैं (जैसे, इसे बोल्ड करना या रंग बदलना)?",
-    "options": {
-      "A": {
-        "en": "Yes, easily",
-        "hi": "हाँ, आसानी से"
-      },
-      "B": {
-        "en": "No, it only supports plain text",
-        "hi": "नहीं, यह केवल प्लेन टेक्स्ट का समर्थन करता है"
-      },
-      "C": {
-        "en": "Only with a special plugin",
-        "hi": "केवल एक विशेष प्लगइन के साथ"
-      },
-      "D": {
-        "en": "Only the color can be changed",
-        "hi": "केवल रंग बदला जा सकता है"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 21,
-    "topic": "Paint",
-    "question_en": "MS Paint is a simple ________ program.",
-    "question_hi": "एमएस पेंट एक साधारण ________ प्रोग्राम है।",
-    "options": {
-      "A": {
-        "en": "Video Editing",
-        "hi": "वीडियो एडिटिंग"
-      },
-      "B": {
-        "en": "Raster Graphics Editor",
-        "hi": "रास्टर ग्राफिक्स एडिटर"
-      },
-      "C": {
-        "en": "Word Processing",
-        "hi": "वर्ड प्रोसेसिंग"
-      },
-      "D": {
-        "en": "Animation",
-        "hi": "एनिमेशन"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 22,
-    "topic": "Paint",
-    "question_en": "Which tool in MS Paint is used to fill an area with a selected color?",
-    "question_hi": "एमएस पेंट में किसी क्षेत्र को चयनित रंग से भरने के लिए किस टूल का उपयोग किया जाता है?",
-    "options": {
-      "A": {
-        "en": "Pencil Tool",
-        "hi": "पेंसिल टूल"
-      },
-      "B": {
-        "en": "Eraser Tool",
-        "hi": "इरेज़र टूल"
-      },
-      "C": {
-        "en": "Fill with Color (Paint Bucket) Tool",
-        "hi": "फिल विथ कलर (पेंट बकेट) टूल"
-      },
-      "D": {
-        "en": "Text Tool",
-        "hi": "टेक्स्ट टूल"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 23,
-    "topic": "Paint",
-    "question_en": "What command can be used in the 'Run' dialog box to open MS Paint?",
-    "question_hi": "'रन' डायलॉग बॉक्स में एमएस पेंट खोलने के लिए किस कमांड का उपयोग किया जा सकता है?",
-    "options": {
-      "A": {
-        "en": "paint",
-        "hi": "paint"
-      },
-      "B": {
-        "en": "winpaint",
-        "hi": "winpaint"
-      },
-      "C": {
-        "en": "mspaint",
-        "hi": "mspaint"
-      },
-      "D": {
-        "en": "draw",
-        "hi": "draw"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 24,
-    "topic": "Windows",
-    "question_en": "Microsoft Windows is an example of a(n) ________.",
-    "question_hi": "माइक्रोसॉफ्ट विंडोज एक ________ का उदाहरण है।",
-    "options": {
-      "A": {
-        "en": "Application Software",
-        "hi": "एप्लीकेशन सॉफ्टवेयर"
-      },
-      "B": {
-        "en": "Operating System",
-        "hi": "ऑपरेटिंग सिस्टम"
-      },
-      "C": {
-        "en": "Hardware Device",
-        "hi": "हार्डवेयर डिवाइस"
-      },
-      "D": {
-        "en": "Web Browser",
-        "hi": "वेब ब्राउज़र"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 25,
-    "topic": "Windows",
-    "question_en": "What is the main screen of Windows called, where icons and shortcuts are located?",
-    "question_hi": "विंडोज की मुख्य स्क्रीन को क्या कहा जाता है, जहां आइकन और शॉर्टकट स्थित होते हैं?",
-    "options": {
-      "A": {
-        "en": "Start Menu",
-        "hi": "स्टार्ट मेनू"
-      },
-      "B": {
-        "en": "Taskbar",
-        "hi": "टास्कबार"
-      },
-      "C": {
         "en": "Desktop",
         "hi": "डेस्कटॉप"
-      },
-      "D": {
-        "en": "Control Panel",
-        "hi": "कंट्रोल पैनल"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 26,
-    "topic": "Windows",
-    "question_en": "Where do deleted files go in Windows before they are permanently removed?",
-    "question_hi": "विंडोज में हटाई गई फाइलें स्थायी रूप से हटाए जाने से पहले कहां जाती हैं?",
-    "options": {
-      "A": {
-        "en": "My Documents",
-        "hi": "माई डाक्यूमेंट्स"
       },
       "B": {
         "en": "Recycle Bin",
         "hi": "रीसायकल बिन"
       },
       "C": {
-        "en": "Control Panel",
-        "hi": "कंट्रोल पैनल"
+        "en": "Clipboard",
+        "hi": "क्लिपबोर्ड"
       },
       "D": {
-        "en": "The Cloud",
-        "hi": "द क्लाउड"
+        "en": "Hard Drive",
+        "hi": "हार्ड ड्राइव"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 14,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "After you 'Copy' an item, the original item:",
+    "question_hi": "जब आप किसी आइटम को 'कॉपी' करते हैं, तो मूल आइटम:",
+    "options": {
+      "A": {
+        "en": "Is deleted",
+        "hi": "हटा दिया जाता है"
+      },
+      "B": {
+        "en": "Remains in its original place",
+        "hi": "अपने मूल स्थान पर बना रहता है"
+      },
+      "C": {
+        "en": "Is moved to the Recycle Bin",
+        "hi": "रीसायकल बिन में चला जाता है"
+      },
+      "D": {
+        "en": "Is hidden",
+        "hi": "छिप जाता है"
       }
     },
     "correct_option": "B"
   },
   {
-    "id": 27,
-    "topic": "Windows",
-    "question_en": "GUI stands for ________.",
-    "question_hi": "GUI का पूरा नाम ________ है।",
+    "id": 15,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The 'Paste' command works on content that has been previously:",
+    "question_hi": "'पेस्ट' कमांड उस सामग्री पर काम करता है जिसे पहले:",
     "options": {
       "A": {
-        "en": "Graphical User Interface",
-        "hi": "ग्राफिकल यूजर इंटरफेस"
+        "en": "Saved",
+        "hi": "सहेजा गया हो"
       },
       "B": {
-        "en": "General User Input",
-        "hi": "जनरल यूजर इनपुट"
+        "en": "Printed",
+        "hi": "मुद्रित किया गया हो"
       },
       "C": {
-        "en": "Graphics Utility Integration",
-        "hi": "ग्राफिक्स यूटिलिटी इंटीग्रेशन"
+        "en": "Cut or Copied",
+        "hi": "कट या कॉपी किया गया हो"
       },
       "D": {
-        "en": "Global Unique Identifier",
-        "hi": "ग्लोबल यूनिक आइडेंटिफायर"
+        "en": "Formatted",
+        "hi": "स्वरूपित किया गया हो"
       }
     },
-    "correct_option": "A"
+    "correct_option": "C"
+  },
+  {
+    "id": 16,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which feature acts as a holding area for data before it is pasted?",
+    "question_hi": "पेस्ट किए जाने से पहले कौन सी सुविधा डेटा के लिए एक होल्डिंग क्षेत्र के रूप में कार्य करती है?",
+    "options": {
+      "A": {
+        "en": "The Header",
+        "hi": "हेडर"
+      },
+      "B": {
+        "en": "The Footer",
+        "hi": "फुटर"
+      },
+      "C": {
+        "en": "The Clipboard",
+        "hi": "क्लिपबोर्ड"
+      },
+      "D": {
+        "en": "The Status Bar",
+        "hi": "स्टेटस बार"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 17,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which operation should be used to duplicate text without removing the original?",
+    "question_hi": "मूल को हटाए बिना टेक्स्ट को डुप्लिकेट करने के लिए किस ऑपरेशन का उपयोग किया जाना चाहिए?",
+    "options": {
+      "A": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "B": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "C": {
+        "en": "Delete",
+        "hi": "डिलीट"
+      },
+      "D": {
+        "en": "Move",
+        "hi": "मूव"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 18,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which operation removes text from its original location to be placed elsewhere?",
+    "question_hi": "कौन सा ऑपरेशन टेक्स्ट को उसके मूल स्थान से हटाकर कहीं और रखने के लिए होता है?",
+    "options": {
+      "A": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "B": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "C": {
+        "en": "Duplicate",
+        "hi": "डुप्लिकेट"
+      },
+      "D": {
+        "en": "Format",
+        "hi": "फॉर्मेट"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 19,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The content on the clipboard is usually lost when you:",
+    "question_hi": "क्लिपबोर्ड की सामग्री आमतौर पर कब खो जाती है:",
+    "options": {
+      "A": {
+        "en": "Save the document",
+        "hi": "दस्तावेज़ सहेजते हैं"
+      },
+      "B": {
+        "en": "Close the application or shut down the computer",
+        "hi": "एप्लिकेशन बंद करते हैं या कंप्यूटर बंद करते हैं"
+      },
+      "C": {
+        "en": "Print the document",
+        "hi": "दस्तावेज़ प्रिंट करते हैं"
+      },
+      "D": {
+        "en": "Change the page margins",
+        "hi": "पृष्ठ मार्जिन बदलते हैं"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 20,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the name of the temporary storage area for cut or copied items?",
+    "question_hi": "कट या कॉपी किए गए आइटम के लिए अस्थायी भंडारण क्षेत्र का नाम क्या है?",
+    "options": {
+      "A": {
+        "en": "The Scrapbook",
+        "hi": "स्क्रैपबुक"
+      },
+      "B": {
+        "en": "The Hard Drive",
+        "hi": "हार्ड ड्राइव"
+      },
+      "C": {
+        "en": "The Clipboard",
+        "hi": "क्लिपबोर्ड"
+      },
+      "D": {
+        "en": "The Document Map",
+        "hi": "दस्तावेज़ मानचित्र"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 21,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "To use the same sentence in three different places in a document, you should:",
+    "question_hi": "एक दस्तावेज़ में एक ही वाक्य का तीन अलग-अलग स्थानों पर उपयोग करने के लिए, आपको चाहिए:",
+    "options": {
+      "A": {
+        "en": "Cut it once and Paste it three times",
+        "hi": "इसे एक बार कट करें और तीन बार पेस्ट करें"
+      },
+      "B": {
+        "en": "Copy it once and Paste it three times",
+        "hi": "इसे एक बार कॉपी करें और तीन बार पेस्ट करें"
+      },
+      "C": {
+        "en": "Type it three times",
+        "hi": "इसे तीन बार टाइप करें"
+      },
+      "D": {
+        "en": "Copy it three times",
+        "hi": "इसे तीन बार कॉपी करें"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 22,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which of these is a basic Clipboard operation?",
+    "question_hi": "इनमें से कौन सा एक बुनियादी क्लिपबोर्ड ऑपरेशन है?",
+    "options": {
+      "A": {
+        "en": "Save",
+        "hi": "सेव"
+      },
+      "B": {
+        "en": "Print",
+        "hi": "प्रिंट"
+      },
+      "C": {
+        "en": "Paste",
+        "hi": "पेस्ट"
+      },
+      "D": {
+        "en": "Open",
+        "hi": "ओपन"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 23,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The main function of the 'Paste' command is to:",
+    "question_hi": "'पेस्ट' कमांड का मुख्य कार्य है:",
+    "options": {
+      "A": {
+        "en": "Place content onto the Clipboard",
+        "hi": "क्लिपबोर्ड पर सामग्री रखना"
+      },
+      "B": {
+        "en": "Retrieve content from the Clipboard",
+        "hi": "क्लिपबोर्ड से सामग्री प्राप्त करना"
+      },
+      "C": {
+        "en": "Delete content permanently",
+        "hi": "सामग्री को स्थायी रूप से हटाना"
+      },
+      "D": {
+        "en": "Save the current selection",
+        "hi": "वर्तमान चयन को सहेजना"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 24,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "In the context of 'Cut/Copy/Paste', what does 'move' refer to?",
+    "question_hi": "'कट/कॉपी/पेस्ट' के संदर्भ में, 'मूव' का क्या अर्थ है?",
+    "options": {
+      "A": {
+        "en": "Duplicating content",
+        "hi": "सामग्री की नकल करना"
+      },
+      "B": {
+        "en": "Using Cut and Paste",
+        "hi": "कट और पेस्ट का उपयोग करना"
+      },
+      "C": {
+        "en": "Using Copy and Paste",
+        "hi": "कॉपी और पेस्ट का उपयोग करना"
+      },
+      "D": {
+        "en": "Deleting content",
+        "hi": "सामग्री को हटाना"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 25,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "In the context of 'Cut/Copy/Paste', what does 'duplicate' refer to?",
+    "question_hi": "'कट/कॉपी/पेस्ट' के संदर्भ में, 'डुप्लिकेट' का क्या अर्थ है?",
+    "options": {
+      "A": {
+        "en": "Moving content",
+        "hi": "सामग्री को स्थानांतरित करना"
+      },
+      "B": {
+        "en": "Using Cut and Paste",
+        "hi": "कट और पेस्ट का उपयोग करना"
+      },
+      "C": {
+        "en": "Using Copy and Paste",
+        "hi": "कॉपी और पेस्ट का उपयोग करना"
+      },
+      "D": {
+        "en": "Formatting content",
+        "hi": "सामग्री को स्वरूपित करना"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 26,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which of these is NOT a basic Clipboard operation?",
+    "question_hi": "इनमें से कौन सा एक बुनियादी क्लिपबोर्ड ऑपरेशन नहीं है?",
+    "options": {
+      "A": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "B": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "C": {
+        "en": "Paste",
+        "hi": "पेस्ट"
+      },
+      "D": {
+        "en": "Save",
+        "hi": "सेव"
+      }
+    },
+    "correct_option": "D"
+  },
+  {
+    "id": 27,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard temporarily holds data that was...",
+    "question_hi": "क्लिपबोर्ड अस्थायी रूप से उस डेटा को रखता है जो...",
+    "options": {
+      "A": {
+        "en": "Recently typed",
+        "hi": "हाल ही में टाइप किया गया था"
+      },
+      "B": {
+        "en": "Recently saved",
+        "hi": "हाल ही में सहेजा गया था"
+      },
+      "C": {
+        "en": "Cut or copied",
+        "hi": "कट या कॉपी किया गया था"
+      },
+      "D": {
+        "en": "Recently printed",
+        "hi": "हाल ही में प्रिंट किया गया था"
+      }
+    },
+    "correct_option": "C"
   },
   {
     "id": 28,
-    "topic": "Windows",
-    "question_en": "What is the shortcut key to close the currently active window in Windows?",
-    "question_hi": "विंडोज में वर्तमान में सक्रिय विंडो को बंद करने के लिए शॉर्टकट कुंजी क्या है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What happens to the original selection after using the 'Cut' command?",
+    "question_hi": "'कट' कमांड का उपयोग करने के बाद मूल चयन का क्या होता है?",
     "options": {
       "A": {
-        "en": "Ctrl + W",
-        "hi": "Ctrl + W"
+        "en": "It remains unchanged",
+        "hi": "यह अपरिवर्तित रहता है"
       },
       "B": {
-        "en": "Alt + F4",
-        "hi": "Alt + F4"
+        "en": "It is removed from its original location",
+        "hi": "यह अपने मूल स्थान से हटा दिया जाता है"
       },
       "C": {
-        "en": "Shift + Del",
-        "hi": "Shift + Del"
+        "en": "It becomes bold",
+        "hi": "यह बोल्ड हो जाता है"
       },
       "D": {
-        "en": "Windows Key + L",
-        "hi": "Windows Key + L"
+        "en": "It is saved as a separate file",
+        "hi": "यह एक अलग फ़ाइल के रूप में सहेजा जाता है"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 29,
-    "topic": "Taskbar",
-    "question_en": "The long horizontal bar at the bottom of the Windows screen is called the _______.",
-    "question_hi": "विंडोज स्क्रीन के नीचे लंबी क्षैतिज पट्टी को _______ कहा जाता है।",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What happens to the original selection after using the 'Copy' command?",
+    "question_hi": "'कॉपी' कमांड का उपयोग करने के बाद मूल चयन का क्या होता है?",
     "options": {
       "A": {
-        "en": "Status Bar",
-        "hi": "स्टेटस बार"
+        "en": "It is removed from its original location",
+        "hi": "यह अपने मूल स्थान से हटा दिया जाता है"
       },
       "B": {
-        "en": "Title Bar",
-        "hi": "टाइटल बार"
+        "en": "It remains in its original location",
+        "hi": "यह अपने मूल स्थान पर बना रहता है"
       },
       "C": {
-        "en": "Taskbar",
-        "hi": "टास्कबार"
+        "en": "It is moved to the end of the document",
+        "hi": "यह दस्तावेज़ के अंत में चला जाता है"
       },
       "D": {
-        "en": "Scroll Bar",
-        "hi": "स्क्रॉल बार"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 30,
-    "topic": "Taskbar",
-    "question_en": "Which button on the taskbar is used to open the main menu?",
-    "question_hi": "टास्कबार पर कौन सा बटन मुख्य मेनू खोलने के लिए उपयोग किया जाता है?",
-    "options": {
-      "A": {
-        "en": "Help Button",
-        "hi": "हेल्प बटन"
-      },
-      "B": {
-        "en": "Start Button",
-        "hi": "स्टार्ट बटन"
-      },
-      "C": {
-        "en": "Close Button",
-        "hi": "क्लोज बटन"
-      },
-      "D": {
-        "en": "Maximize Button",
-        "hi": "मैक्सिमाइज बटन"
+        "en": "It is deleted permanently",
+        "hi": "यह स्थायी रूप से हटा दिया जाता है"
       }
     },
     "correct_option": "B"
   },
   {
-    "id": 31,
-    "topic": "Taskbar",
-    "question_en": "The area on the right side of the taskbar that shows the clock and other system icons is called the _______.",
-    "question_hi": "टास्कबार के दाईं ओर का क्षेत्र जो घड़ी और अन्य सिस्टम आइकन दिखाता है, उसे _______ कहा जाता है।",
+    "id": 30,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The term for making a copy of content and placing it elsewhere is:",
+    "question_hi": "सामग्री की एक प्रति बनाने और उसे कहीं और रखने के लिए शब्द है:",
     "options": {
       "A": {
-        "en": "Quick Launch",
-        "hi": "क्विक लॉन्च"
+        "en": "Moving",
+        "hi": "मूविंग"
       },
       "B": {
-        "en": "Start Menu",
-        "hi": "स्टार्ट मेनू"
+        "en": "Cutting",
+        "hi": "कटिंग"
       },
       "C": {
-        "en": "Notification Area / System Tray",
-        "hi": "नोटिफिकेशन एरिया / सिस्टम ट्रे"
+        "en": "Duplicating",
+        "hi": "डुप्लिकेटिंग"
       },
       "D": {
-        "en": "My Computer",
-        "hi": "माई कंप्यूटर"
+        "en": "Deleting",
+        "hi": "डिलीटिंग"
       }
     },
     "correct_option": "C"
   },
   {
-    "id": 32,
-    "topic": "Mouse",
-    "question_en": "A computer mouse is what type of device?",
-    "question_hi": "कंप्यूटर माउस किस प्रकार का उपकरण है?",
+    "id": 31,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Before you can 'Paste' something, you must first perform which action?",
+    "question_hi": "किसी चीज़ को 'पेस्ट' करने से पहले, आपको पहले कौन सी क्रिया करनी होगी?",
     "options": {
       "A": {
-        "en": "Input Device",
-        "hi": "इनपुट डिवाइस"
+        "en": "Save or Open",
+        "hi": "सेव या ओपन"
       },
       "B": {
-        "en": "Output Device",
-        "hi": "आउटपुट डिवाइस"
+        "en": "Cut or Copy",
+        "hi": "कट या कॉपी"
       },
       "C": {
-        "en": "Storage Device",
-        "hi": "स्टोरेज डिवाइस"
+        "en": "Print or Format",
+        "hi": "प्रिंट या फॉर्मेट"
       },
       "D": {
-        "en": "Processing Device",
-        "hi": "प्रोसेसिंग डिवाइस"
+        "en": "Undo or Redo",
+        "hi": "अनडू या रीडू"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 32,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard's storage is best described as:",
+    "question_hi": "क्लिपबोर्ड के भंडारण का सबसे अच्छा वर्णन है:",
+    "options": {
+      "A": {
+        "en": "Long-term",
+        "hi": "दीर्घकालिक"
+      },
+      "B": {
+        "en": "Permanent",
+        "hi": "स्थायी"
+      },
+      "C": {
+        "en": "Volatile",
+        "hi": "अस्थिर"
+      },
+      "D": {
+        "en": "Archival",
+        "hi": "अभिलेखागार"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 33,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which command places a copy of the selection on the Clipboard?",
+    "question_hi": "कौन सा कमांड चयन की एक प्रति को क्लिपबोर्ड पर रखता है?",
+    "options": {
+      "A": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "B": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "C": {
+        "en": "Paste",
+        "hi": "पेस्ट"
+      },
+      "D": {
+        "en": "Duplicate",
+        "hi": "डुप्लिकेट"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 34,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which command removes the selection and places it on the Clipboard?",
+    "question_hi": "कौन सा कमांड चयन को हटाकर क्लिपबोर्ड पर रखता है?",
+    "options": {
+      "A": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "B": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "C": {
+        "en": "Delete",
+        "hi": "डिलीट"
+      },
+      "D": {
+        "en": "Clear",
+        "hi": "क्लियर"
       }
     },
     "correct_option": "A"
   },
   {
-    "id": 33,
-    "topic": "Mouse",
-    "question_en": "What is the action of pressing the right mouse button usually called?",
-    "question_hi": "दायां माउस बटन दबाने की क्रिया को आमतौर पर क्या कहा जाता है?",
-    "options": {
-      "A": {
-        "en": "Left-click",
-        "hi": "लेफ्ट-क्लिक"
-      },
-      "B": {
-        "en": "Double-click",
-        "hi": "डबल-क्लिक"
-      },
-      "C": {
-        "en": "Drag",
-        "hi": "ड्रैग"
-      },
-      "D": {
-        "en": "Right-click",
-        "hi": "राइट-क्लिक"
-      }
-    },
-    "correct_option": "D"
-  },
-  {
-    "id": 34,
-    "topic": "Mouse",
-    "question_en": "Pressing and holding the mouse button while moving the mouse is known as:",
-    "question_hi": "माउस को हिलाते समय माउस बटन को दबाकर रखने को क्या कहा जाता है?",
-    "options": {
-      "A": {
-        "en": "Scrolling",
-        "hi": "स्क्रॉलिंग"
-      },
-      "B": {
-        "en": "Dragging",
-        "hi": "ड्रैगिंग"
-      },
-      "C": {
-        "en": "Pointing",
-        "hi": "पॉइंटिंग"
-      },
-      "D": {
-        "en": "Clicking",
-        "hi": "क्लिकिंग"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
     "id": 35,
-    "topic": "Mouse",
-    "question_en": "The small arrow on the screen that moves as you move the mouse is called a:",
-    "question_hi": "स्क्रीन पर छोटा तीर जो माउस को हिलाने पर हिलता है, उसे क्या कहा जाता है:",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "To relocate a sentence, the most efficient method is:",
+    "question_hi": "एक वाक्य को स्थानांतरित करने का सबसे कुशल तरीका है:",
     "options": {
       "A": {
-        "en": "Icon",
-        "hi": "आइकन"
+        "en": "Copy, Paste, then delete original",
+        "hi": "कॉपी, पेस्ट, फिर मूल को हटाएं"
       },
       "B": {
-        "en": "Pointer / Cursor",
-        "hi": "पॉइंटर / कर्सर"
+        "en": "Cut and Paste",
+        "hi": "कट और पेस्ट"
       },
       "C": {
-        "en": "Marker",
-        "hi": "मार्कर"
+        "en": "Re-type the sentence",
+        "hi": "वाक्य को फिर से टाइप करें"
       },
       "D": {
-        "en": "Selector",
-        "hi": "सेलेक्टर"
+        "en": "Drag and Drop",
+        "hi": "ड्रैग एंड ड्रॉप"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 36,
-    "topic": "Keyboard",
-    "question_en": "A keyboard is a primary _______ device.",
-    "question_hi": "कीबोर्ड एक प्राथमिक _______ डिवाइस है।",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard is a feature of:",
+    "question_hi": "क्लिपबोर्ड एक विशेषता है:",
     "options": {
       "A": {
-        "en": "Output",
-        "hi": "आउटपुट"
+        "en": "The operating system, used by applications like Word",
+        "hi": "ऑपरेटिंग सिस्टम की, जिसे वर्ड जैसे एप्लिकेशन उपयोग करते हैं"
       },
       "B": {
-        "en": "Pointing",
-        "hi": "पॉइंटिंग"
+        "en": "Only MS Word",
+        "hi": "केवल एमएस वर्ड की"
       },
       "C": {
-        "en": "Storage",
-        "hi": "स्टोरेज"
+        "en": "Only web browsers",
+        "hi": "केवल वेब ब्राउज़र की"
       },
       "D": {
-        "en": "Input",
-        "hi": "इनपुट"
-      }
-    },
-    "correct_option": "D"
-  },
-  {
-    "id": 37,
-    "topic": "Keyboard",
-    "question_en": "The keys F1, F2, F3, etc., on the keyboard are called _______ keys.",
-    "question_hi": "कीबोर्ड पर F1, F2, F3, आदि कुंजियों को _______ कुंजी कहा जाता है।",
-    "options": {
-      "A": {
-        "en": "Numeric Keys",
-        "hi": "न्यूमेरिक कीज"
-      },
-      "B": {
-        "en": "Function Keys",
-        "hi": "फंक्शन कीज"
-      },
-      "C": {
-        "en": "Arrow Keys",
-        "hi": "एरो कीज"
-      },
-      "D": {
-        "en": "Control Keys",
-        "hi": "कंट्रोल कीज"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 38,
-    "topic": "Keyboard",
-    "question_en": "Which key on the keyboard is used to type uppercase letters?",
-    "question_hi": "कीबोर्ड पर कौन सी कुंजी बड़े अक्षर टाइप करने के लिए उपयोग की जाती है?",
-    "options": {
-      "A": {
-        "en": "Shift Key",
-        "hi": "शिफ्ट की"
-      },
-      "B": {
-        "en": "Enter Key",
-        "hi": "एंटर की"
-      },
-      "C": {
-        "en": "Tab Key",
-        "hi": "टैब की"
-      },
-      "D": {
-        "en": "Spacebar",
-        "hi": "स्पेसबार"
+        "en": "Only image editing software",
+        "hi": "केवल छवि संपादन सॉफ्टवेयर की"
       }
     },
     "correct_option": "A"
   },
   {
-    "id": 39,
-    "topic": "Keyboard",
-    "question_en": "The standard layout for English language keyboards is known as:",
-    "question_hi": "अंग्रेजी भाषा के कीबोर्ड के लिए मानक लेआउट को किस रूप में जाना जाता है:",
+    "id": 37,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which action places content from the Clipboard at the cursor's position?",
+    "question_hi": "कौन सी क्रिया क्लिपबोर्ड से सामग्री को कर्सर की स्थिति पर रखती है?",
     "options": {
       "A": {
-        "en": "AZERTY",
-        "hi": "AZERTY"
+        "en": "Cut",
+        "hi": "कट"
       },
       "B": {
-        "en": "QWERTZ",
-        "hi": "QWERTZ"
+        "en": "Copy",
+        "hi": "कॉपी"
       },
       "C": {
-        "en": "QWERTY",
-        "hi": "QWERTY"
+        "en": "Paste",
+        "hi": "पेस्ट"
       },
       "D": {
-        "en": "DVORAK",
-        "hi": "DVORAK"
+        "en": "Drop",
+        "hi": "ड्रॉप"
       }
     },
     "correct_option": "C"
   },
   {
-    "id": 40,
-    "topic": "Keyboard",
-    "question_en": "Which key is used to erase the character to the left of the cursor?",
-    "question_hi": "कर्सर के बाईं ओर के अक्षर को मिटाने के लिए किस कुंजी का उपयोग किया जाता है?",
+    "id": 38,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The 'Copy' command is used for ______ content.",
+    "question_hi": "'कॉपी' कमांड का उपयोग ______ सामग्री के लिए किया जाता है।",
     "options": {
       "A": {
-        "en": "Delete",
-        "hi": "डिलीट"
+        "en": "moving",
+        "hi": "स्थानांतरित करने"
       },
       "B": {
-        "en": "Backspace",
-        "hi": "बैकस्पेस"
+        "en": "duplicating",
+        "hi": "डुप्लिकेट करने"
       },
       "C": {
-        "en": "Insert",
-        "hi": "इन्सर्ट"
+        "en": "deleting",
+        "hi": "हटाने"
       },
       "D": {
-        "en": "End",
-        "hi": "एंड"
+        "en": "saving",
+        "hi": "सहेजने"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 39,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The 'Cut' command is used for ______ content.",
+    "question_hi": "'कट' कमांड का उपयोग ______ सामग्री के लिए किया जाता है।",
+    "options": {
+      "A": {
+        "en": "moving",
+        "hi": "स्थानांतरित करने"
+      },
+      "B": {
+        "en": "duplicating",
+        "hi": "डुप्लिकेट करने"
+      },
+      "C": {
+        "en": "styling",
+        "hi": "स्टाइल करने"
+      },
+      "D": {
+        "en": "hiding",
+        "hi": "छिपाने"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 40,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the collective term for the Cut, Copy, and Paste functions?",
+    "question_hi": "कट, कॉपी और पेस्ट कार्यों के लिए सामूहिक शब्द क्या है?",
+    "options": {
+      "A": {
+        "en": "Editing Tools",
+        "hi": "संपादन उपकरण"
+      },
+      "B": {
+        "en": "Clipboard Operations",
+        "hi": "क्लिपबोर्ड संचालन"
+      },
+      "C": {
+        "en": "File Functions",
+        "hi": "फ़ाइल कार्य"
+      },
+      "D": {
+        "en": "Formatting Options",
+        "hi": "स्वरूपण विकल्प"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 41,
-    "topic": "Input device",
-    "question_en": "Which of the following is an input device?",
-    "question_hi": "निम्नलिखित में से कौन एक इनपुट डिवाइस है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The purpose of the Clipboard is to _____ hold information.",
+    "question_hi": "क्लिपबोर्ड का उद्देश्य जानकारी को _____ रखना है।",
     "options": {
       "A": {
-        "en": "Monitor",
-        "hi": "मॉनिटर"
+        "en": "permanently",
+        "hi": "स्थायी रूप से"
       },
       "B": {
-        "en": "Printer",
-        "hi": "प्रिंटर"
+        "en": "temporarily",
+        "hi": "अस्थायी रूप से"
       },
       "C": {
-        "en": "Scanner",
-        "hi": "स्कैनर"
+        "en": "securely",
+        "hi": "सुरक्षित रूप से"
       },
       "D": {
-        "en": "Speaker",
-        "hi": "स्पीकर"
+        "en": "publicly",
+        "hi": "सार्वजनिक रूप से"
       }
     },
-    "correct_option": "C"
+    "correct_option": "B"
   },
   {
     "id": 42,
-    "topic": "Input device",
-    "question_en": "A joystick is primarily used for:",
-    "question_hi": "जॉयस्टिक का उपयोग मुख्य रूप से किसके लिए किया जाता है:",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which statement about the Clipboard is TRUE?",
+    "question_hi": "क्लिपबोर्ड के बारे में कौन सा कथन सत्य है?",
     "options": {
       "A": {
-        "en": "Typing text",
-        "hi": "टेक्स्ट टाइप करना"
+        "en": "It can only hold one item at a time (in basic function).",
+        "hi": "यह एक समय में केवल एक आइटम रख सकता है (बुनियादी कार्य में)।"
       },
       "B": {
-        "en": "Printing documents",
-        "hi": "दस्तावेज प्रिंट करना"
+        "en": "It saves items forever.",
+        "hi": "यह आइटम को हमेशा के लिए सहेजता है।"
       },
       "C": {
-        "en": "Playing games",
-        "hi": "गेम खेलना"
+        "en": "It can only store text.",
+        "hi": "यह केवल टेक्स्ट संग्रहीत कर सकता है।"
       },
       "D": {
-        "en": "Scanning images",
-        "hi": "छवियों को स्कैन करना"
+        "en": "It is a physical part of the computer.",
+        "hi": "यह कंप्यूटर का एक भौतिक हिस्सा है।"
       }
     },
-    "correct_option": "C"
+    "correct_option": "A"
   },
   {
     "id": 43,
-    "topic": "Input device",
-    "question_en": "Which device is used to record sound into a computer?",
-    "question_hi": "कंप्यूटर में ध्वनि रिकॉर्ड करने के लिए किस उपकरण का उपयोग किया जाता है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "To insert a logo multiple times in a report, you should:",
+    "question_hi": "एक रिपोर्ट में एक लोगो को कई बार डालने के लिए, आपको चाहिए:",
     "options": {
       "A": {
-        "en": "Speaker",
-        "hi": "स्पीकर"
+        "en": "Cut the logo once and paste it multiple times.",
+        "hi": "लोगो को एक बार कट करें और कई बार पेस्ट करें।"
       },
       "B": {
-        "en": "Microphone",
-        "hi": "माइक्रोफोन"
+        "en": "Copy the logo once and paste it multiple times.",
+        "hi": "लोगो को एक बार कॉपी करें और कई बार पेस्ट करें।"
       },
       "C": {
-        "en": "Webcam",
-        "hi": "वेबकैम"
+        "en": "Insert the logo from file each time.",
+        "hi": "हर बार फ़ाइल से लोगो डालें।"
       },
       "D": {
-        "en": "Plotter",
-        "hi": "प्लॉटर"
+        "en": "Cut and paste for each instance.",
+        "hi": "प्रत्येक उदाहरण के लिए कट और पेस्ट करें।"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 44,
-    "topic": "Input device",
-    "question_en": "OCR stands for:",
-    "question_hi": "OCR का पूरा नाम है:",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The 'Paste' function gets its data from where?",
+    "question_hi": "'पेस्ट' फ़ंक्शन अपना डेटा कहाँ से प्राप्त करता है?",
     "options": {
       "A": {
-        "en": "Optical Character Recognition",
-        "hi": "ऑप्टिकल कैरेक्टर रिकॉग्निशन"
+        "en": "A saved file",
+        "hi": "एक सहेजी गई फ़ाइल"
       },
       "B": {
-        "en": "Online Computer Reader",
-        "hi": "ऑनलाइन कंप्यूटर रीडर"
+        "en": "The internet",
+        "hi": "इंटरनेट"
       },
       "C": {
-        "en": "Original Code Reader",
-        "hi": "ओरिजिनल कोड रीडर"
+        "en": "The Clipboard",
+        "hi": "क्लिपबोर्ड"
       },
       "D": {
-        "en": "Optical Code Reading",
-        "hi": "ऑप्टिकल कोड रीडिंग"
-      }
-    },
-    "correct_option": "A"
-  },
-  {
-    "id": 45,
-    "topic": "Input device",
-    "question_en": "A barcode reader is an example of an:",
-    "question_hi": "बारकोड रीडर एक _______ का उदाहरण है:",
-    "options": {
-      "A": {
-        "en": "Output device",
-        "hi": "आउटपुट डिवाइस"
-      },
-      "B": {
-        "en": "Storage device",
-        "hi": "स्टोरेज डिवाइस"
-      },
-      "C": {
-        "en": "Processing device",
-        "hi": "प्रोसेसिंग डिवाइस"
-      },
-      "D": {
-        "en": "Input device",
-        "hi": "इनपुट डिवाइस"
-      }
-    },
-    "correct_option": "D"
-  },
-  {
-    "id": 46,
-    "topic": "Output processing device",
-    "question_en": "Which of the following is an output device?",
-    "question_hi": "निम्नलिखित में से कौन एक आउटपुट डिवाइस है?",
-    "options": {
-      "A": {
-        "en": "Keyboard",
-        "hi": "कीबोर्ड"
-      },
-      "B": {
-        "en": "Mouse",
-        "hi": "माउस"
-      },
-      "C": {
-        "en": "Monitor",
-        "hi": "मॉनिटर"
-      },
-      "D": {
-        "en": "Scanner",
-        "hi": "स्कैनर"
+        "en": "The printer queue",
+        "hi": "प्रिंटर कतार"
       }
     },
     "correct_option": "C"
   },
   {
-    "id": 47,
-    "topic": "Output processing device",
-    "question_en": "The 'brain' of the computer is the:",
-    "question_hi": "कंप्यूटर का 'मस्तिष्क' है:",
+    "id": 45,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "If you cut text and then turn off your computer without pasting, what happens to the text?",
+    "question_hi": "यदि आप टेक्स्ट को कट करते हैं और फिर बिना पेस्ट किए अपना कंप्यूटर बंद कर देते हैं, तो टेक्स्ट का क्या होता है?",
     "options": {
       "A": {
-        "en": "RAM",
-        "hi": "रैम"
+        "en": "It is permanently lost.",
+        "hi": "यह स्थायी रूप से खो जाता है।"
       },
       "B": {
-        "en": "CPU",
-        "hi": "सीपीयू"
+        "en": "It reappears where it was cut from.",
+        "hi": "यह वहीं फिर से प्रकट होता है जहां से इसे काटा गया था।"
       },
       "C": {
-        "en": "Hard Disk",
-        "hi": "हार्ड डिस्क"
+        "en": "It is saved to a temporary file.",
+        "hi": "यह एक अस्थायी फ़ाइल में सहेजा जाता है।"
       },
       "D": {
-        "en": "Motherboard",
-        "hi": "मदरबोर्ड"
+        "en": "It is pasted automatically on restart.",
+        "hi": "यह पुनरारंभ पर स्वचालित रूप से पेस्ट हो जाता है।"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 46,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Moving text from the end of a document to the beginning is an example of:",
+    "question_hi": "दस्तावेज़ के अंत से शुरुआत तक टेक्स्ट को स्थानांतरित करना इसका एक उदाहरण है:",
+    "options": {
+      "A": {
+        "en": "Copying and Pasting",
+        "hi": "कॉपी और पेस्ट करना"
+      },
+      "B": {
+        "en": "Cutting and Pasting",
+        "hi": "कटिंग और पेस्टिंग"
+      },
+      "C": {
+        "en": "Formatting",
+        "hi": "स्वरूपण"
+      },
+      "D": {
+        "en": "Revising",
+        "hi": "संशोधन"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 47,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard allows for the transfer of content:",
+    "question_hi": "क्लिपबोर्ड सामग्री के हस्तांतरण की अनुमति देता है:",
+    "options": {
+      "A": {
+        "en": "Only within the same document",
+        "hi": "केवल उसी दस्तावेज़ के भीतर"
+      },
+      "B": {
+        "en": "Between different documents and applications",
+        "hi": "विभिन्न दस्तावेज़ों और अनुप्रयोगों के बीच"
+      },
+      "C": {
+        "en": "Only between different pages",
+        "hi": "केवल विभिन्न पृष्ठों के बीच"
+      },
+      "D": {
+        "en": "Only to the printer",
+        "hi": "केवल प्रिंटर के लिए"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 48,
-    "topic": "Output processing device",
-    "question_en": "CPU stands for:",
-    "question_hi": "CPU का पूरा नाम है:",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which of these is the correct sequence for moving text?",
+    "question_hi": "टेक्स्ट को स्थानांतरित करने के लिए इनमें से कौन सा सही क्रम है?",
     "options": {
       "A": {
-        "en": "Central Processing Unit",
-        "hi": "सेंट्रल प्रोसेसिंग यूनिट"
+        "en": "Select -> Paste -> Cut",
+        "hi": "चयन करें -> पेस्ट करें -> कट करें"
       },
       "B": {
-        "en": "Central Programming Unit",
-        "hi": "सेंट्रल प्रोग्रामिंग यूनिट"
+        "en": "Select -> Cut -> Position Cursor -> Paste",
+        "hi": "चयन करें -> कट करें -> कर्सर रखें -> पेस्ट करें"
       },
       "C": {
-        "en": "Computer Processing Unit",
-        "hi": "कंप्यूटर प्रोसेसिंग यूनिट"
+        "en": "Paste -> Select -> Cut",
+        "hi": "पेस्ट करें -> चयन करें -> कट करें"
       },
       "D": {
-        "en": "Computer Programming Unit",
-        "hi": "कंप्यूटर प्रोग्रामिंग यूनिट"
+        "en": "Select -> Copy -> Position Cursor -> Cut",
+        "hi": "चयन करें -> कॉपी करें -> कर्सर रखें -> कट करें"
       }
     },
-    "correct_option": "A"
+    "correct_option": "B"
   },
   {
     "id": 49,
-    "topic": "Output processing device",
-    "question_en": "A printer is a device that produces:",
-    "question_hi": "प्रिंटर एक उपकरण है जो उत्पन्न करता है:",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which of these is the correct sequence for duplicating text?",
+    "question_hi": "टेक्स्ट को डुप्लिकेट करने के लिए इनमें से कौन सा सही क्रम है?",
     "options": {
       "A": {
-        "en": "Soft copy output",
-        "hi": "सॉफ्ट कॉपी आउटपुट"
+        "en": "Select -> Cut -> Paste",
+        "hi": "चयन करें -> कट करें -> पेस्ट करें"
       },
       "B": {
-        "en": "Hard copy output",
-        "hi": "हार्ड कॉपी आउटपुट"
+        "en": "Select -> Paste -> Copy",
+        "hi": "चयन करें -> पेस्ट करें -> कॉपी करें"
       },
       "C": {
-        "en": "Digital signals",
-        "hi": "डिजिटल सिग्नल"
+        "en": "Select -> Copy -> Position Cursor -> Paste",
+        "hi": "चयन करें -> कॉपी करें -> कर्सर रखें -> पेस्ट करें"
       },
       "D": {
-        "en": "Audio output",
-        "hi": "ऑडियो आउटपुट"
+        "en": "Copy -> Select -> Paste",
+        "hi": "कॉपी करें -> चयन करें -> पेस्ट करें"
       }
     },
-    "correct_option": "B"
+    "correct_option": "C"
   },
   {
     "id": 50,
-    "topic": "Output processing device",
-    "question_en": "Which part of the CPU performs arithmetic and logical operations?",
-    "question_hi": "सीपीयू का कौन सा भाग अंकगणितीय और तार्किक संचालन करता है?",
-    "options": {
-      "A": {
-        "en": "Control Unit (CU)",
-        "hi": "कंट्रोल यूनिट (सीयू)"
-      },
-      "B": {
-        "en": "Memory Unit",
-        "hi": "मेमोरी यूनिट"
-      },
-      "C": {
-        "en": "Arithmetic Logic Unit (ALU)",
-        "hi": "अरिथमैटिक लॉजिक यूनिट (एएलयू)"
-      },
-      "D": {
-        "en": "Register",
-        "hi": "रजिस्टर"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 51,
-    "topic": "Binary to decimal",
-    "question_en": "What is the decimal equivalent of the binary number 101?",
-    "question_hi": "बाइनरी संख्या 101 का दशमलव समतुल्य क्या है?",
-    "options": {
-      "A": {
-        "en": "4",
-        "hi": "4"
-      },
-      "B": {
-        "en": "5",
-        "hi": "5"
-      },
-      "C": {
-        "en": "6",
-        "hi": "6"
-      },
-      "D": {
-        "en": "7",
-        "hi": "7"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 52,
-    "topic": "Binary to decimal",
-    "question_en": "What is the decimal equivalent of the binary number 1101?",
-    "question_hi": "बाइनरी संख्या 1101 का दशमलव समतुल्य क्या है?",
-    "options": {
-      "A": {
-        "en": "11",
-        "hi": "11"
-      },
-      "B": {
-        "en": "12",
-        "hi": "12"
-      },
-      "C": {
-        "en": "13",
-        "hi": "13"
-      },
-      "D": {
-        "en": "14",
-        "hi": "14"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 53,
-    "topic": "Binary to decimal",
-    "question_en": "The binary number system has a base of:",
-    "question_hi": "बाइनरी संख्या प्रणाली का आधार है:",
-    "options": {
-      "A": {
-        "en": "2",
-        "hi": "2"
-      },
-      "B": {
-        "en": "8",
-        "hi": "8"
-      },
-      "C": {
-        "en": "10",
-        "hi": "10"
-      },
-      "D": {
-        "en": "16",
-        "hi": "16"
-      }
-    },
-    "correct_option": "A"
-  },
-  {
-    "id": 54,
-    "topic": "Binary to decimal",
-    "question_en": "Convert the binary number 1000 to decimal.",
-    "question_hi": "बाइनरी संख्या 1000 को दशमलव में बदलें।",
-    "options": {
-      "A": {
-        "en": "4",
-        "hi": "4"
-      },
-      "B": {
-        "en": "8",
-        "hi": "8"
-      },
-      "C": {
-        "en": "10",
-        "hi": "10"
-      },
-      "D": {
-        "en": "16",
-        "hi": "16"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 55,
-    "topic": "Decimal to binary",
-    "question_en": "What is the binary equivalent of the decimal number 10?",
-    "question_hi": "दशमलव संख्या 10 का बाइनरी समतुल्य क्या है?",
-    "options": {
-      "A": {
-        "en": "1001",
-        "hi": "1001"
-      },
-      "B": {
-        "en": "1010",
-        "hi": "1010"
-      },
-      "C": {
-        "en": "1100",
-        "hi": "1100"
-      },
-      "D": {
-        "en": "1110",
-        "hi": "1110"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 56,
-    "topic": "Decimal to binary",
-    "question_en": "What is the binary equivalent of the decimal number 7?",
-    "question_hi": "दशमलव संख्या 7 का बाइनरी समतुल्य क्या है?",
-    "options": {
-      "A": {
-        "en": "110",
-        "hi": "110"
-      },
-      "B": {
-        "en": "101",
-        "hi": "101"
-      },
-      "C": {
-        "en": "111",
-        "hi": "111"
-      },
-      "D": {
-        "en": "100",
-        "hi": "100"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 57,
-    "topic": "Decimal to binary",
-    "question_en": "The decimal number system has a base of:",
-    "question_hi": "दशमलव संख्या प्रणाली का आधार है:",
-    "options": {
-      "A": {
-        "en": "2",
-        "hi": "2"
-      },
-      "B": {
-        "en": "8",
-        "hi": "8"
-      },
-      "C": {
-        "en": "10",
-        "hi": "10"
-      },
-      "D": {
-        "en": "16",
-        "hi": "16"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 58,
-    "topic": "Decimal to binary",
-    "question_en": "Convert the decimal number 25 to binary.",
-    "question_hi": "दशमलव संख्या 25 को बाइनरी में बदलें।",
-    "options": {
-      "A": {
-        "en": "11001",
-        "hi": "11001"
-      },
-      "B": {
-        "en": "10011",
-        "hi": "10011"
-      },
-      "C": {
-        "en": "11010",
-        "hi": "11010"
-      },
-      "D": {
-        "en": "10101",
-        "hi": "10101"
-      }
-    },
-    "correct_option": "A"
-  },
-  {
-    "id": 59,
-    "topic": "Computer memory",
-    "question_en": "RAM stands for:",
-    "question_hi": "रैम (RAM) का पूरा नाम है:",
-    "options": {
-      "A": {
-        "en": "Read Access Memory",
-        "hi": "रीड एक्सेस मेमोरी"
-      },
-      "B": {
-        "en": "Random Access Memory",
-        "hi": "रैंडम एक्सेस मेमोरी"
-      },
-      "C": {
-        "en": "Run Anytime Memory",
-        "hi": "रन एनीटाइम मेमोरी"
-      },
-      "D": {
-        "en": "Read-Only Memory",
-        "hi": "रीड-ओनली मेमोरी"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 60,
-    "topic": "Computer memory",
-    "question_en": "Which type of memory is volatile, meaning its contents are lost when the power is turned off?",
-    "question_hi": "किस प्रकार की मेमोरी वोलेटाइल (अस्थिर) होती है, जिसका अर्थ है कि बिजली बंद होने पर इसकी सामग्री खो जाती है?",
-    "options": {
-      "A": {
-        "en": "ROM",
-        "hi": "रोम (ROM)"
-      },
-      "B": {
-        "en": "RAM",
-        "hi": "रैम (RAM)"
-      },
-      "C": {
-        "en": "Hard Disk",
-        "hi": "हार्ड डिस्क"
-      },
-      "D": {
-        "en": "SSD",
-        "hi": "एसएसडी (SSD)"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 61,
-    "topic": "Computer memory",
-    "question_en": "Which memory is known as primary memory?",
-    "question_hi": "किस मेमोरी को प्राथमिक मेमोरी के रूप में जाना जाता है?",
-    "options": {
-      "A": {
-        "en": "Hard Disk",
-        "hi": "हार्ड डिस्क"
-      },
-      "B": {
-        "en": "RAM",
-        "hi": "रैम (RAM)"
-      },
-      "C": {
-        "en": "Pen Drive",
-        "hi": "पेन ड्राइव"
-      },
-      "D": {
-        "en": "CD-ROM",
-        "hi": "सीडी-रोम"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 62,
-    "topic": "Computer memory",
-    "question_en": "Which is an example of secondary storage?",
-    "question_hi": "द्वितीयक भंडारण (secondary storage) का उदाहरण कौन सा है?",
-    "options": {
-      "A": {
-        "en": "RAM",
-        "hi": "रैम (RAM)"
-      },
-      "B": {
-        "en": "Cache Memory",
-        "hi": "कैश मेमोरी"
-      },
-      "C": {
-        "en": "Hard Drive",
-        "hi": "हार्ड ड्राइव"
-      },
-      "D": {
-        "en": "Registers",
-        "hi": "रजिस्टर्स"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 63,
-    "topic": "Computer memory",
-    "question_en": "What is the smallest unit of data in a computer?",
-    "question_hi": "कंप्यूटर में डेटा की सबसे छोटी इकाई क्या है?",
-    "options": {
-      "A": {
-        "en": "Byte",
-        "hi": "बाइट"
-      },
-      "B": {
-        "en": "Nibble",
-        "hi": "निबल"
-      },
-      "C": {
-        "en": "Bit",
-        "hi": "बिट"
-      },
-      "D": {
-        "en": "Kilobyte",
-        "hi": "किलोबाइट"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 64,
-    "topic": "Computer memory",
-    "question_en": "How many bits make one byte?",
-    "question_hi": "कितने बिट्स मिलकर एक बाइट बनाते हैं?",
-    "options": {
-      "A": {
-        "en": "4",
-        "hi": "4"
-      },
-      "B": {
-        "en": "8",
-        "hi": "8"
-      },
-      "C": {
-        "en": "16",
-        "hi": "16"
-      },
-      "D": {
-        "en": "1024",
-        "hi": "1024"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 65,
-    "topic": "Type of rom",
-    "question_en": "ROM stands for:",
-    "question_hi": "रोम (ROM) का पूरा नाम है:",
-    "options": {
-      "A": {
-        "en": "Random Only Memory",
-        "hi": "रैंडम ओनली मेमोरी"
-      },
-      "B": {
-        "en": "Read-Only Memory",
-        "hi": "रीड-ओनली मेमोरी"
-      },
-      "C": {
-        "en": "Run-Only Memory",
-        "hi": "रन-ओनली मेमोरी"
-      },
-      "D": {
-        "en": "Random Open Memory",
-        "hi": "रैंडम ओपन मेमोरी"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 66,
-    "topic": "Type of rom",
-    "question_en": "Which type of ROM can be erased by exposing it to ultraviolet light?",
-    "question_hi": "किस प्रकार के रोम (ROM) को पराबैंगनी प्रकाश में रखकर मिटाया जा सकता है?",
-    "options": {
-      "A": {
-        "en": "PROM",
-        "hi": "प्रोम (PROM)"
-      },
-      "B": {
-        "en": "EEPROM",
-        "hi": "ईईप्रोम (EEPROM)"
-      },
-      "C": {
-        "en": "EPROM",
-        "hi": "ईप्रोम (EPROM)"
-      },
-      "D": {
-        "en": "Mask ROM",
-        "hi": "मास्क रोम"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 67,
-    "topic": "Type of rom",
-    "question_en": "PROM stands for:",
-    "question_hi": "प्रोम (PROM) का पूरा नाम है:",
-    "options": {
-      "A": {
-        "en": "Programmable Read-Only Memory",
-        "hi": "प्रोग्रामेबल रीड-ओनली मेमोरी"
-      },
-      "B": {
-        "en": "Primary Read-Only Memory",
-        "hi": "प्राइमरी रीड-ओनली मेमोरी"
-      },
-      "C": {
-        "en": "Program Read-Output Memory",
-        "hi": "प्रोग्राम रीड-आउटपुट मेमोरी"
-      },
-      "D": {
-        "en": "Portable Read-Only Memory",
-        "hi": "पोर्टेबल रीड-ओनली मेमोरी"
-      }
-    },
-    "correct_option": "A"
-  },
-  {
-    "id": 68,
-    "topic": "Type of rom",
-    "question_en": "Which type of ROM can be erased and reprogrammed using electrical signals?",
-    "question_hi": "किस प्रकार के रोम (ROM) को विद्युत संकेतों का उपयोग करके मिटाया और फिर से प्रोग्राम किया जा सकता है?",
-    "options": {
-      "A": {
-        "en": "Mask ROM",
-        "hi": "मास्क रोम"
-      },
-      "B": {
-        "en": "PROM",
-        "hi": "प्रोम (PROM)"
-      },
-      "C": {
-        "en": "EPROM",
-        "hi": "ईप्रोम (EPROM)"
-      },
-      "D": {
-        "en": "EEPROM",
-        "hi": "ईईप्रोम (EEPROM)"
-      }
-    },
-    "correct_option": "D"
-  },
-  {
-    "id": 69,
-    "topic": "Computer port",
-    "question_en": "USB stands for:",
-    "question_hi": "यूएसबी (USB) का पूरा नाम है:",
-    "options": {
-      "A": {
-        "en": "Universal Serial Bus",
-        "hi": "यूनिवर्सल सीरियल बस"
-      },
-      "B": {
-        "en": "Universal Sequential Bus",
-        "hi": "यूनिवर्सल सीक्वेंशियल बस"
-      },
-      "C": {
-        "en": "Unique Serial Bus",
-        "hi": "यूनिक सीरियल बस"
-      },
-      "D": {
-        "en": "United Serial Bus",
-        "hi": "यूनाइटेड सीरियल बस"
-      }
-    },
-    "correct_option": "A"
-  },
-  {
-    "id": 70,
-    "topic": "Computer port",
-    "question_en": "Which port is commonly used to connect a monitor or display to a computer?",
-    "question_hi": "आमतौर पर मॉनिटर या डिस्प्ले को कंप्यूटर से जोड़ने के लिए किस पोर्ट का उपयोग किया जाता है?",
-    "options": {
-      "A": {
-        "en": "Ethernet Port",
-        "hi": "ईथरनेट पोर्ट"
-      },
-      "B": {
-        "en": "USB Port",
-        "hi": "यूएसबी पोर्ट"
-      },
-      "C": {
-        "en": "HDMI / VGA Port",
-        "hi": "एचडीएमआई / वीजीए पोर्ट"
-      },
-      "D": {
-        "en": "Audio Jack",
-        "hi": "ऑडियो जैक"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 71,
-    "topic": "Computer port",
-    "question_en": "An Ethernet port is used for:",
-    "question_hi": "ईथरनेट पोर्ट का उपयोग किसके लिए किया जाता है:",
-    "options": {
-      "A": {
-        "en": "Connecting a printer",
-        "hi": "प्रिंटर कनेक्ट करना"
-      },
-      "B": {
-        "en": "Connecting to a network/internet",
-        "hi": "नेटवर्क/इंटरनेट से कनेक्ट करना"
-      },
-      "C": {
-        "en": "Connecting a keyboard",
-        "hi": "कीबोर्ड कनेक्ट करना"
-      },
-      "D": {
-        "en": "Charging the device",
-        "hi": "डिवाइस चार्ज करना"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 72,
-    "topic": "Computer port",
-    "question_en": "Which port transmits high-definition video and audio over a single cable?",
-    "question_hi": "कौन सा पोर्ट एक ही केबल पर हाई-डेफिनिशन वीडियो और ऑडियो प्रसारित करता है?",
-    "options": {
-      "A": {
-        "en": "VGA",
-        "hi": "वीजीए (VGA)"
-      },
-      "B": {
-        "en": "USB",
-        "hi": "यूएसबी (USB)"
-      },
-      "C": {
-        "en": "Ethernet",
-        "hi": "ईथरनेट"
-      },
-      "D": {
-        "en": "HDMI",
-        "hi": "एचडीएमआई (HDMI)"
-      }
-    },
-    "correct_option": "D"
-  },
-  {
-    "id": 73,
-    "topic": "Supercomputer",
-    "question_en": "Supercomputers are primarily used for:",
-    "question_hi": "सुपर कंप्यूटर का उपयोग मुख्य रूप से किसके लिए किया जाता है:",
-    "options": {
-      "A": {
-        "en": "Personal home use",
-        "hi": "व्यक्तिगत घरेलू उपयोग"
-      },
-      "B": {
-        "en": "Small business accounting",
-        "hi": "छोटे व्यवसाय का लेखा-जोखा"
-      },
-      "C": {
-        "en": "Complex scientific and engineering calculations",
-        "hi": "जटिल वैज्ञानिक और इंजीनियरिंग गणना"
-      },
-      "D": {
-        "en": "Word processing and web browsing",
-        "hi": "वर्ड प्रोसेसिंग और वेब ब्राउज़िंग"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 74,
-    "topic": "Supercomputer",
-    "question_en": "The speed of a supercomputer is measured in:",
-    "question_hi": "सुपर कंप्यूटर की गति किसमें मापी जाती है:",
-    "options": {
-      "A": {
-        "en": "GHz (Gigahertz)",
-        "hi": "गीगाहर्ट्ज़ (GHz)"
-      },
-      "B": {
-        "en": "MBps (Megabytes per second)",
-        "hi": "एमबीपीएस (MBps)"
-      },
-      "C": {
-        "en": "FLOPS (Floating Point Operations Per Second)",
-        "hi": "फ्लॉप्स (FLOPS)"
-      },
-      "D": {
-        "en": "RPM (Revolutions Per Minute)",
-        "hi": "आरपीएम (RPM)"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 75,
-    "topic": "Supercomputer",
-    "question_en": "Which of these is a famous Indian supercomputer?",
-    "question_hi": "इनमें से कौन सा एक प्रसिद्ध भारतीय सुपर कंप्यूटर है?",
-    "options": {
-      "A": {
-        "en": "Cray-1",
-        "hi": "क्रे-1"
-      },
-      "B": {
-        "en": "Tianhe-2",
-        "hi": "तियान्हे-2"
-      },
-      "C": {
-        "en": "Summit",
-        "hi": "समिट"
-      },
-      "D": {
-        "en": "PARAM",
-        "hi": "परम (PARAM)"
-      }
-    },
-    "correct_option": "D"
-  },
-  {
-    "id": 76,
-    "topic": "Type computer",
-    "question_en": "Which computers are used by large organizations for critical applications like bulk data processing?",
-    "question_hi": "बल्क डेटा प्रोसेसिंग जैसे महत्वपूर्ण अनुप्रयोगों के लिए बड़े संगठनों द्वारा कौन से कंप्यूटर उपयोग किए जाते हैं?",
-    "options": {
-      "A": {
-        "en": "Microcomputers",
-        "hi": "माइक्रो कंप्यूटर"
-      },
-      "B": {
-        "en": "Laptops",
-        "hi": "लैपटॉप"
-      },
-      "C": {
-        "en": "Mainframe Computers",
-        "hi": "मेनफ्रेम कंप्यूटर"
-      },
-      "D": {
-        "en": "Tablets",
-        "hi": "टैबलेट"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 77,
-    "topic": "Computer memory",
-    "question_en": "A special, very high-speed memory that is used to speed up and synchronizing with a high-speed CPU is called:",
-    "question_hi": "एक विशेष, बहुत तेज गति की मेमोरी जिसका उपयोग उच्च गति वाले सीपीयू के साथ तालमेल बिठाने और गति बढ़ाने के लिए किया जाता है, उसे कहते हैं:",
-    "options": {
-      "A": {
-        "en": "Secondary Memory",
-        "hi": "द्वितीयक मेमोरी"
-      },
-      "B": {
-        "en": "Cache Memory",
-        "hi": "कैश मेमोरी"
-      },
-      "C": {
-        "en": "Virtual Memory",
-        "hi": "वर्चुअल मेमोरी"
-      },
-      "D": {
-        "en": "Read-Only Memory",
-        "hi": "रीड-ओनली मेमोरी"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 78,
-    "topic": "Keyboard",
-    "question_en": "Which key is used to move the cursor to the beginning of a new line?",
-    "question_hi": "कर्सर को एक नई लाइन की शुरुआत में ले जाने के लिए किस कुंजी का उपयोग किया जाता है?",
-    "options": {
-      "A": {
-        "en": "Tab",
-        "hi": "टैब"
-      },
-      "B": {
-        "en": "Enter",
-        "hi": "एंटर"
-      },
-      "C": {
-        "en": "Spacebar",
-        "hi": "स्पेसबार"
-      },
-      "D": {
-        "en": "Caps Lock",
-        "hi": "कैप्स लॉक"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 79,
-    "topic": "Mouse",
-    "question_en": "Pressing the left mouse button twice in quick succession is called:",
-    "question_hi": "बाएं माउस बटन को जल्दी-जल्दी दो बार दबाने को क्या कहा जाता है:",
-    "options": {
-      "A": {
-        "en": "Single-click",
-        "hi": "सिंगल-क्लिक"
-      },
-      "B": {
-        "en": "Right-click",
-        "hi": "राइट-क्लिक"
-      },
-      "C": {
-        "en": "Double-click",
-        "hi": "डबल-क्लिक"
-      },
-      "D": {
-        "en": "Scrolling",
-        "hi": "स्क्रॉलिंग"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 80,
-    "topic": "Windows",
-    "question_en": "What is the name of the file management application in Windows?",
-    "question_hi": "विंडोज में फ़ाइल प्रबंधन एप्लिकेशन का क्या नाम है?",
-    "options": {
-      "A": {
-        "en": "Windows Defender",
-        "hi": "विंडोज डिफेंडर"
-      },
-      "B": {
-        "en": "File Explorer",
-        "hi": "फ़ाइल एक्सप्लोरर"
-      },
-      "C": {
-        "en": "Control Panel",
-        "hi": "कंट्रोल पैनल"
-      },
-      "D": {
-        "en": "Internet Explorer",
-        "hi": "इंटरनेट एक्सप्लोरर"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 81,
-    "topic": "Input device",
-    "question_en": "A device that captures video and images to be used on a computer is a:",
-    "question_hi": "एक उपकरण जो कंप्यूटर पर उपयोग किए जाने वाले वीडियो और छवियों को कैप्चर करता है, वह है:",
-    "options": {
-      "A": {
-        "en": "Printer",
-        "hi": "प्रिंटर"
-      },
-      "B": {
-        "en": "Speaker",
-        "hi": "स्पीकर"
-      },
-      "C": {
-        "en": "Plotter",
-        "hi": "प्लॉटर"
-      },
-      "D": {
-        "en": "Webcam",
-        "hi": "वेबकैम"
-      }
-    },
-    "correct_option": "D"
-  },
-  {
-    "id": 82,
-    "topic": "Output processing device",
-    "question_en": "Which output device is used for producing high-quality graphics and drawings like maps and blueprints?",
-    "question_hi": "मानचित्र और ब्लूप्रिंट जैसे उच्च-गुणवत्ता वाले ग्राफिक्स और चित्र बनाने के लिए किस आउटपुट डिवाइस का उपयोग किया जाता है?",
-    "options": {
-      "A": {
-        "en": "Laser Printer",
-        "hi": "लेजर प्रिंटर"
-      },
-      "B": {
-        "en": "Plotter",
-        "hi": "प्लॉटर"
-      },
-      "C": {
-        "en": "Dot Matrix Printer",
-        "hi": "डॉट मैट्रिक्स प्रिंटर"
-      },
-      "D": {
-        "en": "Scanner",
-        "hi": "स्कैनर"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 83,
-    "topic": "Binary to decimal",
-    "question_en": "What is the decimal equivalent of the binary number 1111?",
-    "question_hi": "बाइनरी संख्या 1111 का दशमलव समतुल्य क्या है?",
-    "options": {
-      "A": {
-        "en": "14",
-        "hi": "14"
-      },
-      "B": {
-        "en": "15",
-        "hi": "15"
-      },
-      "C": {
-        "en": "16",
-        "hi": "16"
-      },
-      "D": {
-        "en": "17",
-        "hi": "17"
-      }
-    },
-    "correct_option": "B"
-  },
-  {
-    "id": 84,
-    "topic": "Decimal to binary",
-    "question_en": "What is the binary equivalent of the decimal number 16?",
-    "question_hi": "दशमलव संख्या 16 का बाइनरी समतुल्य क्या है?",
-    "options": {
-      "A": {
-        "en": "1111",
-        "hi": "1111"
-      },
-      "B": {
-        "en": "1000",
-        "hi": "1000"
-      },
-      "C": {
-        "en": "10000",
-        "hi": "10000"
-      },
-      "D": {
-        "en": "10001",
-        "hi": "10001"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 85,
-    "topic": "Generation of computer",
-    "question_en": "Machine Language was used in which generation of computers?",
-    "question_hi": "मशीनी भाषा का प्रयोग कंप्यूटर की किस पीढ़ी में किया गया था?",
-    "options": {
-      "A": {
-        "en": "First Generation",
-        "hi": "पहली पीढ़ी"
-      },
-      "B": {
-        "en": "Second Generation",
-        "hi": "दूसरी पीढ़ी"
-      },
-      "C": {
-        "en": "Third Generation",
-        "hi": "तीसरी पीढ़ी"
-      },
-      "D": {
-        "en": "Fourth Generation",
-        "hi": "चौथी पीढ़ी"
-      }
-    },
-    "correct_option": "A"
-  },
-  {
-    "id": 86,
-    "topic": "Paint",
-    "question_en": "Which tool in MS Paint allows you to write text on the image?",
-    "question_hi": "एमएस पेंट में कौन सा टूल आपको छवि पर टेक्स्ट लिखने की अनुमति देता है?",
-    "options": {
-      "A": {
-        "en": "Pencil Tool",
-        "hi": "पेंसिल टूल"
-      },
-      "B": {
-        "en": "Brush Tool",
-        "hi": "ब्रश टूल"
-      },
-      "C": {
-        "en": "Text Tool",
-        "hi": "टेक्स्ट टूल"
-      },
-      "D": {
-        "en": "Line Tool",
-        "hi": "लाइन टूल"
-      }
-    },
-    "correct_option": "C"
-  },
-  {
-    "id": 87,
-    "topic": "Notepad",
-    "question_en": "Which menu in Notepad contains the 'Word Wrap' option?",
-    "question_hi": "नोटपैड के किस मेनू में 'वर्ड रैप' विकल्प होता है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard is essentially a:",
+    "question_hi": "क्लिपबोर्ड अनिवार्य रूप से एक है:",
     "options": {
       "A": {
         "en": "File",
         "hi": "फ़ाइल"
       },
       "B": {
-        "en": "Edit",
-        "hi": "एडिट"
+        "en": "Folder",
+        "hi": "फ़ोल्डर"
       },
       "C": {
-        "en": "Format",
-        "hi": "फ़ॉर्मेट"
+        "en": "Section of memory",
+        "hi": "मेमोरी का एक हिस्सा"
       },
       "D": {
-        "en": "View",
-        "hi": "व्यू"
+        "en": "Hardware device",
+        "hi": "हार्डवेयर डिवाइस"
       }
     },
     "correct_option": "C"
   },
   {
-    "id": 88,
-    "topic": "Word pad",
-    "question_en": "Can you insert images into a WordPad document?",
-    "question_hi": "क्या आप वर्डपैड दस्तावेज़ में छवियाँ डाल सकते हैं?",
+    "id": 51,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What does the 'Paste' operation do?",
+    "question_hi": "'पेस्ट' ऑपरेशन क्या करता है?",
     "options": {
       "A": {
-        "en": "No, it is not possible",
-        "hi": "नहीं, यह संभव नहीं है"
+        "en": "Copies selected text to the clipboard",
+        "hi": "चयनित टेक्स्ट को क्लिपबोर्ड पर कॉपी करता है"
       },
       "B": {
-        "en": "Yes, it is possible",
-        "hi": "हाँ, यह संभव है"
+        "en": "Inserts the clipboard content at the cursor position",
+        "hi": "क्लिपबोर्ड सामग्री को कर्सर की स्थिति में डालता है"
       },
       "C": {
-        "en": "Only black and white images",
-        "hi": "केवल श्वेत-श्याम छवियाँ"
+        "en": "Removes selected text and puts it on the clipboard",
+        "hi": "चयनित टेक्स्ट को हटाता है और इसे क्लिपबोर्ड पर रखता है"
       },
       "D": {
-        "en": "Only icons can be inserted",
-        "hi": "केवल आइकन डाले जा सकते हैं"
+        "en": "Saves the clipboard content to a file",
+        "hi": "क्लिपबोर्ड सामग्री को एक फ़ाइल में सहेजता है"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 52,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "You select an image and press 'Cut'. The image disappears. Where is it?",
+    "question_hi": "आप एक छवि का चयन करते हैं और 'कट' दबाते हैं। छवि गायब हो जाती है। यह कहाँ है?",
+    "options": {
+      "A": {
+        "en": "It is permanently deleted",
+        "hi": "यह स्थायी रूप से हटा दी गई है"
+      },
+      "B": {
+        "en": "It is in the Recycle Bin",
+        "hi": "यह रीसायकल बिन में है"
+      },
+      "C": {
+        "en": "It is on the Clipboard",
+        "hi": "यह क्लिपबोर्ड पर है"
+      },
+      "D": {
+        "en": "It has been moved to the end of the document",
+        "hi": "यह दस्तावेज़ के अंत में चला गया है"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 53,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "You select an image and press 'Copy'. What happens to the original image?",
+    "question_hi": "आप एक छवि का चयन करते हैं और 'कॉपी' दबाते हैं। मूल छवि का क्या होता है?",
+    "options": {
+      "A": {
+        "en": "It is deleted",
+        "hi": "यह हटा दी जाती है"
+      },
+      "B": {
+        "en": "It stays where it is",
+        "hi": "यह वहीं रहती है जहां यह है"
+      },
+      "C": {
+        "en": "It becomes transparent",
+        "hi": "यह पारदर्शी हो जाती है"
+      },
+      "D": {
+        "en": "It is moved to the clipboard",
+        "hi": "यह क्लिपबोर्ड पर ले जाई जाती है"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 54,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which of the following is an accurate description of the Clipboard's function?",
+    "question_hi": "निम्नलिखित में से कौन सा क्लिपबोर्ड के कार्य का सटीक वर्णन है?",
+    "options": {
+      "A": {
+        "en": "A tool for permanent data backup",
+        "hi": "स्थायी डेटा बैकअप के लिए एक उपकरण"
+      },
+      "B": {
+        "en": "A temporary holding area for cut/copied data",
+        "hi": "कट/कॉपी किए गए डेटा के लिए एक अस्थायी होल्डिंग क्षेत्र"
+      },
+      "C": {
+        "en": "A feature for inserting special characters",
+        "hi": "विशेष वर्ण डालने के लिए एक सुविधा"
+      },
+      "D": {
+        "en": "A system for managing font styles",
+        "hi": "फ़ॉन्ट शैलियों के प्रबंधन के लिए एक प्रणाली"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 55,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Can the Clipboard hold more than just text and images?",
+    "question_hi": "क्या क्लिपबोर्ड केवल टेक्स्ट और छवियों से अधिक कुछ रख सकता है?",
+    "options": {
+      "A": {
+        "en": "No, only text and images",
+        "hi": "नहीं, केवल टेक्स्ट और छवियाँ"
+      },
+      "B": {
+        "en": "Yes, it can hold various types of content like tables and charts",
+        "hi": "हाँ, यह तालिकाओं और चार्ट जैसी विभिन्न प्रकार की सामग्री रख सकता है"
+      },
+      "C": {
+        "en": "No, it can only hold text",
+        "hi": "नहीं, यह केवल टेक्स्ट रख सकता है"
+      },
+      "D": {
+        "en": "Yes, but only files, not parts of a document",
+        "hi": "हाँ, लेकिन केवल फ़ाइलें, दस्तावेज़ के हिस्से नहीं"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 56,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The combination of 'Cut' and 'Paste' results in:",
+    "question_hi": "'कट' और 'पेस्ट' के संयोजन का परिणाम है:",
+    "options": {
+      "A": {
+        "en": "Duplicating content",
+        "hi": "सामग्री का डुप्लिकेट बनाना"
+      },
+      "B": {
+        "en": "Moving content",
+        "hi": "सामग्री को स्थानांतरित करना"
+      },
+      "C": {
+        "en": "Deleting content",
+        "hi": "सामग्री को हटाना"
+      },
+      "D": {
+        "en": "Formatting content",
+        "hi": "सामग्री को स्वरूपित करना"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 57,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The combination of 'Copy' and 'Paste' results in:",
+    "question_hi": "'कॉपी' और 'पेस्ट' के संयोजन का परिणाम है:",
+    "options": {
+      "A": {
+        "en": "Duplicating content",
+        "hi": "सामग्री का डुप्लिकेट बनाना"
+      },
+      "B": {
+        "en": "Moving content",
+        "hi": "सामग्री को स्थानांतरित करना"
+      },
+      "C": {
+        "en": "Erasing content",
+        "hi": "सामग्री को मिटाना"
+      },
+      "D": {
+        "en": "Saving content",
+        "hi": "सामग्री को सहेजना"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 58,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the very first step before you can use the Cut or Copy command?",
+    "question_hi": "कट या कॉपी कमांड का उपयोग करने से पहले सबसे पहला कदम क्या है?",
+    "options": {
+      "A": {
+        "en": "Saving the document",
+        "hi": "दस्तावेज़ को सहेजना"
+      },
+      "B": {
+        "en": "Selecting the content",
+        "hi": "सामग्री का चयन करना"
+      },
+      "C": {
+        "en": "Placing the cursor",
+        "hi": "कर्सर रखना"
+      },
+      "D": {
+        "en": "Opening the paste menu",
+        "hi": "पेस्ट मेनू खोलना"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 59,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which term best describes the clipboard's nature?",
+    "question_hi": "कौन सा शब्द क्लिपबोर्ड की प्रकृति का सबसे अच्छा वर्णन करता है?",
+    "options": {
+      "A": {
+        "en": "Permanent archive",
+        "hi": "स्थायी संग्रह"
+      },
+      "B": {
+        "en": "Temporary buffer",
+        "hi": "अस्थायी बफर"
+      },
+      "C": {
+        "en": "Physical storage device",
+        "hi": "भौतिक भंडारण उपकरण"
+      },
+      "D": {
+        "en": "Network drive",
+        "hi": "नेटवर्क ड्राइव"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 60,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "If you copy Item A, then copy Item B, what is on the clipboard when you paste?",
+    "question_hi": "यदि आप आइटम A को कॉपी करते हैं, फिर आइटम B को कॉपी करते हैं, तो पेस्ट करते समय क्लिपबोर्ड पर क्या होता है?",
+    "options": {
+      "A": {
+        "en": "Item A",
+        "hi": "आइटम ए"
+      },
+      "B": {
+        "en": "Item B",
+        "hi": "आइटम बी"
+      },
+      "C": {
+        "en": "Both Item A and Item B",
+        "hi": "आइटम ए और आइटम बी दोनों"
+      },
+      "D": {
+        "en": "Nothing",
+        "hi": "कुछ नहीं"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 61,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The operations Cut, Copy, and Paste are fundamental for ____ content.",
+    "question_hi": "कट, कॉपी और पेस्ट ऑपरेशन ____ सामग्री के लिए मौलिक हैं।",
+    "options": {
+      "A": {
+        "en": "creating",
+        "hi": "बनाने"
+      },
+      "B": {
+        "en": "editing and rearranging",
+        "hi": "संपादित करने और पुनर्व्यवस्थित करने"
+      },
+      "C": {
+        "en": "deleting",
+        "hi": "हटाने"
+      },
+      "D": {
+        "en": "printing",
+        "hi": "प्रिंट करने"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 62,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard is a software utility that _______.",
+    "question_hi": "क्लिपबोर्ड एक सॉफ्टवेयर यूटिलिटी है जो _______।",
+    "options": {
+      "A": {
+        "en": "checks for viruses",
+        "hi": "वायरस की जांच करती है"
+      },
+      "B": {
+        "en": "manages memory usage",
+        "hi": "मेमोरी उपयोग का प्रबंधन करती है"
+      },
+      "C": {
+        "en": "provides short-term storage for data transfer",
+        "hi": "डेटा ट्रांसफर के लिए अल्पकालिक भंडारण प्रदान करती है"
+      },
+      "D": {
+        "en": "connects to the internet",
+        "hi": "इंटरनेट से जुड़ती है"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 63,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "You copy a line of text. What must you do to make it appear elsewhere?",
+    "question_hi": "आप टेक्स्ट की एक पंक्ति कॉपी करते हैं। इसे कहीं और दिखाने के लिए आपको क्या करना चाहिए?",
+    "options": {
+      "A": {
+        "en": "Use the 'Move' command",
+        "hi": "'मूव' कमांड का उपयोग करें"
+      },
+      "B": {
+        "en": "Use the 'Paste' command",
+        "hi": "'पेस्ट' कमांड का उपयोग करें"
+      },
+      "C": {
+        "en": "Use the 'Insert' command",
+        "hi": "'इन्सर्ट' कमांड का उपयोग करें"
+      },
+      "D": {
+        "en": "Use the 'Duplicate' command",
+        "hi": "'डुप्लिकेट' कमांड का उपयोग करें"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 64,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The action of removing content from one place to insert in another is called:",
+    "question_hi": "एक स्थान से सामग्री को हटाकर दूसरे स्थान पर डालने की क्रिया कहलाती है:",
+    "options": {
+      "A": {
+        "en": "Copying",
+        "hi": "कॉपी करना"
+      },
+      "B": {
+        "en": "Moving",
+        "hi": "स्थानांतरित करना"
+      },
+      "C": {
+        "en": "Pasting",
+        "hi": "पेस्ट करना"
+      },
+      "D": {
+        "en": "Formatting",
+        "hi": "स्वरूपण करना"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 65,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The action of creating an identical piece of content elsewhere in the document is called:",
+    "question_hi": "दस्तावेज़ में कहीं और सामग्री का एक समान टुकड़ा बनाने की क्रिया कहलाती है:",
+    "options": {
+      "A": {
+        "en": "Cutting",
+        "hi": "कट करना"
+      },
+      "B": {
+        "en": "Moving",
+        "hi": "स्थानांतरित करना"
+      },
+      "C": {
+        "en": "Duplicating",
+        "hi": "डुप्लिकेट करना"
+      },
+      "D": {
+        "en": "Deleting",
+        "hi": "हटाना"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 66,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the state of the original content after a 'Copy' operation?",
+    "question_hi": "'कॉपी' ऑपरेशन के बाद मूल सामग्री की स्थिति क्या होती है?",
+    "options": {
+      "A": {
+        "en": "It is removed",
+        "hi": "यह हटा दी जाती है"
+      },
+      "B": {
+        "en": "It is unaltered and remains in place",
+        "hi": "यह अपरिवर्तित रहती है और अपनी जगह पर बनी रहती है"
+      },
+      "C": {
+        "en": "It is highlighted",
+        "hi": "यह हाइलाइट हो जाती है"
+      },
+      "D": {
+        "en": "It is temporarily hidden",
+        "hi": "यह अस्थायी रूप से छिप जाती है"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 67,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the state of the original content after a 'Cut' operation?",
+    "question_hi": "'कट' ऑपरेशन के बाद मूल सामग्री की स्थिति क्या होती है?",
+    "options": {
+      "A": {
+        "en": "It is removed from view but remains in the document data",
+        "hi": "यह दृश्य से हटा दी जाती है लेकिन दस्तावेज़ डेटा में बनी रहती है"
+      },
+      "B": {
+        "en": "It is unaltered and remains in place",
+        "hi": "यह अपरिवर्तित रहती है और अपनी जगह पर बनी रहती है"
+      },
+      "C": {
+        "en": "It is removed from the document (and placed on the clipboard)",
+        "hi": "यह दस्तावेज़ से हटा दी जाती है (और क्लिपबोर्ड पर रख दी जाती है)"
+      },
+      "D": {
+        "en": "It is converted to an image",
+        "hi": "इसे एक छवि में बदल दिया जाता है"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 68,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which feature is essential for moving and duplicating content?",
+    "question_hi": "सामग्री को स्थानांतरित करने और डुप्लिकेट करने के लिए कौन सी सुविधा आवश्यक है?",
+    "options": {
+      "A": {
+        "en": "The Find and Replace tool",
+        "hi": "खोजें और बदलें उपकरण"
+      },
+      "B": {
+        "en": "The Clipboard",
+        "hi": "क्लिपबोर्ड"
+      },
+      "C": {
+        "en": "The Page Layout options",
+        "hi": "पेज लेआउट विकल्प"
+      },
+      "D": {
+        "en": "The Mail Merge feature",
+        "hi": "मेल मर्ज सुविधा"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 69,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The command to insert what you last copied is:",
+    "question_hi": "आपने जो अंतिम बार कॉपी किया था उसे डालने का कमांड है:",
+    "options": {
+      "A": {
+        "en": "Insert",
+        "hi": "इन्सर्ट"
+      },
+      "B": {
+        "en": "Add",
+        "hi": "ऐड"
+      },
+      "C": {
+        "en": "Paste",
+        "hi": "पेस्ट"
+      },
+      "D": {
+        "en": "Place",
+        "hi": "प्लेस"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 70,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The command to insert what you last cut is:",
+    "question_hi": "आपने जो अंतिम बार कट किया था उसे डालने का कमांड है:",
+    "options": {
+      "A": {
+        "en": "Undo",
+        "hi": "अनडू"
+      },
+      "B": {
+        "en": "Paste",
+        "hi": "पेस्ट"
+      },
+      "C": {
+        "en": "Redo",
+        "hi": "रीडू"
+      },
+      "D": {
+        "en": "Retrieve",
+        "hi": "रिट्रीव"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 71,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which of these is a true statement?",
+    "question_hi": "इनमें से कौन सा कथन सत्य है?",
+    "options": {
+      "A": {
+        "en": "'Cut' and 'Delete' do the same thing.",
+        "hi": "'कट' और 'डिलीट' एक ही काम करते हैं।"
+      },
+      "B": {
+        "en": "'Copy' places content on the clipboard, 'Cut' does not.",
+        "hi": "'कॉपी' सामग्री को क्लिपबोर्ड पर रखता है, 'कट' नहीं।"
+      },
+      "C": {
+        "en": "Both 'Cut' and 'Copy' place content on the clipboard.",
+        "hi": "'कट' और 'कॉपी' दोनों सामग्री को क्लिपबोर्ड पर रखते हैं।"
+      },
+      "D": {
+        "en": "'Paste' takes content from the Recycle Bin.",
+        "hi": "'पेस्ट' रीसायकल बिन से सामग्री लेता है।"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 72,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The clipboard's contents are _______.",
+    "question_hi": "क्लिपबोर्ड की सामग्री _______ होती है।",
+    "options": {
+      "A": {
+        "en": "always text",
+        "hi": "हमेशा टेक्स्ट"
+      },
+      "B": {
+        "en": "part of the saved document",
+        "hi": "सहेजे गए दस्तावेज़ का हिस्सा"
+      },
+      "C": {
+        "en": "held in temporary memory",
+        "hi": "अस्थायी मेमोरी में रखी जाती है"
+      },
+      "D": {
+        "en": "automatically encrypted",
+        "hi": "स्वचालित रूप से एन्क्रिप्टेड"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 73,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "To move a paragraph, you would use which two basic operations?",
+    "question_hi": "एक पैराग्राफ को स्थानांतरित करने के लिए, आप किन दो बुनियादी ऑपरेशनों का उपयोग करेंगे?",
+    "options": {
+      "A": {
+        "en": "Copy, Paste",
+        "hi": "कॉपी, पेस्ट"
+      },
+      "B": {
+        "en": "Cut, Paste",
+        "hi": "कट, पेस्ट"
+      },
+      "C": {
+        "en": "Select, Delete",
+        "hi": "चयन करें, हटाएं"
+      },
+      "D": {
+        "en": "Format, Align",
+        "hi": "स्वरूपित करें, संरेखित करें"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 74,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "To duplicate a chart, you would use which two basic operations?",
+    "question_hi": "एक चार्ट को डुप्लिकेट करने के लिए, आप किन दो बुनियादी ऑपरेशनों का उपयोग करेंगे?",
+    "options": {
+      "A": {
+        "en": "Copy, Paste",
+        "hi": "कॉपी, पेस्ट"
+      },
+      "B": {
+        "en": "Cut, Paste",
+        "hi": "कट, पेस्ट"
+      },
+      "C": {
+        "en": "Insert, Chart",
+        "hi": "सम्मिलित करें, चार्ट"
+      },
+      "D": {
+        "en": "Move, Chart",
+        "hi": "स्थानांतरित करें, चार्ट"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 75,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The temporary nature of the clipboard means its content is:",
+    "question_hi": "क्लिपबोर्ड की अस्थायी प्रकृति का मतलब है कि इसकी सामग्री है:",
+    "options": {
+      "A": {
+        "en": "Saved with the document",
+        "hi": "दस्तावेज़ के साथ सहेजी गई"
+      },
+      "B": {
+        "en": "Not permanent and can be overwritten or lost",
+        "hi": "स्थायी नहीं है और इसे अधिलेखित या खोया जा सकता है"
+      },
+      "C": {
+        "en": "Archived for later use",
+        "hi": "बाद में उपयोग के लिए संग्रहीत"
+      },
+      "D": {
+        "en": "Always available",
+        "hi": "हमेशा उपलब्ध"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 76,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which command would you use if you want to use a piece of text in many places?",
+    "question_hi": "यदि आप एक टेक्स्ट के टुकड़े का कई स्थानों पर उपयोग करना चाहते हैं तो आप किस कमांड का उपयोग करेंगे?",
+    "options": {
+      "A": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "B": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "C": {
+        "en": "Move",
+        "hi": "मूव"
+      },
+      "D": {
+        "en": "Delete",
+        "hi": "डिलीट"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 77,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which command would you use to change the location of a picture?",
+    "question_hi": "एक तस्वीर का स्थान बदलने के लिए आप किस कमांड का उपयोग करेंगे?",
+    "options": {
+      "A": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "B": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "C": {
+        "en": "Duplicate",
+        "hi": "डुप्लिकेट"
+      },
+      "D": {
+        "en": "Format",
+        "hi": "फॉर्मेट"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 78,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard stores items that have been:",
+    "question_hi": "क्लिपबोर्ड उन आइटम्स को संग्रहीत करता है जो:",
+    "options": {
+      "A": {
+        "en": "Cut or Copied",
+        "hi": "कट या कॉपी किए गए हैं"
+      },
+      "B": {
+        "en": "Saved or Printed",
+        "hi": "सहेजे या प्रिंट किए गए हैं"
+      },
+      "C": {
+        "en": "Deleted or Formatted",
+        "hi": "हटाए या स्वरूपित किए गए हैं"
+      },
+      "D": {
+        "en": "Opened or Closed",
+        "hi": "खोले या बंद किए गए हैं"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 79,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The 'Paste' operation is the final step in both ____ and ____ content.",
+    "question_hi": "'पेस्ट' ऑपरेशन ____ और ____ सामग्री दोनों में अंतिम चरण है।",
+    "options": {
+      "A": {
+        "en": "saving, printing",
+        "hi": "सहेजने, प्रिंट करने"
+      },
+      "B": {
+        "en": "moving, duplicating",
+        "hi": "स्थानांतरित करने, डुप्लिकेट करने"
+      },
+      "C": {
+        "en": "creating, deleting",
+        "hi": "बनाने, हटाने"
+      },
+      "D": {
+        "en": "formatting, styling",
+        "hi": "स्वरूपित करने, स्टाइल करने"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 80,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What happens if you cut something and then immediately cut something else?",
+    "question_hi": "यदि आप कुछ काटते हैं और फिर तुरंत कुछ और काटते हैं तो क्या होता है?",
+    "options": {
+      "A": {
+        "en": "The first item is lost from the clipboard",
+        "hi": "पहला आइटम क्लिपबोर्ड से खो जाता है"
+      },
+      "B": {
+        "en": "Both items are on the clipboard",
+        "hi": "दोनों आइटम क्लिपबोर्ड पर हैं"
+      },
+      "C": {
+        "en": "The first item is automatically pasted",
+        "hi": "पहला आइटम स्वचालित रूप से पेस्ट हो जाता है"
+      },
+      "D": {
+        "en": "The program shows an error",
+        "hi": "प्रोग्राम एक त्रुटि दिखाता है"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 81,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The process of moving an item is often called:",
+    "question_hi": "एक आइटम को स्थानांतरित करने की प्रक्रिया को अक्सर कहा जाता है:",
+    "options": {
+      "A": {
+        "en": "Copy-Paste",
+        "hi": "कॉपी-पेस्ट"
+      },
+      "B": {
+        "en": "Cut-Paste",
+        "hi": "कट-पेस्ट"
+      },
+      "C": {
+        "en": "Delete-Undelete",
+        "hi": "डिलीट-अनडिलीट"
+      },
+      "D": {
+        "en": "Select-Deselect",
+        "hi": "सेलेक्ट-डीसेलेक्ट"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 82,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The process of duplicating an item is often called:",
+    "question_hi": "एक आइटम को डुप्लिकेट करने की प्रक्रिया को अक्सर कहा जाता है:",
+    "options": {
+      "A": {
+        "en": "Cut-Paste",
+        "hi": "कट-पेस्ट"
+      },
+      "B": {
+        "en": "Copy-Paste",
+        "hi": "कॉपी-पेस्ट"
+      },
+      "C": {
+        "en": "Move-Duplicate",
+        "hi": "मूव-डुप्लिकेट"
+      },
+      "D": {
+        "en": "Format-Paint",
+        "hi": "फॉर्मेट-पेंट"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 83,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which operation does NOT change the original content's location?",
+    "question_hi": "कौन सा ऑपरेशन मूल सामग्री के स्थान को नहीं बदलता है?",
+    "options": {
+      "A": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "B": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "C": {
+        "en": "Paste",
+        "hi": "पेस्ट"
+      },
+      "D": {
+        "en": "Move",
+        "hi": "मूव"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 84,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which operation removes the content from its original location?",
+    "question_hi": "कौन सा ऑपरेशन सामग्री को उसके मूल स्थान से हटाता है?",
+    "options": {
+      "A": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "B": {
+        "en": "Paste",
+        "hi": "पेस्ट"
+      },
+      "C": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "D": {
+        "en": "Duplicate",
+        "hi": "डुप्लिकेट"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 85,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The clipboard is a location in the computer's...",
+    "question_hi": "क्लिपबोर्ड कंप्यूटर के... में एक स्थान है।",
+    "options": {
+      "A": {
+        "en": "Hard disk",
+        "hi": "हार्ड डिस्क"
+      },
+      "B": {
+        "en": "RAM (temporary memory)",
+        "hi": "रैम (अस्थायी मेमोरी)"
+      },
+      "C": {
+        "en": "Processor",
+        "hi": "प्रोसेसर"
+      },
+      "D": {
+        "en": "Monitor",
+        "hi": "मॉनिटर"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 86,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Is 'Paste' a basic operation related to the clipboard?",
+    "question_hi": "क्या 'पेस्ट' क्लिपबोर्ड से संबंधित एक बुनियादी ऑपरेशन है?",
+    "options": {
+      "A": {
+        "en": "Yes, it retrieves content from the clipboard",
+        "hi": "हाँ, यह क्लिपबोर्ड से सामग्री प्राप्त करता है"
+      },
+      "B": {
+        "en": "No, it is a formatting tool",
+        "hi": "नहीं, यह एक स्वरूपण उपकरण है"
+      },
+      "C": {
+        "en": "No, it puts content onto the clipboard",
+        "hi": "नहीं, यह सामग्री को क्लिपबोर्ड पर रखता है"
+      },
+      "D": {
+        "en": "No, it is related to printing",
+        "hi": "नहीं, यह प्रिंटिंग से संबंधित है"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 87,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Is 'Copy' a basic operation related to the clipboard?",
+    "question_hi": "क्या 'कॉपी' क्लिपबोर्ड से संबंधित एक बुनियादी ऑपरेशन है?",
+    "options": {
+      "A": {
+        "en": "Yes, it places a duplicate of content onto the clipboard",
+        "hi": "हाँ, यह सामग्री का एक डुप्लिकेट क्लिपबोर्ड पर रखता है"
+      },
+      "B": {
+        "en": "No, it only works for text",
+        "hi": "नहीं, यह केवल टेक्स्ट के लिए काम करता है"
+      },
+      "C": {
+        "en": "No, it permanently deletes content",
+        "hi": "नहीं, यह स्थायी रूप से सामग्री को हटाता है"
+      },
+      "D": {
+        "en": "No, it retrieves content from the clipboard",
+        "hi": "नहीं, यह क्लिपबोर्ड से सामग्री प्राप्त करता है"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 88,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Is 'Cut' a basic operation related to the clipboard?",
+    "question_hi": "क्या 'कट' क्लिपबोर्ड से संबंधित एक बुनियादी ऑपरेशन है?",
+    "options": {
+      "A": {
+        "en": "No, it only highlights text",
+        "hi": "नहीं, यह केवल टेक्स्ट को हाइलाइट करता है"
+      },
+      "B": {
+        "en": "Yes, it moves content to the clipboard",
+        "hi": "हाँ, यह सामग्री को क्लिपबोर्ड पर ले जाता है"
+      },
+      "C": {
+        "en": "No, it creates a copy",
+        "hi": "नहीं, यह एक कॉपी बनाता है"
+      },
+      "D": {
+        "en": "No, it is for page setup",
+        "hi": "नहीं, यह पेज सेटअप के लिए है"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 89,
-    "topic": "Calculator",
-    "question_en": "Which mode in the Windows Calculator is useful for programmers working with binary, octal, hex, and decimal numbers?",
-    "question_hi": "विंडोज कैलकुलेटर में कौन सा मोड बाइनरी, ऑक्टल, हेक्स और दशमलव संख्याओं के साथ काम करने वाले प्रोग्रामर के लिए उपयोगी है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which is the correct term for the feature that temporarily holds cut data?",
+    "question_hi": "उस सुविधा के लिए सही शब्द कौन सा है जो काटे गए डेटा को अस्थायी रूप से रखती है?",
     "options": {
       "A": {
-        "en": "Standard",
-        "hi": "स्टैंडर्ड"
+        "en": "The Cutter",
+        "hi": "कटर"
       },
       "B": {
-        "en": "Scientific",
-        "hi": "साइंटिफिक"
+        "en": "The Holder",
+        "hi": "होल्डर"
       },
       "C": {
-        "en": "Programmer",
-        "hi": "प्रोग्रामर"
+        "en": "The Clipboard",
+        "hi": "क्लिपबोर्ड"
       },
       "D": {
-        "en": "Date Calculation",
-        "hi": "डेट कैलकुलेशन"
+        "en": "The Buffer",
+        "hi": "बफर"
       }
     },
     "correct_option": "C"
   },
   {
     "id": 90,
-    "topic": "Computer port",
-    "question_en": "VGA stands for:",
-    "question_hi": "वीजीए (VGA) का पूरा नाम है:",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which is the correct term for the feature that temporarily holds copied data?",
+    "question_hi": "उस सुविधा के लिए सही शब्द कौन सा है जो कॉपी किए गए डेटा को अस्थायी रूप से रखती है?",
     "options": {
       "A": {
-        "en": "Video Graphics Array",
-        "hi": "वीडियो ग्राफिक्स ऐरे"
+        "en": "The Copier",
+        "hi": "कॉपियर"
       },
       "B": {
-        "en": "Visual Graphics Adapter",
-        "hi": "विजुअल ग्राफिक्स एडाप्टर"
+        "en": "The Duplicator",
+        "hi": "डुप्लिकेटर"
       },
       "C": {
-        "en": "Video Game Accessory",
-        "hi": "वीडियो गेम एक्सेसरी"
+        "en": "The Memory Bank",
+        "hi": "मेमोरी बैंक"
       },
       "D": {
-        "en": "Volatile Graphics Array",
-        "hi": "वोलेटाइल ग्राफिक्स ऐरे"
+        "en": "The Clipboard",
+        "hi": "क्लिपबोर्ड"
       }
     },
-    "correct_option": "A"
+    "correct_option": "D"
   },
   {
     "id": 91,
-    "topic": "Output processing device",
-    "question_en": "What does the Control Unit (CU) do in a CPU?",
-    "question_hi": "सीपीयू में कंट्रोल यूनिट (सीयू) क्या करती है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "If you want to remove a paragraph from page 1 and put it on page 5, you would:",
+    "question_hi": "यदि आप पृष्ठ 1 से एक पैराग्राफ हटाकर पृष्ठ 5 पर रखना चाहते हैं, तो आप:",
     "options": {
       "A": {
-        "en": "Performs calculations",
-        "hi": "गणना करती है"
+        "en": "Copy from page 1, paste on page 5",
+        "hi": "पृष्ठ 1 से कॉपी करें, पृष्ठ 5 पर पेस्ट करें"
       },
       "B": {
-        "en": "Stores data temporarily",
-        "hi": "डेटा को अस्थायी रूप से संग्रहीत करती है"
+        "en": "Cut from page 1, paste on page 5",
+        "hi": "पृष्ठ 1 से कट करें, पृष्ठ 5 पर पेस्ट करें"
       },
       "C": {
-        "en": "Directs and manages the operations of the computer",
-        "hi": "कंप्यूटर के संचालन को निर्देशित और प्रबंधित करती है"
+        "en": "Delete from page 1, retype on page 5",
+        "hi": "पृष्ठ 1 से हटाएं, पृष्ठ 5 पर फिर से टाइप करें"
       },
       "D": {
-        "en": "Connects to peripheral devices",
-        "hi": "पेरिफेरल उपकरणों से जुड़ती है"
+        "en": "Move the whole page 1 to page 5",
+        "hi": "पूरे पृष्ठ 1 को पृष्ठ 5 पर ले जाएं"
       }
     },
-    "correct_option": "C"
+    "correct_option": "B"
   },
   {
     "id": 92,
-    "topic": "Supercomputer",
-    "question_en": "Who is often called the 'father of the supercomputer'?",
-    "question_hi": "किसे अक्सर 'सुपरकंप्यूटर का जनक' कहा जाता है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "If you want the same header on two different documents, you could:",
+    "question_hi": "यदि आप दो अलग-अलग दस्तावेजों पर एक ही हेडर चाहते हैं, तो आप कर सकते हैं:",
     "options": {
       "A": {
-        "en": "Charles Babbage",
-        "hi": "चार्ल्स बैबेज"
+        "en": "Cut the header from one and paste to the other",
+        "hi": "एक से हेडर काटें और दूसरे पर पेस्ट करें"
       },
       "B": {
-        "en": "Bill Gates",
-        "hi": "बिल गेट्स"
+        "en": "Copy the header from one and paste to the other",
+        "hi": "एक से हेडर कॉपी करें और दूसरे पर पेस्ट करें"
       },
       "C": {
-        "en": "Seymour Cray",
-        "hi": "सेमुर क्रे"
+        "en": "It's not possible to copy headers",
+        "hi": "हेडर कॉपी करना संभव नहीं है"
       },
       "D": {
-        "en": "Tim Berners-Lee",
-        "hi": "टिम बर्नर्स-ली"
+        "en": "Merge the documents",
+        "hi": "दस्तावेजों को मर्ज करें"
       }
     },
-    "correct_option": "C"
+    "correct_option": "B"
   },
   {
     "id": 93,
-    "topic": "Taskbar",
-    "question_en": "Can the position of the taskbar be changed on the screen?",
-    "question_hi": "क्या स्क्रीन पर टास्कबार की स्थिति बदली जा सकती है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "A key benefit of using Copy/Paste over re-typing is:",
+    "question_hi": "फिर से टाइप करने के बजाय कॉपी/पेस्ट का उपयोग करने का एक प्रमुख लाभ है:",
     "options": {
       "A": {
-        "en": "No, it is always at the bottom",
-        "hi": "नहीं, यह हमेशा नीचे रहता है"
+        "en": "It uses more memory",
+        "hi": "यह अधिक मेमोरी का उपयोग करता है"
       },
       "B": {
-        "en": "Yes, it can be moved to the top, left, or right edges",
-        "hi": "हाँ, इसे ऊपर, बाएँ या दाएँ किनारों पर ले जाया जा सकता है"
+        "en": "It is faster and avoids typing errors",
+        "hi": "यह तेज़ है और टाइपिंग त्रुटियों से बचाता है"
       },
       "C": {
-        "en": "Only to the top of the screen",
-        "hi": "केवल स्क्रीन के शीर्ष पर"
+        "en": "It automatically formats the text",
+        "hi": "यह स्वचालित रूप से टेक्स्ट को स्वरूपित करता है"
       },
       "D": {
-        "en": "Only to the left side of the screen",
-        "hi": "केवल स्क्रीन के बाईं ओर"
+        "en": "It allows for more creative text",
+        "hi": "यह अधिक रचनात्मक टेक्स्ट की अनुमति देता है"
       }
     },
     "correct_option": "B"
   },
   {
     "id": 94,
-    "topic": "Computer memory",
-    "question_en": "1024 Kilobytes (KB) is equal to:",
-    "question_hi": "1024 किलोबाइट (KB) किसके बराबर है:",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which command is the opposite of 'Paste' in terms of data flow?",
+    "question_hi": "डेटा प्रवाह के मामले में कौन सा कमांड 'पेस्ट' के विपरीत है?",
     "options": {
       "A": {
-        "en": "1 Megabyte (MB)",
-        "hi": "1 मेगाबाइट (MB)"
+        "en": "Cut/Copy",
+        "hi": "कट/कॉपी"
       },
       "B": {
-        "en": "1 Gigabyte (GB)",
-        "hi": "1 गीगाबाइट (GB)"
+        "en": "Undo",
+        "hi": "अनडू"
       },
       "C": {
-        "en": "1 Terabyte (TB)",
-        "hi": "1 टेराबाइट (TB)"
+        "en": "Save",
+        "hi": "सेव"
       },
       "D": {
-        "en": "1 Byte",
-        "hi": "1 बाइट"
+        "en": "Delete",
+        "hi": "डिलीट"
       }
     },
     "correct_option": "A"
   },
   {
     "id": 95,
-    "topic": "Type computer",
-    "question_en": "Which of these is NOT a type of microcomputer?",
-    "question_hi": "इनमें से कौन एक माइक्रो कंप्यूटर का प्रकार नहीं है?",
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard is used to facilitate the ______ and ______ of content.",
+    "question_hi": "क्लिपबोर्ड का उपयोग सामग्री के ______ और ______ की सुविधा के लिए किया जाता है।",
     "options": {
       "A": {
-        "en": "Laptop",
-        "hi": "लैपटॉप"
+        "en": "creation, deletion",
+        "hi": "निर्माण, विलोपन"
+      },
+      "B": {
+        "en": "formatting, styling",
+        "hi": "स्वरूपण, स्टाइलिंग"
+      },
+      "C": {
+        "en": "movement, duplication",
+        "hi": "संचलन, प्रतिलिपि"
+      },
+      "D": {
+        "en": "saving, opening",
+        "hi": "सहेजना, खोलना"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 96,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "If you 'Cut' content, is it gone forever if you don't 'Paste'?",
+    "question_hi": "यदि आप सामग्री को 'कट' करते हैं, तो क्या यह हमेशा के लिए चली जाती है यदि आप 'पेस्ट' नहीं करते हैं?",
+    "options": {
+      "A": {
+        "en": "Yes, if you perform another cut/copy or close the program",
+        "hi": "हाँ, यदि आप कोई अन्य कट/कॉपी करते हैं या प्रोग्राम बंद करते हैं"
+      },
+      "B": {
+        "en": "No, it is always recoverable",
+        "hi": "नहीं, यह हमेशा पुनर्प्राप्त करने योग्य है"
+      },
+      "C": {
+        "en": "No, it returns to its original spot automatically",
+        "hi": "नहीं, यह स्वचालित रूप से अपने मूल स्थान पर वापस आ जाता है"
+      },
+      "D": {
+        "en": "Yes, it is deleted immediately",
+        "hi": "हाँ, यह तुरंत हटा दिया जाता है"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 97,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which is more appropriate for relocating data: Cut or Copy?",
+    "question_hi": "डेटा को स्थानांतरित करने के लिए कौन अधिक उपयुक्त है: कट या कॉपी?",
+    "options": {
+      "A": {
+        "en": "Copy, because it is safer",
+        "hi": "कॉपी, क्योंकि यह सुरक्षित है"
+      },
+      "B": {
+        "en": "Cut, because it is specifically for moving",
+        "hi": "कट, क्योंकि यह विशेष रूप से स्थानांतरित करने के लिए है"
+      },
+      "C": {
+        "en": "They are equally appropriate",
+        "hi": "वे समान रूप से उपयुक्त हैं"
+      },
+      "D": {
+        "en": "Neither, you should use a 'Move' button",
+        "hi": "कोई नहीं, आपको 'मूव' बटन का उपयोग करना चाहिए"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 98,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which is more appropriate for making a second instance of data: Cut or Copy?",
+    "question_hi": "डेटा का दूसरा उदाहरण बनाने के लिए कौन अधिक उपयुक्त है: कट या कॉपी?",
+    "options": {
+      "A": {
+        "en": "Copy, because it is specifically for duplicating",
+        "hi": "कॉपी, क्योंकि यह विशेष रूप से डुप्लिकेट करने के लिए है"
+      },
+      "B": {
+        "en": "Cut, because it is faster",
+        "hi": "कट, क्योंकि यह तेज़ है"
+      },
+      "C": {
+        "en": "They are equally appropriate",
+        "hi": "वे समान रूप से उपयुक्त हैं"
+      },
+      "D": {
+        "en": "Neither, you should use a 'Duplicate' button",
+        "hi": "कोई नहीं, आपको 'डुप्लिकेट' बटन का उपयोग करना चाहिए"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 99,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The data on the clipboard is available to:",
+    "question_hi": "क्लिपबोर्ड पर डेटा उपलब्ध है:",
+    "options": {
+      "A": {
+        "en": "Only the original document",
+        "hi": "केवल मूल दस्तावेज़ के लिए"
+      },
+      "B": {
+        "en": "Only MS Word",
+        "hi": "केवल एमएस वर्ड के लिए"
+      },
+      "C": {
+        "en": "Most applications on the computer",
+        "hi": "कंप्यूटर पर अधिकांश अनुप्रयोगों के लिए"
+      },
+      "D": {
+        "en": "Only the system administrator",
+        "hi": "केवल सिस्टम प्रशासक के लिए"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 100,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The three fundamental commands associated with the clipboard are:",
+    "question_hi": "क्लिपबोर्ड से जुड़े तीन मौलिक कमांड हैं:",
+    "options": {
+      "A": {
+        "en": "Open, Save, Close",
+        "hi": "खोलें, सहेजें, बंद करें"
+      },
+      "B": {
+        "en": "Bold, Italic, Underline",
+        "hi": "बोल्ड, इटैलिक, अंडरलाइन"
+      },
+      "C": {
+        "en": "Cut, Copy, Paste",
+        "hi": "कट, कॉपी, पेस्ट"
+      },
+      "D": {
+        "en": "Find, Replace, Select",
+        "hi": "खोजें, बदलें, चुनें"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 101,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What type of storage is the Clipboard?",
+    "question_hi": "क्लिपबोर्ड किस प्रकार का भंडारण है?",
+    "options": {
+      "A": {
+        "en": "Permanent",
+        "hi": "स्थायी"
+      },
+      "B": {
+        "en": "Temporary",
+        "hi": "अस्थायी"
+      },
+      "C": {
+        "en": "Archival",
+        "hi": "अभिलेखागार"
+      },
+      "D": {
+        "en": "Physical",
+        "hi": "भौतिक"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 102,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the primary difference between moving and duplicating content?",
+    "question_hi": "सामग्री को स्थानांतरित करने और डुप्लिकेट करने के बीच प्राथमिक अंतर क्या है?",
+    "options": {
+      "A": {
+        "en": "Moving uses 'Cut', duplicating uses 'Copy'",
+        "hi": "स्थानांतरित करने में 'कट' का उपयोग होता है, डुप्लिकेट करने में 'कॉपी' का उपयोग होता है"
+      },
+      "B": {
+        "en": "Moving is for text, duplicating is for images",
+        "hi": "स्थानांतरित करना टेक्स्ट के लिए है, डुप्लिकेट करना छवियों के लिए है"
+      },
+      "C": {
+        "en": "Moving is temporary, duplicating is permanent",
+        "hi": "स्थानांतरित करना अस्थायी है, डुप्लिकेट करना स्थायी है"
+      },
+      "D": {
+        "en": "There is no difference",
+        "hi": "कोई अंतर नहीं है"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 103,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard can store which of the following?",
+    "question_hi": "क्लिपबोर्ड निम्नलिखित में से किसे संग्रहीत कर सकता है?",
+    "options": {
+      "A": {
+        "en": "Only one word",
+        "hi": "केवल एक शब्द"
+      },
+      "B": {
+        "en": "Only one character",
+        "hi": "केवल एक अक्षर"
+      },
+      "C": {
+        "en": "Text, images, tables, etc.",
+        "hi": "टेक्स्ट, छवियां, टेबल आदि।"
+      },
+      "D": {
+        "en": "Only entire files",
+        "hi": "केवल पूरी फाइलें"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 104,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The 'Copy' command takes the selected content and places it on the ______.",
+    "question_hi": "'कॉपी' कमांड चयनित सामग्री को लेता है और इसे ______ पर रखता है।",
+    "options": {
+      "A": {
+        "en": "Desktop",
+        "hi": "डेस्कटॉप"
+      },
+      "B": {
+        "en": "Recycle Bin",
+        "hi": "रीसायकल बिन"
+      },
+      "C": {
+        "en": "Clipboard",
+        "hi": "क्लिपबोर्ड"
+      },
+      "D": {
+        "en": "Taskbar",
+        "hi": "टास्कबार"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 105,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The 'Cut' command takes the selected content, removes it from the document, and places it on the ______.",
+    "question_hi": "'कट' कमांड चयनित सामग्री को लेता है, इसे दस्तावेज़ से हटाता है, और इसे ______ पर रखता है।",
+    "options": {
+      "A": {
+        "en": "Clipboard",
+        "hi": "क्लिपबोर्ड"
       },
       "B": {
         "en": "Desktop",
         "hi": "डेस्कटॉप"
       },
       "C": {
-        "en": "Tablet",
-        "hi": "टैबलेट"
+        "en": "Recycle Bin",
+        "hi": "रीसायकल बिन"
       },
       "D": {
-        "en": "Mainframe",
-        "hi": "मेनफ्रेम"
+        "en": "Header",
+        "hi": "हेडर"
       }
     },
-    "correct_option": "D"
+    "correct_option": "A"
   },
   {
-    "id": 96,
-    "topic": "What is computer",
-    "question_en": "The physical components of a computer system are called:",
-    "question_hi": "कंप्यूटर सिस्टम के भौतिक घटकों को कहा जाता है:",
+    "id": 106,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The 'Paste' command takes content from the ______ and inserts it into the document.",
+    "question_hi": "'पेस्ट' कमांड ______ से सामग्री लेता है और इसे दस्तावेज़ में डालता है।",
     "options": {
       "A": {
-        "en": "Software",
-        "hi": "सॉफ्टवेयर"
+        "en": "Recycle Bin",
+        "hi": "रीसायकल बिन"
       },
       "B": {
-        "en": "Hardware",
-        "hi": "हार्डवेयर"
+        "en": "Clipboard",
+        "hi": "क्लिपबोर्ड"
       },
       "C": {
-        "en": "Firmware",
-        "hi": "फर्मवेयर"
+        "en": "Internet",
+        "hi": "इंटरनेट"
       },
       "D": {
-        "en": "Malware",
-        "hi": "मैलवेयर"
+        "en": "Saved files",
+        "hi": "सहेजी गई फाइलें"
       }
     },
     "correct_option": "B"
   },
   {
-    "id": 97,
-    "topic": "Windows",
-    "question_en": "Which company developed the Windows operating system?",
-    "question_hi": "विंडोज ऑपरेटिंग सिस्टम किस कंपनी ने विकसित किया है?",
+    "id": 107,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "To rearrange paragraphs in a report, the most efficient commands are:",
+    "question_hi": "एक रिपोर्ट में पैराग्राफ को पुनर्व्यवस्थित करने के लिए, सबसे कुशल कमांड हैं:",
     "options": {
       "A": {
-        "en": "Apple",
-        "hi": "एप्पल"
+        "en": "Copy and Paste",
+        "hi": "कॉपी और पेस्ट"
       },
       "B": {
-        "en": "Google",
-        "hi": "गूगल"
+        "en": "Find and Replace",
+        "hi": "खोजें और बदलें"
       },
       "C": {
-        "en": "Microsoft",
-        "hi": "माइक्रोसॉफ्ट"
+        "en": "Cut and Paste",
+        "hi": "कट और पेस्ट"
       },
       "D": {
-        "en": "IBM",
-        "hi": "आईबीएम"
+        "en": "Delete and Retype",
+        "hi": "हटाएं और फिर से टाइप करें"
       }
     },
     "correct_option": "C"
   },
   {
-    "id": 98,
-    "topic": "Keyboard",
-    "question_en": "What is the longest key on a standard keyboard?",
-    "question_hi": "एक मानक कीबोर्ड पर सबसे लंबी कुंजी कौन सी है?",
+    "id": 108,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which statement is false?",
+    "question_hi": "कौन सा कथन असत्य है?",
     "options": {
       "A": {
-        "en": "Enter Key",
-        "hi": "एंटर की"
+        "en": "Clipboard stores data temporarily.",
+        "hi": "क्लिपबोर्ड अस्थायी रूप से डेटा संग्रहीत करता है।"
       },
       "B": {
-        "en": "Shift Key",
-        "hi": "शिफ्ट की"
+        "en": "Copy removes the original text.",
+        "hi": "कॉपी मूल टेक्स्ट को हटा देती है।"
       },
       "C": {
-        "en": "Spacebar",
-        "hi": "स्पेसबार"
+        "en": "Cut removes the original text.",
+        "hi": "कट मूल टेक्स्ट को हटा देता है।"
       },
       "D": {
-        "en": "Backspace",
-        "hi": "बैकस्पेस"
+        "en": "Paste inserts data from the clipboard.",
+        "hi": "पेस्ट क्लिपबोर्ड से डेटा डालता है।"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 109,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the result of selecting text, pressing Copy, moving the cursor, and pressing Paste?",
+    "question_hi": "टेक्स्ट का चयन करने, कॉपी दबाने, कर्सर को स्थानांतरित करने और पेस्ट दबाने का परिणाम क्या है?",
+    "options": {
+      "A": {
+        "en": "The text is moved to the new location.",
+        "hi": "टेक्स्ट नए स्थान पर चला जाता है।"
+      },
+      "B": {
+        "en": "The text is duplicated at the new location.",
+        "hi": "टेक्स्ट नए स्थान पर डुप्लिकेट हो जाता है।"
+      },
+      "C": {
+        "en": "An error message appears.",
+        "hi": "एक त्रुटि संदेश प्रकट होता है।"
+      },
+      "D": {
+        "en": "The original text is deleted.",
+        "hi": "मूल टेक्स्ट हटा दिया जाता है।"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 110,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "What is the result of selecting text, pressing Cut, moving the cursor, and pressing Paste?",
+    "question_hi": "टेक्स्ट का चयन करने, कट दबाने, कर्सर को स्थानांतरित करने और पेस्ट दबाने का परिणाम क्या है?",
+    "options": {
+      "A": {
+        "en": "The text is moved to the new location.",
+        "hi": "टेक्स्ट नए स्थान पर चला जाता है।"
+      },
+      "B": {
+        "en": "The text is duplicated at the new location.",
+        "hi": "टेक्स्ट नए स्थान पर डुप्लिकेट हो जाता है।"
+      },
+      "C": {
+        "en": "The original text remains.",
+        "hi": "मूल टेक्स्ट बना रहता है।"
+      },
+      "D": {
+        "en": "The text is deleted permanently.",
+        "hi": "टेक्स्ट स्थायी रूप से हटा दिया जाता है।"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 111,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The term 'Clipboard' refers to a feature that:",
+    "question_hi": "'क्लिपबोर्ड' शब्द एक ऐसी सुविधा को संदर्भित करता है जो:",
+    "options": {
+      "A": {
+        "en": "Attaches clips to paper.",
+        "hi": "कागज पर क्लिप लगाता है।"
+      },
+      "B": {
+        "en": "Temporarily stores data for moving/duplicating.",
+        "hi": "स्थानांतरित/डुप्लिकेट करने के लिए अस्थायी रूप से डेटा संग्रहीत करता है।"
+      },
+      "C": {
+        "en": "Manages clip art.",
+        "hi": "क्लिप आर्ट का प्रबंधन करता है।"
+      },
+      "D": {
+        "en": "Permanently stores documents.",
+        "hi": "दस्तावेजों को स्थायी रूप से संग्रहीत करता है।"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 112,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which command does not alter the original document until 'Paste' is used?",
+    "question_hi": "कौन सा कमांड मूल दस्तावेज़ को तब तक नहीं बदलता जब तक 'पेस्ट' का उपयोग नहीं किया जाता है?",
+    "options": {
+      "A": {
+        "en": "Cut",
+        "hi": "कट"
+      },
+      "B": {
+        "en": "Copy",
+        "hi": "कॉपी"
+      },
+      "C": {
+        "en": "Delete",
+        "hi": "डिलीट"
+      },
+      "D": {
+        "en": "Save",
+        "hi": "सेव"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 113,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "If you need the same paragraph at the beginning and end of a paper, you should:",
+    "question_hi": "यदि आपको एक पेपर की शुरुआत और अंत में एक ही पैराग्राफ की आवश्यकता है, तो आपको चाहिए:",
+    "options": {
+      "A": {
+        "en": "Cut it from the beginning and paste it at the end.",
+        "hi": "इसे शुरुआत से काटें और अंत में पेस्ट करें।"
+      },
+      "B": {
+        "en": "Type it in both places.",
+        "hi": "इसे दोनों स्थानों पर टाइप करें।"
+      },
+      "C": {
+        "en": "Copy it from the beginning and paste it at the end.",
+        "hi": "इसे शुरुआत से कॉपी करें और अंत में पेस्ट करें।"
+      },
+      "D": {
+        "en": "Use the 'Move' command.",
+        "hi": "'मूव' कमांड का उपयोग करें।"
       }
     },
     "correct_option": "C"
   },
   {
-    "id": 99,
-    "topic": "Input device",
-    "question_en": "Which input device is used to read information from a check in a bank?",
-    "question_hi": "बैंक में चेक से जानकारी पढ़ने के लिए किस इनपुट डिवाइस का उपयोग किया जाता है?",
+    "id": 114,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The content on the clipboard is overwritten when you:",
+    "question_hi": "जब आप _______ करते हैं तो क्लिपबोर्ड की सामग्री अधिलेखित हो जाती है:",
     "options": {
       "A": {
-        "en": "OCR",
-        "hi": "ओसीआर (OCR)"
+        "en": "Perform a new Cut or Copy operation.",
+        "hi": "एक नया कट या कॉपी ऑपरेशन करते हैं।"
       },
       "B": {
-        "en": "OMR",
-        "hi": "ओएमआर (OMR)"
+        "en": "Save the document.",
+        "hi": "दस्तावेज़ को सहेजते हैं।"
       },
       "C": {
-        "en": "Barcode Reader",
-        "hi": "बारकोड रीडर"
+        "en": "Use the Paste command.",
+        "hi": "'पेस्ट' कमांड का उपयोग करते हैं।"
       },
       "D": {
-        "en": "MICR",
-        "hi": "एमआईसीआर (MICR)"
+        "en": "Close the document.",
+        "hi": "दस्तावेज़ को बंद करते हैं।"
       }
     },
-    "correct_option": "D"
+    "correct_option": "A"
   },
   {
-    "id": 100,
-    "topic": "Computer memory",
-    "question_en": "Data and instructions are stored in the computer's _______ before processing.",
-    "question_hi": "प्रसंस्करण से पहले डेटा और निर्देश कंप्यूटर की _______ में संग्रहीत होते हैं।",
+    "id": 115,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The function of the clipboard is most similar to:",
+    "question_hi": "क्लिपबोर्ड का कार्य सबसे अधिक समान है:",
     "options": {
       "A": {
-        "en": "Output Unit",
-        "hi": "आउटपुट यूनिट"
+        "en": "A permanent filing cabinet.",
+        "hi": "एक स्थायी फाइलिंग कैबिनेट।"
       },
       "B": {
-        "en": "Control Unit",
-        "hi": "कंट्रोल यूनिट"
+        "en": "A photocopier.",
+        "hi": "एक फोटोकॉपियर।"
       },
       "C": {
-        "en": "Memory Unit",
-        "hi": "मेमोरी यूनिट"
+        "en": "A short-term memory or scratchpad.",
+        "hi": "एक अल्पकालिक मेमोरी या स्क्रैचपैड।"
       },
       "D": {
-        "en": "ALU",
-        "hi": "एएलयू (ALU)"
+        "en": "A trash can.",
+        "hi": "एक कचरा पात्र।"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 116,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Can you paste the same copied item multiple times?",
+    "question_hi": "क्या आप एक ही कॉपी किए गए आइटम को कई बार पेस्ट कर सकते हैं?",
+    "options": {
+      "A": {
+        "en": "No, it disappears after the first paste.",
+        "hi": "नहीं, यह पहले पेस्ट के बाद गायब हो जाता है।"
+      },
+      "B": {
+        "en": "Yes, until the clipboard content is replaced.",
+        "hi": "हाँ, जब तक क्लिपबोर्ड की सामग्री को बदल नहीं दिया जाता।"
+      },
+      "C": {
+        "en": "Only if it is text.",
+        "hi": "केवल अगर यह टेक्स्ट है।"
+      },
+      "D": {
+        "en": "Only if it is an image.",
+        "hi": "केवल अगर यह एक छवि है।"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 117,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The definition of 'Cut' is to:",
+    "question_hi": "'कट' की परिभाषा है:",
+    "options": {
+      "A": {
+        "en": "Make a copy of the selection.",
+        "hi": "चयन की एक प्रति बनाना।"
+      },
+      "B": {
+        "en": "Remove the selection and put it on the clipboard.",
+        "hi": "चयन को हटाना और उसे क्लिपबोर्ड पर रखना।"
+      },
+      "C": {
+        "en": "Permanently delete the selection.",
+        "hi": "चयन को स्थायी रूप से हटाना।"
+      },
+      "D": {
+        "en": "Insert the selection from the clipboard.",
+        "hi": "क्लिपबोर्ड से चयन डालना।"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 118,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The definition of 'Copy' is to:",
+    "question_hi": "'कॉपी' की परिभाषा है:",
+    "options": {
+      "A": {
+        "en": "Place a duplicate of the selection on the clipboard.",
+        "hi": "चयन का एक डुप्लिकेट क्लिपबोर्ड पर रखना।"
+      },
+      "B": {
+        "en": "Remove the selection from the document.",
+        "hi": "दस्तावेज़ से चयन हटाना।"
+      },
+      "C": {
+        "en": "Move the selection to a new place.",
+        "hi": "चयन को एक नए स्थान पर ले जाना।"
+      },
+      "D": {
+        "en": "Print the selection.",
+        "hi": "चयन को प्रिंट करना।"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 119,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The definition of 'Paste' is to:",
+    "question_hi": "'पेस्ट' की परिभाषा है:",
+    "options": {
+      "A": {
+        "en": "Put content onto the clipboard.",
+        "hi": "क्लिपबोर्ड पर सामग्री डालना।"
+      },
+      "B": {
+        "en": "Insert content from the clipboard into the document.",
+        "hi": "क्लिपबोर्ड से सामग्री को दस्तावेज़ में डालना।"
+      },
+      "C": {
+        "en": "Delete content from the clipboard.",
+        "hi": "क्लिपबोर्ड से सामग्री हटाना।"
+      },
+      "D": {
+        "en": "Save the clipboard's content.",
+        "hi": "क्लिपबोर्ड की सामग्री को सहेजना।"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 120,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The clipboard is a tool that enhances user:",
+    "question_hi": "क्लिपबोर्ड एक उपकरण है जो उपयोगकर्ता की _______ को बढ़ाता है।",
+    "options": {
+      "A": {
+        "en": "Security",
+        "hi": "सुरक्षा"
+      },
+      "B": {
+        "en": "Efficiency and productivity",
+        "hi": "दक्षता और उत्पादकता"
+      },
+      "C": {
+        "en": "Creativity",
+        "hi": "रचनात्मकता"
+      },
+      "D": {
+        "en": "Storage capacity",
+        "hi": "भंडारण क्षमता"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 121,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "A user wants to move a picture from the top to the bottom of the page. They should:",
+    "question_hi": "एक उपयोगकर्ता एक तस्वीर को पृष्ठ के ऊपर से नीचे ले जाना चाहता है। उन्हें चाहिए:",
+    "options": {
+      "A": {
+        "en": "Copy the picture and paste it at the bottom.",
+        "hi": "तस्वीर को कॉपी करें और इसे नीचे पेस्ट करें।"
+      },
+      "B": {
+        "en": "Cut the picture and paste it at the bottom.",
+        "hi": "तस्वीर को काटें और इसे नीचे पेस्ट करें।"
+      },
+      "C": {
+        "en": "Delete the picture and insert it again at the bottom.",
+        "hi": "तस्वीर को हटाएं और इसे फिर से नीचे डालें।"
+      },
+      "D": {
+        "en": "Resize the picture until it reaches the bottom.",
+        "hi": "तस्वीर का आकार तब तक बदलें जब तक वह नीचे न पहुंच जाए।"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 122,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "A user wants to use their company logo on every page of a 10-page report. They should:",
+    "question_hi": "एक उपयोगकर्ता 10-पृष्ठ की रिपोर्ट के प्रत्येक पृष्ठ पर अपनी कंपनी का लोगो उपयोग करना चाहता है। उन्हें चाहिए:",
+    "options": {
+      "A": {
+        "en": "Cut the logo and paste it 10 times.",
+        "hi": "लोगो को काटें और इसे 10 बार पेस्ट करें।"
+      },
+      "B": {
+        "en": "Insert the logo 10 times from a file.",
+        "hi": "एक फ़ाइल से लोगो को 10 बार डालें।"
+      },
+      "C": {
+        "en": "Copy the logo once and paste it 10 times (or use headers/footers).",
+        "hi": "लोगो को एक बार कॉपी करें और इसे 10 बार पेस्ट करें (या हेडर/फुटर का उपयोग करें)।"
+      },
+      "D": {
+        "en": "It is not possible to reuse a logo.",
+        "hi": "एक लोगो का पुन: उपयोग करना संभव नहीं है।"
+      }
+    },
+    "correct_option": "C"
+  },
+  {
+    "id": 123,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "The Clipboard's contents are held in:",
+    "question_hi": "क्लिपबोर्ड की सामग्री _______ में रखी जाती है।",
+    "options": {
+      "A": {
+        "en": "The computer's RAM",
+        "hi": "कंप्यूटर की रैम"
+      },
+      "B": {
+        "en": "A file named 'clipboard.txt'",
+        "hi": "'clipboard.txt' नामक एक फ़ाइल"
+      },
+      "C": {
+        "en": "The CPU cache",
+        "hi": "सीपीयू कैश"
+      },
+      "D": {
+        "en": "The monitor's memory",
+        "hi": "मॉनिटर की मेमोरी"
+      }
+    },
+    "correct_option": "A"
+  },
+  {
+    "id": 124,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which set of actions describes moving content?",
+    "question_hi": "कौन सी क्रियाओं का सेट सामग्री को स्थानांतरित करने का वर्णन करता है?",
+    "options": {
+      "A": {
+        "en": "Select, Copy, Paste",
+        "hi": "चुनें, कॉपी करें, पेस्ट करें"
+      },
+      "B": {
+        "en": "Select, Cut, Paste",
+        "hi": "चुनें, कट करें, पेस्ट करें"
+      },
+      "C": {
+        "en": "Select, Delete",
+        "hi": "चुनें, हटाएं"
+      },
+      "D": {
+        "en": "Select, Format",
+        "hi": "चुनें, स्वरूपित करें"
+      }
+    },
+    "correct_option": "B"
+  },
+  {
+    "id": 125,
+    "topic": "MS Word Clipboard Features",
+    "question_en": "Which set of actions describes duplicating content?",
+    "question_hi": "कौन सी क्रियाओं का सेट सामग्री को डुप्लिकेट करने का वर्णन करता है?",
+    "options": {
+      "A": {
+        "en": "Select, Cut, Paste",
+        "hi": "चुनें, कट करें, पेस्ट करें"
+      },
+      "B": {
+        "en": "Select, Move",
+        "hi": "चुनें, स्थानांतरित करें"
+      },
+      "C": {
+        "en": "Select, Copy, Paste",
+        "hi": "चुनें, कॉपी करें, पेस्ट करें"
+      },
+      "D": {
+        "en": "Select, Delete, Undo",
+        "hi": "चुनें, हटाएं, पूर्ववत करें"
       }
     },
     "correct_option": "C"
