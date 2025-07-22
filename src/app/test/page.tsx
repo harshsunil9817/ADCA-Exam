@@ -25,6 +25,17 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Header } from "@/components/header";
 
+// Helper function to shuffle an array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+
 export default function TestPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -45,18 +56,66 @@ export default function TestPage() {
     }
 
     const fullQuestionBank = papers[user.assignedPaper] || [];
-    
-    // Shuffle the array using Fisher-Yates algorithm for randomization
-    const shuffled = [...fullQuestionBank];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    const totalQuestionsInBank = fullQuestionBank.length;
+    const questionsToSelect = 100;
+
+    if (totalQuestionsInBank < questionsToSelect) {
+        // If the bank is smaller than 100, just shuffle and use all of them
+        setQuestions(shuffleArray(fullQuestionBank));
+        return;
     }
 
-    // Take the first 100 questions for the test
-    const selectedQuestions = shuffled.slice(0, 100);
+    // 1. Group questions by topic
+    const questionsByTopic: { [key: string]: Question[] } = {};
+    fullQuestionBank.forEach(q => {
+        if (!questionsByTopic[q.topic]) {
+            questionsByTopic[q.topic] = [];
+        }
+        questionsByTopic[q.topic].push(q);
+    });
+
+    const topics = Object.keys(questionsByTopic);
+    let selectedQuestions: Question[] = [];
+    const usedIndices: { [key: string]: Set<number> } = {};
+    topics.forEach(topic => usedIndices[topic] = new Set());
+
+    // 2. Select questions proportionally, ensuring topic coverage
+    const tempSelectedQuestions: Question[] = [];
+    const topicDistribution: { [topic: string]: number } = {};
+
+    topics.forEach(topic => {
+      const proportion = questionsByTopic[topic].length / totalQuestionsInBank;
+      const numToSelect = Math.round(proportion * questionsToSelect);
+      topicDistribution[topic] = numToSelect;
+    });
+
+    // Adjust to ensure exactly 100 questions are selected due to rounding
+    let currentTotal = Object.values(topicDistribution).reduce((sum, count) => sum + count, 0);
+    while (currentTotal < questionsToSelect) {
+      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+      if (topicDistribution[randomTopic] < questionsByTopic[randomTopic].length) {
+        topicDistribution[randomTopic]++;
+        currentTotal++;
+      }
+    }
+     while (currentTotal > questionsToSelect) {
+      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+      if (topicDistribution[randomTopic] > 0) {
+        topicDistribution[randomTopic]--;
+        currentTotal--;
+      }
+    }
     
-    setQuestions(selectedQuestions);
+    // 3. Get the questions based on the calculated distribution
+    topics.forEach(topic => {
+        const shuffledTopicQuestions = shuffleArray(questionsByTopic[topic]);
+        const questionsForThisTopic = shuffledTopicQuestions.slice(0, topicDistribution[topic]);
+        tempSelectedQuestions.push(...questionsForThisTopic);
+    });
+    
+    // 4. Final shuffle of the 100 selected questions
+    setQuestions(shuffleArray(tempSelectedQuestions));
+
   }, [user, authLoading, router, toast]);
 
   const answeredCount = useMemo(() => {
