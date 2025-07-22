@@ -44,8 +44,19 @@ export default function TestPage() {
         return;
     }
 
-    const questionBank = papers[user.assignedPaper] || [];
-    setQuestions(questionBank);
+    const fullQuestionBank = papers[user.assignedPaper] || [];
+    
+    // Shuffle the array using Fisher-Yates algorithm for randomization
+    const shuffled = [...fullQuestionBank];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // Take the first 100 questions for the test
+    const selectedQuestions = shuffled.slice(0, 100);
+    
+    setQuestions(selectedQuestions);
   }, [user, authLoading, router, toast]);
 
   const answeredCount = useMemo(() => {
