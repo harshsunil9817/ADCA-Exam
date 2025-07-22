@@ -25,8 +25,6 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Header } from "@/components/header";
 
-const TEST_QUESTION_COUNT = 100;
-
 export default function TestPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -46,18 +44,8 @@ export default function TestPage() {
         return;
     }
 
-    const fullQuestionBank = papers[user.assignedPaper] || [];
-    
-    // Fisher-Yates shuffle algorithm to randomize the entire question bank
-    const shuffledBank = [...fullQuestionBank];
-    for (let i = shuffledBank.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffledBank[i], shuffledBank[j]] = [shuffledBank[j], shuffledBank[i]];
-    }
-
-    // Take the first 100 questions for the test
-    const selectedQuestions = shuffledBank.slice(0, TEST_QUESTION_COUNT);
-    setQuestions(selectedQuestions);
+    const questionBank = papers[user.assignedPaper] || [];
+    setQuestions(questionBank);
   }, [user, authLoading, router, toast]);
 
   const answeredCount = useMemo(() => {

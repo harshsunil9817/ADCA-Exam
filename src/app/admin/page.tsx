@@ -334,7 +334,7 @@ function QuestionEditor() {
                             <AlertTitle>Editing Paper {activePaper}</AlertTitle>
                             <AlertDescription>
                                 Your JSON data must be an array `[]` of question objects. Any changes here will only affect paper {activePaper}. 
-                                <span className="font-bold ml-4">Current Question Count: {currentQuestionCount}</span>
+                                <span className="font-bold ml-4">Question Count: {currentQuestionCount}</span>
                             </AlertDescription>
                         </Alert>
                         <Textarea
