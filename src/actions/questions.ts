@@ -12,8 +12,13 @@ export async function saveQuestions(paperId: string, jsonString: string): Promis
             return { success: false, error: "Invalid paper ID specified." };
         }
 
+        // Attempt to fix common JSON errors, like trailing commas
+        let sanitizedJsonString = jsonString
+            .replace(/,\s*\]/g, "]") // remove trailing comma in array
+            .replace(/,\s*\}/g, "}"); // remove trailing comma in object
+
         // First, parse the string to ensure it's valid JSON.
-        const parsedQuestions = JSON.parse(jsonString);
+        const parsedQuestions = JSON.parse(sanitizedJsonString);
 
         if (!Array.isArray(parsedQuestions)) {
             return { success: false, error: "The root of the JSON must be an array '[]'." };
