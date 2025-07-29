@@ -12,13 +12,8 @@ export async function saveQuestions(paperId: string, jsonString: string): Promis
             return { success: false, error: "Invalid paper ID specified." };
         }
 
-        // Attempt to fix common JSON errors, like trailing commas
-        let sanitizedJsonString = jsonString
-            .replace(/,\s*\]/g, "]") // remove trailing comma in array
-            .replace(/,\s*\}/g, "}"); // remove trailing comma in object
-
         // First, parse the string to ensure it's valid JSON.
-        const parsedQuestions = JSON.parse(sanitizedJsonString);
+        const parsedQuestions = JSON.parse(jsonString);
 
         if (!Array.isArray(parsedQuestions)) {
             return { success: false, error: "The root of the JSON must be an array '[]'." };
@@ -36,7 +31,8 @@ export async function saveQuestions(paperId: string, jsonString: string): Promis
     } catch (error) {
         console.error("Failed to save questions:", error);
         if (error instanceof SyntaxError) {
-            return { success: false, error: "Invalid JSON format. Please check for syntax errors." };
+             // Provide a more detailed error message, including where the error might be.
+            return { success: false, error: `Invalid JSON format: ${error.message}. Please check your syntax.` };
         }
         const fsError = error as { code?: string };
         if (fsError.code) {
