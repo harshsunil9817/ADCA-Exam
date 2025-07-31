@@ -25,6 +25,17 @@ import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Header } from "@/components/header";
 
+// Helper function to shuffle an array
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+
 export default function TestPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -44,14 +55,67 @@ export default function TestPage() {
         return;
     }
 
-    const paperQuestions = papers[user.assignedPaper] || [];
-    // Fisher-Yates shuffle algorithm to randomize questions
-    const array = [...paperQuestions];
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
+    const fullQuestionBank = papers[user.assignedPaper] || [];
+    const totalQuestionsInBank = fullQuestionBank.length;
+    const questionsToSelect = 100;
+
+    if (totalQuestionsInBank < questionsToSelect) {
+        // If the bank is smaller than 100, just shuffle and use all of them
+        setQuestions(shuffleArray(fullQuestionBank));
+        return;
     }
-    setQuestions(array);
+
+    // 1. Group questions by topic
+    const questionsByTopic: { [key: string]: Question[] } = {};
+    fullQuestionBank.forEach(q => {
+        if (!questionsByTopic[q.topic]) {
+            questionsByTopic[q.topic] = [];
+        }
+        questionsByTopic[q.topic].push(q);
+    });
+
+    const topics = Object.keys(questionsByTopic);
+    let selectedQuestions: Question[] = [];
+    const usedIndices: { [key: string]: Set<number> } = {};
+    topics.forEach(topic => usedIndices[topic] = new Set());
+
+    // 2. Select questions proportionally, ensuring topic coverage
+    const tempSelectedQuestions: Question[] = [];
+    const topicDistribution: { [topic: string]: number } = {};
+
+    topics.forEach(topic => {
+      const proportion = questionsByTopic[topic].length / totalQuestionsInBank;
+      const numToSelect = Math.round(proportion * questionsToSelect);
+      topicDistribution[topic] = numToSelect;
+    });
+
+    // Adjust to ensure exactly 100 questions are selected due to rounding
+    let currentTotal = Object.values(topicDistribution).reduce((sum, count) => sum + count, 0);
+    while (currentTotal < questionsToSelect) {
+      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+      if (topicDistribution[randomTopic] < questionsByTopic[randomTopic].length) {
+        topicDistribution[randomTopic]++;
+        currentTotal++;
+      }
+    }
+     while (currentTotal > questionsToSelect) {
+      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+      if (topicDistribution[randomTopic] > 0) {
+        topicDistribution[randomTopic]--;
+        currentTotal--;
+      }
+    }
+    
+    // 3. Get the questions based on the calculated distribution
+    topics.forEach(topic => {
+        const shuffledTopicQuestions = shuffleArray(questionsByTopic[topic]);
+        const questionsForThisTopic = shuffledTopicQuestions.slice(0, topicDistribution[topic]);
+        tempSelectedQuestions.push(...questionsForThisTopic);
+    });
+    
+    // 4. Final shuffle of the 100 selected questions
+    setQuestions(shuffleArray(tempSelectedQuestions));
+
   }, [user, authLoading, router, toast]);
 
   const answeredCount = useMemo(() => {
@@ -73,7 +137,7 @@ export default function TestPage() {
     
     try {
         const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-        const submissionId = await submitTest(answersArray, user, user.assignedPaper);
+        const submissionId = await submitTest(answersArray, user, user.assignedPaper, questions.length);
         toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
         router.push(`/test/submitted?submissionId=${submissionId}`);
     } catch (error) {
@@ -81,7 +145,7 @@ export default function TestPage() {
         toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
         setIsSubmitting(false);
     }
-  }, [answers, user, toast, router]);
+  }, [answers, user, toast, router, questions]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
