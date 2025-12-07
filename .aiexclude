@@ -1,0 +1,14 @@
+node_modules/
+.next/
+build/
+dist/
+public/
+assets/
+*.pdf
+*.docx
+*.log
+
+/home/user/studio/src/data/m1.json
+/home/user/studio/src/data/m2.json
+/home/user/studio/src/data/m3.json
+/home/user/studio/src/data/m4.json
