@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     
     // Student password check (universal password)
-    if (password_input !== 'CSA1125') {
+    if (password_input !== 'CSA0226') {
         return { user: null, error: 'password' };
     }
 
