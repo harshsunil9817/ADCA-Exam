@@ -22,9 +22,9 @@ const primaryApp: FirebaseApp = getApps().find(app => app.name === 'primary') ||
 const appDb = getFirestore(primaryApp);
 
 
-export async function submitTest(answers: Answer[], user: User, paperId: string) {
-  const questions = papers[paperId];
-  if (!questions) {
+export async function submitTest(answers: Answer[], user: User, paperId: string, totalQuestionsInTest: number) {
+  const fullQuestionBank = papers[paperId];
+  if (!fullQuestionBank) {
     throw new Error(`Paper with ID '${paperId}' not found.`);
   }
 
@@ -33,7 +33,7 @@ export async function submitTest(answers: Answer[], user: User, paperId: string)
   let incorrectAnswers = 0;
   const incorrectAnswerDetails: any[] = [];
 
-  const questionMap = new Map(questions.map((q) => [q.id, q]));
+  const questionMap = new Map(fullQuestionBank.map((q) => [q.id, q]));
 
   answers.forEach((answer) => {
     const question = questionMap.get(answer.questionId);
@@ -54,7 +54,7 @@ export async function submitTest(answers: Answer[], user: User, paperId: string)
     }
   });
 
-  const totalQuestions = questions.length;
+  const totalQuestions = totalQuestionsInTest;
   const attemptedQuestions = answers.length;
   const notAttemptedQuestions = totalQuestions - attemptedQuestions;
   const percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
