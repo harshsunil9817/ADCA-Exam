@@ -405,10 +405,10 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, onEd
                     <Badge variant="outline">None</Badge>
                 )}
             </TableCell>
-            <TableCell className="text-right">
+            <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                 <div className="flex gap-2 justify-end items-center">
                     <Select value={selectedPaper} onValueChange={setSelectedPaper}>
-                        <SelectTrigger onClick={(e) => e.stopPropagation()} className="w-[120px] h-9">
+                        <SelectTrigger className="w-[120px] h-9">
                             <SelectValue placeholder="Select Paper" />
                         </SelectTrigger>
                         <SelectContent>
