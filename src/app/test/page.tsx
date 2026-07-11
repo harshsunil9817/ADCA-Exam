@@ -5,9 +5,9 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/auth-context";
-import { papers } from "@/data/questions";
 import type { Answer, Question } from "@/lib/types";
 import { selectUniformQuestions } from "@/lib/questionUtils";
+import { getPaperQuestions } from "@/actions/questions";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,6 +36,7 @@ export default function TestPage() {
   const [answers, setAnswers] = useState<Map<number, string>>(new Map());
   const [timeLeft, setTimeLeft] = useState(60 * 60); // 60 minutes
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loadingQuestions, setLoadingQuestions] = useState(true);
 
   useEffect(() => {
     if (authLoading) return;
@@ -45,9 +46,27 @@ export default function TestPage() {
       return;
     }
 
-    const paperQuestions = papers[user.assignedPaper] || [];
-    const selectedQuestions = selectUniformQuestions(paperQuestions, 100);
-    setQuestions(selectedQuestions);
+    let isMounted = true;
+    async function fetchQuestions() {
+        try {
+            const paperQuestions = await getPaperQuestions(user!.assignedPaper!);
+            if (isMounted) {
+                const selectedQuestions = selectUniformQuestions(paperQuestions, 100);
+                setQuestions(selectedQuestions);
+                setLoadingQuestions(false);
+            }
+        } catch (error) {
+            console.error("Failed to load questions:", error);
+            if (isMounted) {
+                toast({ variant: "destructive", title: "Error", description: "Failed to load test questions." });
+                setLoadingQuestions(false);
+            }
+        }
+    }
+    
+    fetchQuestions();
+
+    return () => { isMounted = false; };
   }, [user, authLoading, router, toast]);
 
   const answeredCount = useMemo(() => {
@@ -116,10 +135,22 @@ export default function TestPage() {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  if (authLoading || !user || questions.length === 0) {
+  if (authLoading || !user || loadingQuestions) {
     return (
-      <div className="flex items-center justify-center h-screen w-full">
+      <div className="flex flex-col items-center justify-center h-screen w-full gap-4">
         <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <p className="text-muted-foreground">Loading your test...</p>
+      </div>
+    );
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen w-full gap-4">
+        <p className="text-muted-foreground text-lg text-center px-4">
+          No questions available for your assigned paper ({user.assignedPaper}).<br/>
+          Please contact your administrator.
+        </p>
       </div>
     );
   }

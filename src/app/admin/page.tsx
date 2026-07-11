@@ -9,7 +9,8 @@ import type { Submission, Student } from "@/lib/types";
 import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
-import { papers as defaultPapers } from "@/data/questions";
+import { getCoursePapers, PaperInfo } from "@/actions/courses";
+import { getPaperQuestions } from "@/actions/questions";
 import { cn } from "@/lib/utils";
 import { CourseManager } from "./CourseManager";
 
@@ -66,6 +67,7 @@ import { Calendar } from "@/components/ui/calendar";
 
 interface SubmissionsListProps {
   submissions: Submission[];
+  papers: PaperInfo[];
   loading: boolean;
   onUpdate: () => void;
   filterStudent: Student | null;
@@ -73,7 +75,7 @@ interface SubmissionsListProps {
 }
 
 // Submissions List Component
-function SubmissionsList({ submissions, loading, onUpdate, filterStudent, onClearFilter }: SubmissionsListProps) {
+function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent, onClearFilter }: SubmissionsListProps) {
   const [submissionToReset, setSubmissionToReset] = useState<Submission | null>(null);
   const [isResetting, setIsResetting] = useState(false);
   const [resetDate, setResetDate] = useState<Date | undefined>(new Date());
@@ -144,11 +146,9 @@ function SubmissionsList({ submissions, loading, onUpdate, filterStudent, onClea
           <Tabs value={activeFilter} onValueChange={setActiveFilter} className="mb-4">
               <TabsList>
                   <TabsTrigger value="all">All</TabsTrigger>
-                  <TabsTrigger value="M1">Paper M1</TabsTrigger>
-                  <TabsTrigger value="M2">Paper M2</TabsTrigger>
-                  <TabsTrigger value="M3">Paper M3</TabsTrigger>
-                  <TabsTrigger value="M4">Paper M4</TabsTrigger>
-                  <TabsTrigger value="M5">Paper M5</TabsTrigger>
+                  {papers.map(p => (
+                      <TabsTrigger key={p.name} value={p.name}>Paper {p.name}</TabsTrigger>
+                  ))}
               </TabsList>
           </Tabs>
 
@@ -252,17 +252,48 @@ function SubmissionsList({ submissions, loading, onUpdate, filterStudent, onClea
 }
 
 
-function QuestionEditor() {
-    const [jsonContents, setJsonContents] = useState({
-        "M1": JSON.stringify(defaultPapers['M1'], null, 2),
-        "M2": JSON.stringify(defaultPapers['M2'], null, 2),
-        "M3": JSON.stringify(defaultPapers['M3'], null, 2),
-        "M4": JSON.stringify(defaultPapers['M4'], null, 2),
-        "M5": JSON.stringify(defaultPapers['M5'], null, 2),
-    });
-    const [activePaper, setActivePaper] = useState('M1');
+interface QuestionEditorProps {
+    papers: PaperInfo[];
+}
+
+function QuestionEditor({ papers }: QuestionEditorProps) {
+    const [jsonContents, setJsonContents] = useState<Record<string, string>>({});
+    const [activePaper, setActivePaper] = useState(papers.length > 0 ? papers[0].name : "");
     const [isSaving, setIsSaving] = useState(false);
+    const [isLoadingContent, setIsLoadingContent] = useState(false);
     const { toast } = useToast();
+
+    // Initialize activePaper if papers load later
+    useEffect(() => {
+        if (!activePaper && papers.length > 0) {
+            setActivePaper(papers[0].name);
+        }
+    }, [papers, activePaper]);
+
+    useEffect(() => {
+        if (!activePaper) return;
+        if (jsonContents[activePaper] !== undefined) return;
+
+        async function fetchContent() {
+            setIsLoadingContent(true);
+            try {
+                const questions = await getPaperQuestions(activePaper);
+                setJsonContents(prev => ({
+                    ...prev,
+                    [activePaper]: JSON.stringify(questions, null, 2)
+                }));
+            } catch (error) {
+                console.error("Failed to load questions", error);
+                setJsonContents(prev => ({
+                    ...prev,
+                    [activePaper]: "[]"
+                }));
+            } finally {
+                setIsLoadingContent(false);
+            }
+        }
+        fetchContent();
+    }, [activePaper, jsonContents]);
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -312,13 +343,14 @@ function QuestionEditor() {
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+                 {papers.length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground">No papers available. Add some in the Courses tab.</div>
+                 ) : (
                  <Tabs value={activePaper} onValueChange={setActivePaper} className="w-full">
-                    <TabsList>
-                        <TabsTrigger value="M1">Paper M1</TabsTrigger>
-                        <TabsTrigger value="M2">Paper M2</TabsTrigger>
-                        <TabsTrigger value="M3">Paper M3</TabsTrigger>
-                        <TabsTrigger value="M4">Paper M4</TabsTrigger>
-                        <TabsTrigger value="M5">Paper M5</TabsTrigger>
+                    <TabsList className="flex flex-wrap h-auto">
+                        {papers.map(p => (
+                            <TabsTrigger key={p.name} value={p.name}>Paper {p.name}</TabsTrigger>
+                        ))}
                     </TabsList>
                     <TabsContent value={activePaper} className="mt-4">
                         <Alert>
@@ -328,15 +360,20 @@ function QuestionEditor() {
                                 Your JSON data must be an array `[]` of question objects. Any changes here will only affect paper {activePaper}.
                             </AlertDescription>
                         </Alert>
-                        <Textarea
-                            value={jsonContents[activePaper as keyof typeof jsonContents]}
-                            onChange={(e) => handleJsonChange(e.target.value)}
-                            rows={20}
-                            className="font-mono text-sm mt-4"
-                            placeholder="Enter questions as an array of JSON objects here..."
-                        />
+                        {isLoadingContent ? (
+                            <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary" /></div>
+                        ) : (
+                            <Textarea
+                                value={jsonContents[activePaper] || ""}
+                                onChange={(e) => handleJsonChange(e.target.value)}
+                                rows={20}
+                                className="font-mono text-sm mt-4"
+                                placeholder="Enter questions as an array of JSON objects here..."
+                            />
+                        )}
                     </TabsContent>
                 </Tabs>
+                )}
             </CardContent>
             <CardFooter className="justify-end gap-2">
                 <Button onClick={handleSave} disabled={isSaving}>
@@ -351,6 +388,7 @@ function QuestionEditor() {
 interface StudentRowProps {
   student: Student;
   submissions: Submission[];
+  papers: PaperInfo[];
   onUpdate: () => void;
   onRowClick: () => void;
   onDelete: (student: Student) => void;
@@ -358,7 +396,7 @@ interface StudentRowProps {
   isSelected: boolean;
 }
 
-function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, onEdit, isSelected }: StudentRowProps) {
+function StudentRow({ student, submissions, papers, onUpdate, onRowClick, onDelete, onEdit, isSelected }: StudentRowProps) {
     const [selectedPaper, setSelectedPaper] = useState("");
     const [isAuthorizing, setIsAuthorizing] = useState(false);
     const { toast } = useToast();
@@ -413,11 +451,15 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, onEd
                             <SelectValue placeholder="Select Paper" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="M1" disabled={completedPapers.includes('M1')}>M1</SelectItem>
-                            <SelectItem value="M2" disabled={completedPapers.includes('M2')}>M2</SelectItem>
-                            <SelectItem value="M3" disabled={completedPapers.includes('M3')}>M3</SelectItem>
-                            <SelectItem value="M4" disabled={completedPapers.includes('M4')}>M4</SelectItem>
-                            <SelectItem value="M5" disabled={completedPapers.includes('M5')}>M5</SelectItem>
+                            {papers.length === 0 ? (
+                                <SelectItem value="none" disabled>No papers available</SelectItem>
+                            ) : (
+                                papers.map(p => (
+                                    <SelectItem key={p.name} value={p.name} disabled={completedPapers.includes(p.name)}>
+                                        {p.name}
+                                    </SelectItem>
+                                ))
+                            )}
                         </SelectContent>
                     </Select>
                     <Button onClick={handleAuthorize} disabled={isAuthorizing || !selectedPaper} size="sm">
@@ -440,13 +482,14 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, onEd
 interface StudentManagerProps {
   students: Student[];
   submissions: Submission[];
+  papers: PaperInfo[];
   loading: boolean;
   onUpdate: () => void;
   onStudentSelect: (student: Student) => void;
   selectedStudent: Student | null;
 }
 
-function StudentManager({ students, submissions, loading, onUpdate, onStudentSelect, selectedStudent }: StudentManagerProps) {
+function StudentManager({ students, submissions, papers, loading, onUpdate, onStudentSelect, selectedStudent }: StudentManagerProps) {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
     const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
     const [studentToEdit, setStudentToEdit] = useState<Student | null>(null);
@@ -570,6 +613,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
                                   key={student.docId} 
                                   student={student} 
                                   submissions={studentSubmissions} 
+                                  papers={papers}
                                   onUpdate={onUpdate}
                                   onRowClick={() => onStudentSelect(student)}
                                   onDelete={handleDeleteClick}
@@ -709,14 +753,16 @@ export default function AdminPage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState("students");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [coursePapers, setCoursePapers] = useState<PaperInfo[]>([]);
   const { toast } = useToast();
 
   const fetchData = async () => {
     setIsLoadingData(true);
     try {
-      const [subs, studentList] = await Promise.all([
+      const [subs, studentList, papersList] = await Promise.all([
         getSubmissions(),
         getStudents(),
+        getCoursePapers("ADCA"),
       ]);
 
       const submissionsToUpdate = subs.filter(sub => !sub.paperId);
@@ -730,6 +776,7 @@ export default function AdminPage() {
       
       setSubmissions(updatedSubs);
       setStudents(studentList);
+      setCoursePapers(papersList);
     } catch (error) {
       console.error("Error fetching or updating data: ", error);
       toast({
@@ -787,7 +834,8 @@ export default function AdminPage() {
           <TabsContent value="students" className="mt-6">
             <StudentManager 
                 students={students} 
-                submissions={submissions} 
+                submissions={submissions}
+                papers={coursePapers}
                 loading={isLoadingData} 
                 onUpdate={fetchData}
                 onStudentSelect={handleStudentSelect}
@@ -797,6 +845,7 @@ export default function AdminPage() {
           <TabsContent value="submissions" className="mt-6">
             <SubmissionsList 
                 submissions={submissions}
+                papers={coursePapers}
                 loading={isLoadingData}
                 onUpdate={fetchData}
                 filterStudent={selectedStudent}
@@ -804,7 +853,7 @@ export default function AdminPage() {
             />
           </TabsContent>
           <TabsContent value="questions" className="mt-6">
-              <QuestionEditor />
+              <QuestionEditor papers={coursePapers} />
           </TabsContent>
           <TabsContent value="courses" className="mt-6">
               <CourseManager />

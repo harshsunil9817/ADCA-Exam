@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getCourses, getCoursePapers, addPaperToCourse, Course, PaperInfo } from "@/actions/courses";
+import { getCourses, getCoursePapers, addPaperToCourse, deletePaperFromCourse, Course, PaperInfo } from "@/actions/courses";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, PlusCircle, BookOpen } from "lucide-react";
+import { Loader2, PlusCircle, BookOpen, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -45,6 +45,9 @@ export function CourseManager() {
       } else if (fetchedCourses.length > 0) {
           // Fallback if no ADCA found
           setSelectedCourse(fetchedCourses[0]);
+      } else {
+          // Fallback if database is completely empty so we can still add papers
+          setSelectedCourse({ id: 'adca', name: 'ADCA' });
       }
       setLoading(false);
     }
@@ -94,6 +97,28 @@ export function CourseManager() {
     setIsAdding(false);
   };
 
+  const handleDeletePaper = async (paperName: string) => {
+    if (!selectedCourse) return;
+    
+    if (!confirm(`Are you sure you want to remove ${paperName}?`)) return;
+
+    const result = await deletePaperFromCourse(selectedCourse.name, paperName);
+    
+    if (result.success) {
+      toast({
+        title: "Paper Removed",
+        description: `Successfully removed ${paperName}.`
+      });
+      setPapers(papers.filter(p => p.name !== paperName));
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error
+      });
+    }
+  };
+
   if (loading) {
     return <div className="flex justify-center p-8"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
   }
@@ -121,6 +146,7 @@ export function CourseManager() {
                     <TableRow>
                       <TableHead>Paper Name</TableHead>
                       <TableHead>GitHub Link</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -131,6 +157,17 @@ export function CourseManager() {
                           <a href={paper.githubLink} target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-500">
                             {paper.githubLink}
                           </a>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="destructive" 
+                            size="icon" 
+                            className="h-8 w-8"
+                            onClick={() => handleDeletePaper(paper.name)}
+                            title="Remove Paper"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

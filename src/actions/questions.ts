@@ -8,7 +8,8 @@ import path from 'path';
 // It's a server action that can be called from client components.
 export async function saveQuestions(paperId: string, jsonString: string): Promise<{ success: boolean; error?: string }> {
     try {
-        if (!['M1', 'M2', 'M3', 'M4', 'M5'].includes(paperId)) {
+        // Check if paperId is somewhat valid (alphanumeric) to prevent path traversal
+        if (!/^[a-zA-Z0-9_-]+$/.test(paperId)) {
             return { success: false, error: "Invalid paper ID specified." };
         }
 
@@ -38,5 +39,22 @@ export async function saveQuestions(paperId: string, jsonString: string): Promis
              return { success: false, error: `File system error: ${fsError.code}` };
         }
         return { success: false, error: "An unknown error occurred while saving the file." };
+    }
+}
+
+// Fetch the questions for a specific paper dynamically
+export async function getPaperQuestions(paperId: string): Promise<any[]> {
+    try {
+        if (!/^[a-zA-Z0-9_-]+$/.test(paperId)) {
+            throw new Error("Invalid paper ID specified.");
+        }
+        
+        const filePath = path.join(process.cwd(), `src/data/${paperId.toLowerCase()}.json`);
+        const fileContent = await fs.readFile(filePath, 'utf-8');
+        const parsed = JSON.parse(fileContent);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error(`Error fetching questions for paper ${paperId}:`, error);
+        return [];
     }
 }

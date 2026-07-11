@@ -80,3 +80,27 @@ export async function addPaperToCourse(courseName: string, paperInfo: PaperInfo)
     return { success: false, error: error.message || "Failed to add paper." };
   }
 }
+
+// Remove a paper from a course in the primary database
+export async function deletePaperFromCourse(courseName: string, paperName: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const docId = courseName.toLowerCase();
+    const paperDocRef = doc(appDb, "paper", docId);
+    const paperDoc = await getDoc(paperDocRef);
+
+    if (paperDoc.exists()) {
+      const existingPapers: PaperInfo[] = paperDoc.data().papers || [];
+      const updatedPapers = existingPapers.filter(p => p.name.toLowerCase() !== paperName.toLowerCase());
+      
+      await updateDoc(paperDocRef, {
+        papers: updatedPapers
+      });
+      return { success: true };
+    }
+    
+    return { success: false, error: "Course not found." };
+  } catch (error: any) {
+    console.error(`Error deleting paper from course ${courseName}:`, error);
+    return { success: false, error: error.message || "Failed to delete paper." };
+  }
+}
