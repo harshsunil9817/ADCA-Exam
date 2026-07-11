@@ -11,6 +11,7 @@ import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
 import { papers as defaultPapers } from "@/data/questions";
 import { cn } from "@/lib/utils";
+import { CourseManager } from "./CourseManager";
 
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -632,7 +633,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
         </Dialog>
         
         {/* Edit Student Dialog */}
-        <Dialog open={!!studentToEdit} onOpenChange={setStudentToEdit}>
+        <Dialog open={!!studentToEdit} onOpenChange={(open) => !open && setStudentToEdit(null)}>
             <DialogContent className="sm:max-w-[480px]">
                 <form onSubmit={handleSaveEdit}>
                     <DialogHeader>
@@ -777,10 +778,11 @@ export default function AdminPage() {
       <p className="text-muted-foreground mb-8">Manage test submissions and application data.</p>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
               <TabsTrigger value="students">Manage Students</TabsTrigger>
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
               <TabsTrigger value="questions">Questions</TabsTrigger>
+              <TabsTrigger value="courses">Courses</TabsTrigger>
           </TabsList>
           <TabsContent value="students" className="mt-6">
             <StudentManager 
@@ -803,6 +805,9 @@ export default function AdminPage() {
           </TabsContent>
           <TabsContent value="questions" className="mt-6">
               <QuestionEditor />
+          </TabsContent>
+          <TabsContent value="courses" className="mt-6">
+              <CourseManager />
           </TabsContent>
       </Tabs>
 

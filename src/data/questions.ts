@@ -11,11 +11,11 @@ export interface PaperCollection {
 
 // Combine all papers into a single object for easy access
 export const papers: PaperCollection = {
-    "M1": m1Questions as Question[],
-    "M2": m2Questions as Question[],
-    "M3": m3Questions as Question[],
-    "M4": m4Questions as Question[],
-    "M5": m5Questions as Question[],
+    "M1": m1Questions as unknown as Question[],
+    "M2": m2Questions as unknown as Question[],
+    "M3": m3Questions as unknown as Question[],
+    "M4": m4Questions as unknown as Question[],
+    "M5": m5Questions as unknown as Question[],
 };
 
 // For backwards compatibility or default access, you can export one set
