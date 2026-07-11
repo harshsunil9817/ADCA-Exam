@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, PlusCircle, BookOpen, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -128,9 +129,38 @@ export function CourseManager() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><BookOpen /> Course Management</CardTitle>
-          <CardDescription>
-            Manage exams and papers for courses. Currently managing: <strong className="text-primary">{selectedCourse?.name || 'None selected'}</strong>
-          </CardDescription>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <CardDescription>
+                  Manage exams and papers for courses.
+                </CardDescription>
+            </div>
+            {courses.length > 0 && (
+                <div className="flex items-center gap-2">
+                    <Label className="whitespace-nowrap">Select Course:</Label>
+                    <Select 
+                        value={selectedCourse?.id || 'adca'} 
+                        onValueChange={(id) => {
+                            const course = courses.find(c => c.id === id) || { id, name: id.toUpperCase() };
+                            setSelectedCourse(course);
+                        }}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Course" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {courses.map(course => (
+                                <SelectItem key={course.id} value={course.id}>{course.name}</SelectItem>
+                            ))}
+                            {/* Ensure ADCA is always an option even if not in DB */}
+                            {!courses.find(c => c.id.toLowerCase() === 'adca') && (
+                                <SelectItem value="adca">ADCA</SelectItem>
+                            )}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid gap-6 md:grid-cols-2">

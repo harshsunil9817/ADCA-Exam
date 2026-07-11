@@ -9,7 +9,7 @@ import type { Submission, Student } from "@/lib/types";
 import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
-import { getCoursePapers, PaperInfo } from "@/actions/courses";
+import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
 import { getPaperQuestions } from "@/actions/questions";
 import { cn } from "@/lib/utils";
 import { CourseManager } from "./CourseManager";
@@ -753,16 +753,19 @@ export default function AdminPage() {
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState("students");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [globalCourses, setGlobalCourses] = useState<Course[]>([]);
+  const [selectedAdminCourseId, setSelectedAdminCourseId] = useState<string>('adca');
   const [coursePapers, setCoursePapers] = useState<PaperInfo[]>([]);
   const { toast } = useToast();
 
-  const fetchData = async () => {
+  const fetchData = async (courseIdToFetch: string) => {
     setIsLoadingData(true);
     try {
-      const [subs, studentList, papersList] = await Promise.all([
+      const [subs, studentList, papersList, coursesList] = await Promise.all([
         getSubmissions(),
         getStudents(),
-        getCoursePapers("ADCA"),
+        getCoursePapers(courseIdToFetch),
+        getCourses(),
       ]);
 
       const submissionsToUpdate = subs.filter(sub => !sub.paperId);
@@ -777,6 +780,7 @@ export default function AdminPage() {
       setSubmissions(updatedSubs);
       setStudents(studentList);
       setCoursePapers(papersList);
+      setGlobalCourses(coursesList);
     } catch (error) {
       console.error("Error fetching or updating data: ", error);
       toast({
@@ -794,9 +798,9 @@ export default function AdminPage() {
     if (!user || user.role !== "admin") {
       router.push("/");
     } else {
-      fetchData();
+      fetchData(selectedAdminCourseId);
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, selectedAdminCourseId]);
 
 
   if (loading || !user || user.role !== 'admin') {
@@ -821,8 +825,34 @@ export default function AdminPage() {
     <>
     <Header />
     <main className="container mx-auto p-4 md:p-8">
-      <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-      <p className="text-muted-foreground mb-8">Manage test submissions and application data.</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Manage test submissions and application data.</p>
+          </div>
+          
+          {globalCourses.length > 0 && (
+            <div className="flex items-center gap-2">
+                <Label className="whitespace-nowrap font-medium">Dashboard Context:</Label>
+                <Select 
+                    value={selectedAdminCourseId} 
+                    onValueChange={setSelectedAdminCourseId}
+                >
+                    <SelectTrigger className="w-[180px] bg-background">
+                        <SelectValue placeholder="Select Course" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {globalCourses.map(course => (
+                            <SelectItem key={course.id} value={course.name}>{course.name}</SelectItem>
+                        ))}
+                        {!globalCourses.find(c => c.name.toLowerCase() === 'adca') && (
+                            <SelectItem value="ADCA">ADCA</SelectItem>
+                        )}
+                    </SelectContent>
+                </Select>
+            </div>
+          )}
+      </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
@@ -837,7 +867,7 @@ export default function AdminPage() {
                 submissions={submissions}
                 papers={coursePapers}
                 loading={isLoadingData} 
-                onUpdate={fetchData}
+                onUpdate={() => fetchData(selectedAdminCourseId)}
                 onStudentSelect={handleStudentSelect}
                 selectedStudent={selectedStudent}
             />
@@ -847,7 +877,7 @@ export default function AdminPage() {
                 submissions={submissions}
                 papers={coursePapers}
                 loading={isLoadingData}
-                onUpdate={fetchData}
+                onUpdate={() => fetchData(selectedAdminCourseId)}
                 filterStudent={selectedStudent}
                 onClearFilter={handleClearFilter}
             />

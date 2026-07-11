@@ -19,7 +19,7 @@ import html2canvas from 'html2canvas';
 import { PrintableResult } from '@/components/PrintableResult';
 import { PrintableIncorrectAnswers } from '@/components/PrintableIncorrectAnswers';
 import { PrintableResultOnly } from '@/components/PrintableResultOnly';
-import { papers } from '@/data/questions';
+import { getPaperQuestions } from '@/actions/questions';
 import { getSubmissionById, updateSubmission, deleteSubmission } from '@/actions/test';
 import { getStudentByEnrollment } from '@/actions/students';
 import { useToast } from "@/hooks/use-toast";
@@ -65,6 +65,7 @@ export default function ResultsPage() {
     const submissionId = params.submissionId as string;
     const [submission, setSubmission] = useState<Submission | null>(null);
     const [student, setStudent] = useState<Student | null>(null);
+    const [questions, setQuestions] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDownloadingFull, setIsDownloadingFull] = useState(false);
     const [isDownloadingIncorrect, setIsDownloadingIncorrect] = useState(false);
@@ -119,6 +120,9 @@ export default function ResultsPage() {
 
                     setSubmission(sub);
                     setStudent(studentData);
+                    
+                    const fetchedQuestions = await getPaperQuestions(sub.paperId);
+                    setQuestions(fetchedQuestions);
                 } else {
                     console.error("No such submission!");
                 }
@@ -330,7 +334,7 @@ export default function ResultsPage() {
         )
     }
 
-    const allQuestions = papers[submission.paperId] || [];
+    const allQuestions = questions;
 
     return (
         <>
@@ -428,8 +432,8 @@ export default function ResultsPage() {
                 </Card>
             </div>
             <div className="fixed -left-[9999px] top-0 -z-50">
-               {submission && <PrintableResult ref={printableFullRef} submission={submission} />}
-               {submission && <PrintableIncorrectAnswers ref={printableIncorrectRef} submission={submission} />}
+               {submission && <PrintableResult ref={printableFullRef} submission={submission} questions={questions} />}
+               {submission && <PrintableIncorrectAnswers ref={printableIncorrectRef} submission={submission} questions={questions} />}
                {submission && <PrintableResultOnly ref={printableResultRef} submission={submission} />}
             </div>
         </main>

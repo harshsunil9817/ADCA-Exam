@@ -4,7 +4,7 @@
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc, writeBatch } from "firebase/firestore";
 import type { Answer, Submission, User } from "@/lib/types";
-import { papers } from "@/data/questions";
+import { getPaperQuestions } from "@/actions/questions";
 import { studentDb } from "@/lib/firebase";
 
 // Config for the primary app (submissions)
@@ -23,8 +23,8 @@ const appDb = getFirestore(primaryApp);
 
 
 export async function submitTest(answers: Answer[], user: User, paperId: string, totalQuestions: number) {
-  const questions = papers[paperId];
-  if (!questions) {
+  const questions = await getPaperQuestions(paperId);
+  if (!questions || questions.length === 0) {
     throw new Error(`Paper with ID '${paperId}' not found.`);
   }
 

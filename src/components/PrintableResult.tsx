@@ -1,12 +1,12 @@
 
-import type { Submission } from '@/lib/types';
-import { papers } from '@/data/questions';
+import type { Submission, Question } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import React from 'react';
 
 interface PrintableResultProps {
   submission: Submission;
+  questions: Question[];
 }
 
 const getOptionClasses = (userAnswerKey: string | undefined, correctAnswerKey: string, optionKey: string) => {
@@ -25,9 +25,9 @@ const getOptionClasses = (userAnswerKey: string | undefined, correctAnswerKey: s
 };
 
 
-export const PrintableResult = React.forwardRef<HTMLDivElement, PrintableResultProps>(({ submission }, ref) => {
+export const PrintableResult = React.forwardRef<HTMLDivElement, PrintableResultProps>(({ submission, questions }, ref) => {
   const answerMap = new Map(submission.answers.map(a => [a.questionId, a.selectedOption]));
-  const allQuestions = papers[submission.paperId] || [];
+  const allQuestions = questions || [];
   
   return (
     <div ref={ref} className="p-10 bg-white text-black w-[800px]">
