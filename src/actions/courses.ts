@@ -22,7 +22,7 @@ export async function getCourses(): Promise<Course[]> {
     const snapshot = await getDocs(coursesCol);
     const courses: Course[] = snapshot.docs.map(doc => ({
       id: doc.id,
-      name: doc.data().name || doc.id,
+      name: doc.data().name || doc.data().courseName || doc.id,
       ...doc.data()
     }));
     return courses;
