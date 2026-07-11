@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { getCourses, getCoursePapers, addPaperToCourse, deletePaperFromCourse, Course, PaperInfo } from "@/actions/courses";
+import { getCourses, getCoursePapers, addPaperToCourse, deletePaperFromCourse, addCourse, Course, PaperInfo } from "@/actions/courses";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +29,9 @@ export function CourseManager() {
   const [newPaperName, setNewPaperName] = useState("");
   const [newPaperLink, setNewPaperLink] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+
+  const [newCourseName, setNewCourseName] = useState("");
+  const [isAddingCourse, setIsAddingCourse] = useState(false);
 
   const { toast } = useToast();
 
@@ -98,6 +101,31 @@ export function CourseManager() {
     setIsAdding(false);
   };
 
+  const handleAddCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCourseName.trim()) return;
+
+    setIsAddingCourse(true);
+    const result = await addCourse(newCourseName.trim());
+
+    if (result.success && result.course) {
+      toast({
+        title: "Course Added",
+        description: `Successfully added ${result.course.name}.`
+      });
+      setCourses([...courses, result.course]);
+      setSelectedCourse(result.course);
+      setNewCourseName("");
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: result.error
+      });
+    }
+    setIsAddingCourse(false);
+  };
+
   const handleDeletePaper = async (paperName: string) => {
     if (!selectedCourse) return;
     
@@ -135,7 +163,7 @@ export function CourseManager() {
                   Manage exams and papers for courses.
                 </CardDescription>
             </div>
-            {courses.length > 0 && (
+            <div className="flex flex-wrap items-center gap-4">
                 <div className="flex items-center gap-2">
                     <Label className="whitespace-nowrap">Select Course:</Label>
                     <Select 
@@ -159,7 +187,19 @@ export function CourseManager() {
                         </SelectContent>
                     </Select>
                 </div>
-            )}
+                
+                <div className="flex items-center gap-2 border-l pl-4 border-gray-300">
+                   <Input 
+                      placeholder="New Course (e.g. O LEVEL)" 
+                      value={newCourseName}
+                      onChange={e => setNewCourseName(e.target.value)}
+                      className="w-[180px]"
+                   />
+                   <Button onClick={handleAddCourse} disabled={isAddingCourse || !newCourseName.trim()} size="sm">
+                      {isAddingCourse ? <Loader2 className="h-4 w-4 animate-spin" /> : "Add Course"}
+                   </Button>
+                </div>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

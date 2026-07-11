@@ -32,6 +32,30 @@ export async function getCourses(): Promise<Course[]> {
   }
 }
 
+// Add a new course to the student database
+export async function addCourse(courseName: string): Promise<{ success: boolean; error?: string; course?: Course }> {
+  try {
+    const docId = courseName.toLowerCase();
+    const courseRef = doc(studentDb, "courses", docId);
+    const courseDoc = await getDoc(courseRef);
+
+    if (courseDoc.exists()) {
+      return { success: false, error: "Course already exists." };
+    }
+
+    const newCourse = { name: courseName.toUpperCase() };
+    await setDoc(courseRef, newCourse);
+
+    return { 
+        success: true, 
+        course: { id: docId, ...newCourse } 
+    };
+  } catch (error: any) {
+    console.error("Error adding course:", error);
+    return { success: false, error: error.message || "Failed to add course." };
+  }
+}
+
 // Get papers for a specific course from the primary database
 export async function getCoursePapers(courseName: string): Promise<PaperInfo[]> {
   try {
