@@ -8,7 +8,7 @@ import path from 'path';
 // It's a server action that can be called from client components.
 export async function saveQuestions(paperId: string, jsonString: string): Promise<{ success: boolean; error?: string }> {
     try {
-        if (!['M1', 'M2_Word', 'M2_Excel', 'M2_Powerpoint', 'M3', 'M4', 'M5'].includes(paperId)) {
+        if (!['M1', 'M2', 'M3', 'M4', 'M5'].includes(paperId)) {
             return { success: false, error: "Invalid paper ID specified." };
         }
 

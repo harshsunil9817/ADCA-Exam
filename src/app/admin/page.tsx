@@ -11,6 +11,7 @@ import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
 import { papers as defaultPapers } from "@/data/questions";
 import { cn } from "@/lib/utils";
+import { CourseManager } from "./CourseManager";
 
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -144,9 +145,7 @@ function SubmissionsList({ submissions, loading, onUpdate, filterStudent, onClea
               <TabsList>
                   <TabsTrigger value="all">All</TabsTrigger>
                   <TabsTrigger value="M1">Paper M1</TabsTrigger>
-                  <TabsTrigger value="M2_Word">Paper M2 Word</TabsTrigger>
-                  <TabsTrigger value="M2_Excel">Paper M2 Excel</TabsTrigger>
-                  <TabsTrigger value="M2_Powerpoint">Paper M2 Powerpoint</TabsTrigger>
+                  <TabsTrigger value="M2">Paper M2</TabsTrigger>
                   <TabsTrigger value="M3">Paper M3</TabsTrigger>
                   <TabsTrigger value="M4">Paper M4</TabsTrigger>
                   <TabsTrigger value="M5">Paper M5</TabsTrigger>
@@ -256,9 +255,7 @@ function SubmissionsList({ submissions, loading, onUpdate, filterStudent, onClea
 function QuestionEditor() {
     const [jsonContents, setJsonContents] = useState({
         "M1": JSON.stringify(defaultPapers['M1'], null, 2),
-        "M2_Word": JSON.stringify(defaultPapers['M2_Word'], null, 2),
-        "M2_Excel": JSON.stringify(defaultPapers['M2_Excel'], null, 2),
-        "M2_Powerpoint": JSON.stringify(defaultPapers['M2_Powerpoint'], null, 2),
+        "M2": JSON.stringify(defaultPapers['M2'], null, 2),
         "M3": JSON.stringify(defaultPapers['M3'], null, 2),
         "M4": JSON.stringify(defaultPapers['M4'], null, 2),
         "M5": JSON.stringify(defaultPapers['M5'], null, 2),
@@ -318,9 +315,7 @@ function QuestionEditor() {
                  <Tabs value={activePaper} onValueChange={setActivePaper} className="w-full">
                     <TabsList>
                         <TabsTrigger value="M1">Paper M1</TabsTrigger>
-                        <TabsTrigger value="M2_Word">Paper M2 Word</TabsTrigger>
-                        <TabsTrigger value="M2_Excel">Paper M2 Excel</TabsTrigger>
-                        <TabsTrigger value="M2_Powerpoint">Paper M2 Powerpoint</TabsTrigger>
+                        <TabsTrigger value="M2">Paper M2</TabsTrigger>
                         <TabsTrigger value="M3">Paper M3</TabsTrigger>
                         <TabsTrigger value="M4">Paper M4</TabsTrigger>
                         <TabsTrigger value="M5">Paper M5</TabsTrigger>
@@ -419,9 +414,7 @@ function StudentRow({ student, submissions, onUpdate, onRowClick, onDelete, onEd
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="M1" disabled={completedPapers.includes('M1')}>M1</SelectItem>
-                            <SelectItem value="M2_Word" disabled={completedPapers.includes('M2_Word')}>M2 Word</SelectItem>
-                            <SelectItem value="M2_Excel" disabled={completedPapers.includes('M2_Excel')}>M2 Excel</SelectItem>
-                            <SelectItem value="M2_Powerpoint" disabled={completedPapers.includes('M2_Powerpoint')}>M2 Powerpoint</SelectItem>
+                            <SelectItem value="M2" disabled={completedPapers.includes('M2')}>M2</SelectItem>
                             <SelectItem value="M3" disabled={completedPapers.includes('M3')}>M3</SelectItem>
                             <SelectItem value="M4" disabled={completedPapers.includes('M4')}>M4</SelectItem>
                             <SelectItem value="M5" disabled={completedPapers.includes('M5')}>M5</SelectItem>
@@ -640,7 +633,7 @@ function StudentManager({ students, submissions, loading, onUpdate, onStudentSel
         </Dialog>
         
         {/* Edit Student Dialog */}
-        <Dialog open={!!studentToEdit} onOpenChange={setStudentToEdit}>
+        <Dialog open={!!studentToEdit} onOpenChange={(open) => !open && setStudentToEdit(null)}>
             <DialogContent className="sm:max-w-[480px]">
                 <form onSubmit={handleSaveEdit}>
                     <DialogHeader>
@@ -785,10 +778,11 @@ export default function AdminPage() {
       <p className="text-muted-foreground mb-8">Manage test submissions and application data.</p>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
               <TabsTrigger value="students">Manage Students</TabsTrigger>
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
               <TabsTrigger value="questions">Questions</TabsTrigger>
+              <TabsTrigger value="courses">Courses</TabsTrigger>
           </TabsList>
           <TabsContent value="students" className="mt-6">
             <StudentManager 
@@ -811,6 +805,9 @@ export default function AdminPage() {
           </TabsContent>
           <TabsContent value="questions" className="mt-6">
               <QuestionEditor />
+          </TabsContent>
+          <TabsContent value="courses" className="mt-6">
+              <CourseManager />
           </TabsContent>
       </Tabs>
 
