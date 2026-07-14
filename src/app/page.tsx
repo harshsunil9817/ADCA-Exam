@@ -22,6 +22,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 export default function LoginPage() {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
+  const [examId, setExamId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const { login, user, loading } = useAuth();
@@ -54,7 +55,7 @@ export default function LoginPage() {
     }
 
     try {
-      const result = await login(userId, password);
+      const result = await login(userId, password, examId);
       
       if (result.user) {
         toast({
@@ -83,7 +84,7 @@ export default function LoginPage() {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "You have not applied for this exam yet.",
+                description: "You have not applied for this exam yet, or the Exam ID is incorrect.",
             });
          } else {
             toast({
@@ -136,6 +137,17 @@ export default function LoginPage() {
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
                 required
+                disabled={isLoggingIn}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="examId">Exam ID (For Students)</Label>
+              <Input
+                id="examId"
+                type="text"
+                placeholder="Enter your Exam ID (e.g., 51556)"
+                value={examId}
+                onChange={(e) => setExamId(e.target.value)}
                 disabled={isLoggingIn}
               />
             </div>

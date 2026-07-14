@@ -22,7 +22,7 @@ import { Progress } from "@/components/ui/progress";
 import { submitTest, updateLiveExamState, initLiveExamState, checkLiveExamStatus } from "@/actions/test";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Header } from "@/components/header";
 
@@ -37,6 +37,8 @@ export default function TestPage() {
   const [timeLeft, setTimeLeft] = useState(60 * 60); // 60 minutes
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingQuestions, setLoadingQuestions] = useState(true);
+  const [terminated, setTerminated] = useState(false);
+  const { logout } = useAuth();
 
   useEffect(() => {
     if (authLoading) return;
@@ -100,7 +102,7 @@ export default function TestPage() {
 
   const currentQuestion = questions[currentQuestionIndex];
 
-  const handleSubmit = useCallback(async () => {
+  const handleSubmit = useCallback(async (isTerminated = false) => {
     setIsSubmitting(true);
     if (!user || !user.assignedPaper) {
       toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in or no paper is assigned.' });
@@ -111,8 +113,13 @@ export default function TestPage() {
     try {
       const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
       const submissionId = await submitTest(answersArray, user, user.assignedPaper, questions.length);
-      toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
-      router.push(`/test/submitted?submissionId=${submissionId}`);
+      
+      if (isTerminated) {
+          setTerminated(true);
+      } else {
+          toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
+          router.push(`/test/submitted?submissionId=${submissionId}`);
+      }
     } catch (error) {
       console.error("Submission failed:", error);
       toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
@@ -137,8 +144,7 @@ export default function TestPage() {
 
       const handleVisibilityChange = () => {
           if (document.visibilityState === 'hidden') {
-              alert("Sorry we detected unusual activity of cheating behavior. To prevent the NIELIT policy from violating we terminated your paper. If any appeal you need to do contact admin of your academy");
-              handleSubmit();
+              handleSubmit(true);
           }
       };
       
@@ -147,8 +153,7 @@ export default function TestPage() {
       const statusInterval = setInterval(async () => {
           const status = await checkLiveExamStatus(user.id);
           if (status === 'terminated') {
-              alert("Sorry we detected unusual activity of cheating behavior. To prevent the NIELIT policy from violating we terminated your paper. If any appeal you need to do contact admin of your academy");
-              handleSubmit();
+              handleSubmit(true);
           }
       }, 5000); // Check every 5 seconds
 
@@ -202,6 +207,25 @@ export default function TestPage() {
         </p>
       </div>
     );
+  }
+
+  if (terminated) {
+      return (
+          <div className="fixed inset-0 bg-background z-50 flex flex-col items-center justify-center p-8 text-center space-y-8 animate-in fade-in duration-300">
+              <div className="w-32 h-32 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                  <X className="w-16 h-16 text-red-600" />
+              </div>
+              <h1 className="text-5xl font-bold text-red-600">Exam Terminated</h1>
+              <p className="text-2xl max-w-3xl text-muted-foreground leading-relaxed">
+                  Sorry, we detected unusual activity or cheating behavior. To prevent violating the NIELIT policy, we have terminated your paper. 
+                  <br/><br/>
+                  If you need to appeal this decision, please contact the admin of your academy.
+              </p>
+              <Button size="lg" variant="destructive" onClick={() => logout()} className="mt-8 text-lg px-8 py-6">
+                  Logout
+              </Button>
+          </div>
+      );
   }
 
   return (

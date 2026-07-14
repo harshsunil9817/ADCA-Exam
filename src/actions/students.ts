@@ -201,8 +201,8 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Stude
     }
 }
 
-// Checks if a student has already applied for the exam in Realtime Database
-export async function checkStudentApplied(enrollmentNumber: string): Promise<boolean> {
+// Checks if a student has already applied for the exam in Realtime Database with a specific examId
+export async function checkStudentApplied(enrollmentNumber: string, examId: string): Promise<boolean> {
     try {
         const rtdb = getDatabase(studentApp);
         const appliedExamsRef = ref(rtdb, 'appliedExams');
@@ -210,7 +210,9 @@ export async function checkStudentApplied(enrollmentNumber: string): Promise<boo
         const snapshot = await get(q);
         
         if (snapshot.exists()) {
-            return true;
+            const data = snapshot.val();
+            const entries = Object.values(data) as any[];
+            return entries.some(app => String(app.examId) === String(examId));
         }
         return false;
     } catch (error) {

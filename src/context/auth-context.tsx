@@ -14,7 +14,7 @@ interface AuthResult {
 
 interface AuthContextType {
   user: User | null;
-  login: (userId: string, password: string) => Promise<AuthResult>;
+  login: (userId: string, password: string, examId?: string) => Promise<AuthResult>;
   logout: () => void;
   loading: boolean;
 }
@@ -72,7 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [user, loading, pathname, router]);
 
 
-  const login = async (userId: string, password_input: string): Promise<AuthResult> => {
+  const login = async (userId: string, password_input: string, examId?: string): Promise<AuthResult> => {
     const cleanPassword = password_input.trim();
     // Admin check first
     if (cleanPassword === 'sunil8896') {
@@ -104,8 +104,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { user: null, error: 'no_test_assigned' };
     }
 
-    // Check if the student is in appliedExams
-    const isApplied = await checkStudentApplied(userId);
+    // Check if the student is in appliedExams for the given examId
+    if (!examId) {
+      return { user: null, error: 'generic' }; // Exam ID is required for students
+    }
+    const isApplied = await checkStudentApplied(userId, examId);
     if (!isApplied) {
       return { user: null, error: 'not_applied' };
     }
