@@ -49,8 +49,17 @@ export async function getPaperQuestions(paperId: string): Promise<any[]> {
             throw new Error("Invalid paper ID specified.");
         }
         
-        // Use exact paperId to preserve case and spaces (e.g. "M2 Microsoft_Word")
-        const filePath = path.join(process.cwd(), `src/data/${paperId}.json`);
+        // Use case-insensitive file matching to prevent errors on Linux/WSL
+        const dirPath = path.join(process.cwd(), 'src/data');
+        const files = await fs.readdir(dirPath);
+        const targetFile = `${paperId}.json`.toLowerCase();
+        const matchedFile = files.find(f => f.toLowerCase() === targetFile);
+        
+        if (!matchedFile) {
+            throw new Error(`File not found for paper ${paperId}`);
+        }
+        
+        const filePath = path.join(dirPath, matchedFile);
         const fileContent = await fs.readFile(filePath, 'utf-8');
         const parsed = JSON.parse(fileContent);
         return Array.isArray(parsed) ? parsed : [];
