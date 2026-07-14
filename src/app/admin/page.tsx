@@ -296,6 +296,31 @@ function QuestionEditor({ papers }: QuestionEditorProps) {
         fetchContent();
     }, [activePaper, jsonContents]);
 
+    const handleForceReload = async () => {
+        if (!activePaper) return;
+        setIsLoadingContent(true);
+        try {
+            const questions = await getPaperQuestions(activePaper);
+            setJsonContents(prev => ({
+                ...prev,
+                [activePaper]: JSON.stringify(questions, null, 2)
+            }));
+            toast({
+                title: "Questions Reloaded",
+                description: `Successfully reloaded questions for ${activePaper}.`,
+            });
+        } catch (error) {
+            console.error("Failed to reload questions", error);
+            toast({
+                variant: "destructive",
+                title: "Error Reloading",
+                description: "Failed to reload questions from the server.",
+            });
+        } finally {
+            setIsLoadingContent(false);
+        }
+    };
+
     const handleSave = async () => {
         setIsSaving(true);
         const currentJson = jsonContents[activePaper as keyof typeof jsonContents];
@@ -376,7 +401,11 @@ function QuestionEditor({ papers }: QuestionEditorProps) {
                 </Tabs>
                 )}
             </CardContent>
-            <CardFooter className="justify-end gap-2">
+            <CardFooter className="justify-between gap-2">
+                <Button variant="outline" onClick={handleForceReload} disabled={isSaving || isLoadingContent}>
+                    <RefreshCcw className="mr-2 h-4 w-4" />
+                    Reload from Server
+                </Button>
                 <Button onClick={handleSave} disabled={isSaving}>
                     {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Save Changes to {activePaper}
