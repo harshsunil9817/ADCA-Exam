@@ -10,7 +10,7 @@ import { checkLiveExamStatus } from '@/actions/test';
 
 interface AuthResult {
   user: User | null;
-  error?: 'password' | 'used' | 'generic' | 'no_test_assigned' | 'not_applied' | 'already_active';
+  error?: 'password' | 'used' | 'generic' | 'no_test_assigned' | 'not_applied';
 }
 
 interface AuthContextType {
@@ -117,12 +117,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Strict Authorization Check: Must be authorized AND match the assigned paper
     if (!application.authorized || application.paperName !== studentDetails.assignedPaper) {
         return { user: null, error: 'not_applied' };
-    }
-
-    // Check if there is an uncleared active or terminated live exam session
-    const liveStatus = await checkLiveExamStatus(userId);
-    if (liveStatus !== 'not-started') {
-        return { user: null, error: 'already_active' };
     }
 
     // If all checks pass, create the user object with the assigned paper
