@@ -350,7 +350,7 @@ export default function TestPage() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={handleSubmit} disabled={isSubmitting}>
+                <AlertDialogAction onClick={() => handleSubmit(false)} disabled={isSubmitting}>
                   {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Submitting...</> : 'Yes, Submit My Test'}
                 </AlertDialogAction>
               </AlertDialogFooter>
