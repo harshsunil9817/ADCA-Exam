@@ -8,8 +8,8 @@ import path from 'path';
 // It's a server action that can be called from client components.
 export async function saveQuestions(paperId: string, jsonString: string): Promise<{ success: boolean; error?: string }> {
     try {
-        // Check if paperId is somewhat valid (alphanumeric) to prevent path traversal
-        if (!/^[a-zA-Z0-9_-]+$/.test(paperId)) {
+        // Check if paperId is somewhat valid (alphanumeric and spaces) to prevent path traversal
+        if (paperId.includes('..') || paperId.includes('/')) {
             return { success: false, error: "Invalid paper ID specified." };
         }
 
@@ -21,7 +21,7 @@ export async function saveQuestions(paperId: string, jsonString: string): Promis
         }
         
         // Define the path to the specific paper's JSON file
-        const filePath = path.join(process.cwd(), `src/data/${paperId.toLowerCase()}.json`);
+        const filePath = path.join(process.cwd(), `src/data/${paperId}.json`);
 
         // Re-stringify with formatting to ensure the saved file is readable.
         const formattedJson = JSON.stringify(parsedQuestions, null, 2);
@@ -45,11 +45,12 @@ export async function saveQuestions(paperId: string, jsonString: string): Promis
 // Fetch the questions for a specific paper dynamically
 export async function getPaperQuestions(paperId: string): Promise<any[]> {
     try {
-        if (!/^[a-zA-Z0-9_-]+$/.test(paperId)) {
+        if (paperId.includes('..') || paperId.includes('/')) {
             throw new Error("Invalid paper ID specified.");
         }
         
-        const filePath = path.join(process.cwd(), `src/data/${paperId.toLowerCase()}.json`);
+        // Use exact paperId to preserve case and spaces (e.g. "M2 Microsoft_Word")
+        const filePath = path.join(process.cwd(), `src/data/${paperId}.json`);
         const fileContent = await fs.readFile(filePath, 'utf-8');
         const parsed = JSON.parse(fileContent);
         return Array.isArray(parsed) ? parsed : [];
