@@ -12,6 +12,7 @@ import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams,
 import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
 import { getPaperQuestions } from "@/actions/questions";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 import { CourseManager } from "./CourseManager";
 
 

@@ -70,7 +70,7 @@ export default function TestPage() {
     initLiveExamState({
         userId: user.id,
         studentName: user.name,
-        enrollmentNumber: user.enrollmentNumber || '',
+        enrollmentNumber: user.id, // For student, id is enrollmentNumber
         paperId: user.assignedPaper,
         answeredCount: 0,
         totalQuestions: 100, // Or whatever questions.length ends up being
