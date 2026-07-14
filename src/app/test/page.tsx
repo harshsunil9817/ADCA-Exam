@@ -40,6 +40,33 @@ export default function TestPage() {
   const [terminated, setTerminated] = useState(false);
   const { logout } = useAuth();
 
+  const handleSubmit = useCallback(async (isTerminated = false) => {
+    if (isTerminated) {
+        setTerminated(true); // Instantly show termination UI, hiding the "Submitting..." text
+    }
+    setIsSubmitting(true);
+    if (!user || !user.assignedPaper) {
+      toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in or no paper is assigned.' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
+      const submissionId = await submitTest(answersArray, user, user.assignedPaper, questions.length);
+      
+      if (!isTerminated) {
+          // If terminated, we already showed the UI at the top, and we don't want to redirect them out.
+          toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
+          router.push(`/test/submitted?submissionId=${submissionId}`);
+      }
+    } catch (error) {
+      console.error("Submission failed:", error);
+      toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
+      setIsSubmitting(false);
+    }
+  }, [answers, user, toast, router, questions.length]);
+
   useEffect(() => {
     if (authLoading) return;
     if (!user || !user.assignedPaper || user.assignedPaper === 'COMPLETED_ALL') {
@@ -113,33 +140,6 @@ export default function TestPage() {
   const progressValue = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
 
   const currentQuestion = questions[currentQuestionIndex];
-
-  const handleSubmit = useCallback(async (isTerminated = false) => {
-    if (isTerminated) {
-        setTerminated(true); // Instantly show termination UI, hiding the "Submitting..." text
-    }
-    setIsSubmitting(true);
-    if (!user || !user.assignedPaper) {
-      toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in or no paper is assigned.' });
-      setIsSubmitting(false);
-      return;
-    }
-
-    try {
-      const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-      const submissionId = await submitTest(answersArray, user, user.assignedPaper, questions.length);
-      
-      if (!isTerminated) {
-          // If terminated, we already showed the UI at the top, and we don't want to redirect them out.
-          toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
-          router.push(`/test/submitted?submissionId=${submissionId}`);
-      }
-    } catch (error) {
-      console.error("Submission failed:", error);
-      toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
-      setIsSubmitting(false);
-    }
-  }, [answers, user, toast, router]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
