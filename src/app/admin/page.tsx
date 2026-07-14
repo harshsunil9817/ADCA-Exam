@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
-import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser } from "@/actions/test";
+import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser, getLiveExams, terminateLiveExam, type LiveExamState } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams, verifyApplication, authorizeStudentForPaper, type AppliedExam } from "@/actions/students";
 import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
@@ -826,6 +826,101 @@ function ApplicationsManager({ applications, loading, onUpdate }: ApplicationsMa
     );
 }
 
+// -------------------------------------------------------------
+// LIVE EXAMS COMPONENT
+// -------------------------------------------------------------
+function LiveExamManager() {
+    const { toast } = useToast();
+    const [liveExams, setLiveExams] = useState<LiveExamState[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchLiveExams = async () => {
+        const exams = await getLiveExams();
+        setLiveExams(exams);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        fetchLiveExams();
+        const interval = setInterval(fetchLiveExams, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+    const handleTerminate = async (userId: string, name: string) => {
+        if (!confirm(`Are you sure you want to terminate the exam for ${name}? They will be marked as failed.`)) return;
+        const res = await terminateLiveExam(userId);
+        if (res.success) {
+            toast({ title: "Exam Terminated", description: `Terminated exam for ${name}` });
+            fetchLiveExams();
+        } else {
+            toast({ variant: "destructive", title: "Failed", description: res.error });
+        }
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500 animate-pulse" /> Live Exams</CardTitle>
+                <CardDescription>Monitor currently active student exams.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Student Name</TableHead>
+                            <TableHead>Enrollment #</TableHead>
+                            <TableHead>Paper</TableHead>
+                            <TableHead>Progress</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading ? (
+                            <TableRow><TableCell colSpan={6} className="text-center h-24"><Loader2 className="h-6 w-6 animate-spin mx-auto" /></TableCell></TableRow>
+                        ) : liveExams.length > 0 ? (
+                            liveExams.map((exam) => (
+                                <TableRow key={exam.userId}>
+                                    <TableCell className="font-medium">{exam.studentName}</TableCell>
+                                    <TableCell className="font-mono">{exam.enrollmentNumber}</TableCell>
+                                    <TableCell><Badge variant="secondary">{exam.paperId}</Badge></TableCell>
+                                    <TableCell>
+                                        <div className="flex items-center gap-2">
+                                            <Progress value={(exam.answeredCount / exam.totalQuestions) * 100} className="w-[60px]" />
+                                            <span className="text-xs text-muted-foreground">{exam.answeredCount}/{exam.totalQuestions}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>
+                                        {exam.status === 'in-progress' ? (
+                                            <Badge className="bg-green-500">In Progress</Badge>
+                                        ) : (
+                                            <Badge variant="destructive">Terminated</Badge>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button 
+                                            size="sm" 
+                                            variant="destructive"
+                                            onClick={() => handleTerminate(exam.userId, exam.studentName)}
+                                            disabled={exam.status === 'terminated'}
+                                        >
+                                            Terminate
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">No active exams right now.</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    );
+}
+
 // Main Admin Page
 export default function AdminPage() {
   const { user, loading } = useAuth();
@@ -940,9 +1035,10 @@ export default function AdminPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto">
+          <TabsList className="grid w-full grid-cols-6 max-w-5xl mx-auto">
               <TabsTrigger value="students">Manage Students</TabsTrigger>
               <TabsTrigger value="applications">Applied Exams</TabsTrigger>
+              <TabsTrigger value="live">Live Exams <div className="w-2 h-2 ml-2 rounded-full bg-red-500 animate-pulse" /></TabsTrigger>
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
               <TabsTrigger value="questions">Questions</TabsTrigger>
               <TabsTrigger value="courses">Courses</TabsTrigger>
@@ -964,6 +1060,9 @@ export default function AdminPage() {
                   loading={isLoadingData} 
                   onUpdate={() => fetchData(selectedAdminCourseId)} 
               />
+          </TabsContent>
+          <TabsContent value="live" className="mt-6">
+              <LiveExamManager />
           </TabsContent>
           <TabsContent value="submissions" className="mt-6">
             <SubmissionsList 

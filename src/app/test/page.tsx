@@ -19,7 +19,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { submitTest } from "@/actions/test";
+import { submitTest, updateLiveExamState, initLiveExamState, checkLiveExamStatus } from "@/actions/test";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
@@ -66,6 +66,18 @@ export default function TestPage() {
     
     fetchQuestions();
 
+    // Initialize live exam state
+    initLiveExamState({
+        userId: user.id,
+        studentName: user.name,
+        enrollmentNumber: user.enrollmentNumber || '',
+        paperId: user.assignedPaper,
+        answeredCount: 0,
+        totalQuestions: 100, // Or whatever questions.length ends up being
+        status: 'in-progress',
+        lastActive: Date.now()
+    });
+
     return () => { isMounted = false; };
   }, [user, authLoading, router, toast]);
 
@@ -73,6 +85,16 @@ export default function TestPage() {
     // We filter out empty/undefined answers before getting the size
     return Array.from(answers.values()).filter(Boolean).length;
   }, [answers]);
+
+  // Sync answers count to RTDB
+  useEffect(() => {
+      if (user && user.id && questions.length > 0) {
+          updateLiveExamState(user.id, {
+              answeredCount,
+              totalQuestions: questions.length
+          });
+      }
+  }, [answeredCount, user, questions.length]);
 
   const progressValue = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
 
@@ -108,6 +130,33 @@ export default function TestPage() {
     }, 1000);
     return () => clearInterval(timer);
   }, [timeLeft, handleSubmit]);
+
+  // Anti-Cheat & Live Termination Polling
+  useEffect(() => {
+      if (!user) return;
+
+      const handleVisibilityChange = () => {
+          if (document.visibilityState === 'hidden') {
+              alert("Sorry we detected unusual activity of cheating behavior. To prevent the NIELIT policy from violating we terminated your paper. If any appeal you need to do contact admin of your academy");
+              handleSubmit();
+          }
+      };
+      
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
+      const statusInterval = setInterval(async () => {
+          const status = await checkLiveExamStatus(user.id);
+          if (status === 'terminated') {
+              alert("Sorry we detected unusual activity of cheating behavior. To prevent the NIELIT policy from violating we terminated your paper. If any appeal you need to do contact admin of your academy");
+              handleSubmit();
+          }
+      }, 5000); // Check every 5 seconds
+
+      return () => {
+          document.removeEventListener("visibilitychange", handleVisibilityChange);
+          clearInterval(statusInterval);
+      };
+  }, [user, handleSubmit]);
 
   const handleAnswerChange = (questionId: number, optionKey: string) => {
     setAnswers(new Map(answers.set(questionId, optionKey)));

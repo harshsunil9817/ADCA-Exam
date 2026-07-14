@@ -3,6 +3,7 @@
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc, writeBatch } from "firebase/firestore";
+import { getDatabase, ref, get, set, remove, update as dbUpdate } from "firebase/database";
 import type { Answer, Submission, User } from "@/lib/types";
 import { getPaperQuestions } from "@/actions/questions";
 import { markExamCompleted } from "@/actions/students";
@@ -15,7 +16,8 @@ const firebaseConfigApp = {
   projectId: "examplify-262mw",
   storageBucket: "examplify-262mw.firebasestorage.app",
   messagingSenderId: "644265344193",
-  appId: "1:644265344193:web:c3500be72fdc0aea77e840"
+  appId: "1:644265344193:web:c3500be72fdc0aea77e840",
+  databaseURL: "https://examplify-262mw-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 
 // Initialize app, checking if it already exists to avoid errors during hot-reloading.
@@ -89,6 +91,15 @@ export async function submitTest(answers: Answer[], user: User, paperId: string,
       console.error("🔥 FIREBASE ERROR (clearing assignedPaper):", error);
       // This part failing shouldn't block the submission from being recorded.
     }
+  }
+
+  // Clear live exam state
+  try {
+      const rtdb = getDatabase(primaryApp);
+      const liveExamRef = ref(rtdb, `liveExams/${user.id}`);
+      await remove(liveExamRef);
+  } catch (err) {
+      console.error("🔥 ERROR clearing live exam state:", err);
   }
 
 
@@ -198,4 +209,97 @@ export async function getSubmissionById(id: string): Promise<Submission | null> 
     console.error("Error fetching submission by ID:", error);
     return null;
   }
+}
+
+// -------------------------------------------------------------
+// LIVE EXAM ACTIONS
+// -------------------------------------------------------------
+
+export interface LiveExamState {
+    userId: string;
+    studentName: string;
+    enrollmentNumber: string;
+    paperId: string;
+    answeredCount: number;
+    totalQuestions: number;
+    status: 'in-progress' | 'terminated';
+    lastActive: number;
+}
+
+export async function updateLiveExamState(userId: string, data: Partial<LiveExamState>) {
+    try {
+        const rtdb = getDatabase(primaryApp);
+        const liveExamRef = ref(rtdb, `liveExams/${userId}`);
+        
+        // Use dbUpdate to merge new data
+        // For first time insert, we can use set, but dbUpdate will create it if not exist for the fields provided.
+        // Wait, dbUpdate throws if the node doesn't exist and you don't provide the full object at root.
+        // Let's use set with the full object if it doesn't exist, or just use update.
+        await dbUpdate(liveExamRef, {
+            ...data,
+            lastActive: Date.now()
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("🔥 ERROR (updateLiveExamState):", error);
+        return { success: false };
+    }
+}
+
+export async function initLiveExamState(data: LiveExamState) {
+    try {
+        const rtdb = getDatabase(primaryApp);
+        const liveExamRef = ref(rtdb, `liveExams/${data.userId}`);
+        await set(liveExamRef, {
+            ...data,
+            lastActive: Date.now()
+        });
+        return { success: true };
+    } catch (error) {
+        console.error("🔥 ERROR (initLiveExamState):", error);
+        return { success: false };
+    }
+}
+
+export async function checkLiveExamStatus(userId: string): Promise<string | null> {
+    try {
+        const rtdb = getDatabase(primaryApp);
+        const liveExamRef = ref(rtdb, `liveExams/${userId}/status`);
+        const snapshot = await get(liveExamRef);
+        if (snapshot.exists()) {
+            return snapshot.val() as string;
+        }
+        return null;
+    } catch (error) {
+        console.error("🔥 ERROR (checkLiveExamStatus):", error);
+        return null;
+    }
+}
+
+export async function terminateLiveExam(userId: string) {
+    try {
+        const rtdb = getDatabase(primaryApp);
+        const liveExamRef = ref(rtdb, `liveExams/${userId}`);
+        await dbUpdate(liveExamRef, { status: 'terminated' });
+        return { success: true };
+    } catch (error) {
+        console.error("🔥 ERROR (terminateLiveExam):", error);
+        return { success: false, error: 'Failed to terminate exam.' };
+    }
+}
+
+export async function getLiveExams(): Promise<LiveExamState[]> {
+    try {
+        const rtdb = getDatabase(primaryApp);
+        const liveExamsRef = ref(rtdb, `liveExams`);
+        const snapshot = await get(liveExamsRef);
+        
+        if (!snapshot.exists()) return [];
+        
+        const data = snapshot.val();
+        return Object.values(data) as LiveExamState[];
+    } catch (error) {
+        console.error("🔥 ERROR (getLiveExams):", error);
+        return [];
+    }
 }
