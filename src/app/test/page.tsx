@@ -69,19 +69,31 @@ export default function TestPage() {
     fetchQuestions();
 
     // Initialize live exam state
-    initLiveExamState({
-        userId: user.id,
-        studentName: user.name,
-        enrollmentNumber: user.id, // For student, id is enrollmentNumber
-        paperId: user.assignedPaper,
-        answeredCount: 0,
-        totalQuestions: 100, // Or whatever questions.length ends up being
-        status: 'in-progress',
-        lastActive: Date.now()
-    });
+    async function initializeLiveExam() {
+        const initResult = await initLiveExamState({
+            userId: user!.id,
+            studentName: user!.name,
+            enrollmentNumber: user!.id, 
+            paperId: user!.assignedPaper!,
+            answeredCount: 0,
+            totalQuestions: 100, 
+            status: 'in-progress',
+            lastActive: Date.now()
+        });
+
+        // If the database already had a session for this paper, it means the user reloaded (F5) or opened a new tab.
+        // We instantly terminate them.
+        if (initResult && !initResult.success && initResult.reason === 'already_started') {
+            if (isMounted) {
+                handleSubmit(true);
+            }
+        }
+    }
+    
+    initializeLiveExam();
 
     return () => { isMounted = false; };
-  }, [user, authLoading, router, toast]);
+  }, [user, authLoading, router, toast, handleSubmit]);
 
   const answeredCount = useMemo(() => {
     // We filter out empty/undefined answers before getting the size
@@ -103,6 +115,9 @@ export default function TestPage() {
   const currentQuestion = questions[currentQuestionIndex];
 
   const handleSubmit = useCallback(async (isTerminated = false) => {
+    if (isTerminated) {
+        setTerminated(true); // Instantly show termination UI, hiding the "Submitting..." text
+    }
     setIsSubmitting(true);
     if (!user || !user.assignedPaper) {
       toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in or no paper is assigned.' });
@@ -114,9 +129,8 @@ export default function TestPage() {
       const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
       const submissionId = await submitTest(answersArray, user, user.assignedPaper, questions.length);
       
-      if (isTerminated) {
-          setTerminated(true);
-      } else {
+      if (!isTerminated) {
+          // If terminated, we already showed the UI at the top, and we don't want to redirect them out.
           toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
           router.push(`/test/submitted?submissionId=${submissionId}`);
       }

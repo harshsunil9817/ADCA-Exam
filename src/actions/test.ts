@@ -246,10 +246,22 @@ export async function updateLiveExamState(userId: string, data: Partial<LiveExam
     }
 }
 
-export async function initLiveExamState(data: LiveExamState) {
+export async function initLiveExamState(data: LiveExamState): Promise<{ success: boolean; reason?: string }> {
     try {
         const rtdb = getDatabase(primaryApp);
         const liveExamRef = ref(rtdb, `liveExams/${data.userId}`);
+        
+        // Fetch current state to check if it's a reload/F5
+        const snapshot = await get(liveExamRef);
+        if (snapshot.exists()) {
+            const existing = snapshot.val() as LiveExamState;
+            // If the exam is already in progress or terminated for the SAME paper, it means the user reloaded!
+            if (existing.paperId === data.paperId) {
+                 await dbUpdate(liveExamRef, { status: 'terminated' });
+                 return { success: false, reason: 'already_started' };
+            }
+        }
+
         await set(liveExamRef, {
             ...data,
             lastActive: Date.now()
@@ -257,7 +269,7 @@ export async function initLiveExamState(data: LiveExamState) {
         return { success: true };
     } catch (error) {
         console.error("🔥 ERROR (initLiveExamState):", error);
-        return { success: false };
+        return { success: false, reason: 'error' };
     }
 }
 
