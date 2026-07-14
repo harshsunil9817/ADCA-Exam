@@ -112,6 +112,15 @@ export async function deleteSubmissionsForUser(userId: string): Promise<{ succes
   }
 
   try {
+    // Clear live exam state in RTDB so they aren't blocked from retaking
+    try {
+        const rtdb = getDatabase(primaryApp);
+        const liveExamRef = ref(rtdb, `liveExams/${userId}`);
+        await remove(liveExamRef);
+    } catch (err) {
+        console.error("🔥 ERROR clearing live exam state during deleteSubmissionsForUser:", err);
+    }
+
     const submissionsRef = collection(appDb, "submissions");
     const q = query(submissionsRef, where("userId", "==", userId));
     const querySnapshot = await getDocs(q);
@@ -139,6 +148,22 @@ export async function deleteSubmission(submissionId: string) {
     throw new Error("Submission ID is required.");
   }
   const submissionRef = doc(appDb, "submissions", submissionId);
+  
+  // Need to clear liveExams state for this user so they can retake the test
+  try {
+      const docSnap = await getDoc(submissionRef);
+      if (docSnap.exists()) {
+          const userId = docSnap.data().userId;
+          if (userId) {
+              const rtdb = getDatabase(primaryApp);
+              const liveExamRef = ref(rtdb, `liveExams/${userId}`);
+              await remove(liveExamRef);
+          }
+      }
+  } catch (error) {
+      console.error("🔥 ERROR clearing live exam state during deleteSubmission:", error);
+  }
+
   await deleteDoc(submissionRef);
 }
 

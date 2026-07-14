@@ -10,7 +10,8 @@ const firebaseConfigApp = {
   projectId: "examplify-262mw",
   storageBucket: "examplify-262mw.firebasestorage.app",
   messagingSenderId: "644265344193",
-  appId: "1:644265344193:web:c3500be72fdc0aea77e840"
+  appId: "1:644265344193:web:c3500be72fdc0aea77e840",
+  databaseURL: "https://examplify-262mw-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 // Config for the student data app
@@ -20,7 +21,8 @@ const firebaseConfigStudent = {
   projectId: "academyedge-h1a1s",
   storageBucket: "academyedge-h1a1s.firebasestorage.app",
   messagingSenderId: "966241306387",
-  appId: "1:966241306387:web:5eed5b9ddc3ec7ed843ce6"
+  appId: "1:966241306387:web:5eed5b9ddc3ec7ed843ce6",
+  databaseURL: "https://academyedge-h1a1s-default-rtdb.asia-southeast1.firebasedatabase.app"
 };
 
 // Initialize apps, checking if they already exist to avoid errors during hot-reloading.
