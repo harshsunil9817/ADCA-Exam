@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useAuth } from "@/context/auth-context";
@@ -39,6 +39,9 @@ export default function TestPage() {
   const [loadingQuestions, setLoadingQuestions] = useState(true);
   const [terminated, setTerminated] = useState(false);
   const { logout } = useAuth();
+  
+  // Track initialization to prevent re-running on state changes
+  const hasInitialized = useRef(false);
 
   const handleSubmit = useCallback(async (isTerminated = false) => {
     if (isTerminated) {
@@ -74,6 +77,9 @@ export default function TestPage() {
       router.push("/test/confirm");
       return;
     }
+
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
 
     let isMounted = true;
     async function fetchQuestions() {
@@ -121,7 +127,7 @@ export default function TestPage() {
     initializeLiveExam();
 
     return () => { isMounted = false; };
-  }, [user, authLoading, router, toast, handleSubmit]);
+  }, [user, authLoading, router, toast, logout]);
 
   const answeredCount = useMemo(() => {
     // We filter out empty/undefined answers before getting the size
