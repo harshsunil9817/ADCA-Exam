@@ -79,6 +79,12 @@ export default function LoginPage() {
                 title: "Login Failed",
                 description: "no test found NIELIT not assined any test for you",
             });
+         } else if (result.error === 'not_applied') {
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "You have not applied for this exam yet.",
+            });
          } else {
             toast({
                 variant: "destructive",

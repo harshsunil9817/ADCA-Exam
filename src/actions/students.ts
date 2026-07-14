@@ -2,7 +2,8 @@
 "use server";
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getFirestore, collection, getDocs, doc, deleteDoc, query, orderBy, where, addDoc, updateDoc } from "firebase/firestore";
+import { getFirestore, collection, getDocs, doc, deleteDoc, query as firestoreQuery, orderBy, where, addDoc, updateDoc } from "firebase/firestore";
+import { getDatabase, ref, query as dbQuery, orderByChild, equalTo, get } from "firebase/database";
 import type { Student, StudentDetails } from "@/lib/types";
 
 // Config for the student data app
@@ -12,7 +13,8 @@ const firebaseConfigStudent = {
   projectId: "academyedge-h1a1s",
   storageBucket: "academyedge-h1a1s.firebasestorage.app",
   messagingSenderId: "966241306387",
-  appId: "1:966241306387:web:5eed5b9ddc3ec7ed843ce6"
+  appId: "1:966241306387:web:5eed5b9ddc3ec7ed843ce6",
+  databaseURL: "https://academyedge-h1a1s-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 
 // Initialize app, checking if it already exists to avoid errors during hot-reloading.
@@ -25,7 +27,7 @@ export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
         // Get all students with courseName "ADCA"
-        const q = query(
+        const q = firestoreQuery(
             studentsCollection, 
             where("courseName", "==", "ADCA")
         );
@@ -65,12 +67,12 @@ export async function getStudentByEnrollment(enrollmentNumber: string, name?: st
         const studentsCollection = collection(studentDb, 'students');
         
         // First, try to find the student by their enrollment number.
-        let q = query(studentsCollection, where("enrollmentNumber", "==", enrollmentNumber));
+        let q = firestoreQuery(studentsCollection, where("enrollmentNumber", "==", enrollmentNumber));
         let snapshot = await getDocs(q);
         
         // If not found and a name is provided, fall back to searching by name.
         if (snapshot.empty && name) {
-            q = query(studentsCollection, where("name", "==", name));
+            q = firestoreQuery(studentsCollection, where("name", "==", name));
             snapshot = await getDocs(q);
         }
         
@@ -103,7 +105,7 @@ export async function addStudent(enrollmentNumber: string, name: string): Promis
     }
    
     try {
-        const q = query(collection(studentDb, 'students'), where("enrollmentNumber", "==", enrollmentNumber));
+        const q = firestoreQuery(collection(studentDb, 'students'), where("enrollmentNumber", "==", enrollmentNumber));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
             return { success: false, error: `Student with Enrollment Number ${enrollmentNumber} already exists.` };
@@ -160,7 +162,7 @@ export async function deleteStudent(docId: string): Promise<{ success: boolean; 
 export async function getStudentDetails(enrollmentNumber: string): Promise<StudentDetails | null> {
     try {
         const studentsRef = collection(studentDb, 'students');
-        const q = query(studentsRef, where("enrollmentNumber", "==", enrollmentNumber));
+        const q = firestoreQuery(studentsRef, where("enrollmentNumber", "==", enrollmentNumber));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
@@ -184,5 +186,23 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Stude
         const firebaseError = error as { code?: string; message?: string };
         console.error("🔥 FIREBASE ERROR (getStudentDetails):", firebaseError.code, firebaseError.message);
         return null;
+    }
+}
+
+// Checks if a student has already applied for the exam in Realtime Database
+export async function checkStudentApplied(enrollmentNumber: string): Promise<boolean> {
+    try {
+        const rtdb = getDatabase(studentApp);
+        const appliedExamsRef = ref(rtdb, 'appliedExams');
+        const q = dbQuery(appliedExamsRef, orderByChild('enrollmentNumber'), equalTo(enrollmentNumber));
+        const snapshot = await get(q);
+        
+        if (snapshot.exists()) {
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error("🔥 FIREBASE RTDB ERROR (checkStudentApplied):", error);
+        return false;
     }
 }

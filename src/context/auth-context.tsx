@@ -5,11 +5,11 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
-import { getStudentDetails } from '@/actions/students';
+import { getStudentDetails, checkStudentApplied } from '@/actions/students';
 
 interface AuthResult {
   user: User | null;
-  error?: 'password' | 'used' | 'generic' | 'no_test_assigned';
+  error?: 'password' | 'used' | 'generic' | 'no_test_assigned' | 'not_applied';
 }
 
 interface AuthContextType {
@@ -102,6 +102,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (!studentDetails.assignedPaper) {
       return { user: null, error: 'no_test_assigned' };
+    }
+
+    // Check if the student is in appliedExams
+    const isApplied = await checkStudentApplied(userId);
+    if (!isApplied) {
+      return { user: null, error: 'not_applied' };
     }
 
     // If all checks pass, create the user object with the assigned paper
