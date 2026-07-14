@@ -8,7 +8,7 @@ import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
 import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
-import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams, verifyApplication, type AppliedExam } from "@/actions/students";
+import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams, verifyApplication, authorizeStudentForPaper, type AppliedExam } from "@/actions/students";
 import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
 import { getPaperQuestions } from "@/actions/questions";
 import { cn } from "@/lib/utils";
@@ -412,7 +412,7 @@ function StudentRow({ student, submissions, papers, onUpdate, onRowClick, onDele
             return;
         }
         setIsAuthorizing(true);
-        const result = await updateStudent(student.docId, { assignedPaper: selectedPaper });
+        const result = await authorizeStudentForPaper(student.docId, student.enrollmentNumber, selectedPaper);
         if (result.success) {
             toast({ title: "Test Authorized", description: `Student ${student.name} is now authorized to take paper ${selectedPaper}.` });
             onUpdate(); // Refetch student list

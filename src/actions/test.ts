@@ -5,6 +5,7 @@ import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc, writeBatch } from "firebase/firestore";
 import type { Answer, Submission, User } from "@/lib/types";
 import { getPaperQuestions } from "@/actions/questions";
+import { markExamCompleted } from "@/actions/students";
 import { studentDb } from "@/lib/firebase";
 
 // Config for the primary app (submissions)
@@ -81,6 +82,9 @@ export async function submitTest(answers: Answer[], user: User, paperId: string,
     try {
       const studentRef = doc(studentDb, 'students', user.docId);
       await updateDoc(studentRef, { assignedPaper: "" });
+      
+      // Mark as completed in Realtime Database
+      await markExamCompleted(user.id, paperId);
     } catch (error) {
       console.error("🔥 FIREBASE ERROR (clearing assignedPaper):", error);
       // This part failing shouldn't block the submission from being recorded.

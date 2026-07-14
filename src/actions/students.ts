@@ -3,7 +3,7 @@
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, collection, getDocs, doc, deleteDoc, query as firestoreQuery, orderBy, where, addDoc, updateDoc } from "firebase/firestore";
-import { getDatabase, ref, query as dbQuery, orderByChild, equalTo, get } from "firebase/database";
+import { getDatabase, ref, query as dbQuery, orderByChild, equalTo, get, update as dbUpdate } from "firebase/database";
 import type { Student, StudentDetails } from "@/lib/types";
 
 export interface AppliedExam {
@@ -272,4 +272,67 @@ export async function verifyApplication(app: AppliedExam): Promise<{ success: bo
         return { success: false, error: 'Verification failed.' };
     }
 }
+
+// Authorize student from Admin UI directly
+export async function authorizeStudentForPaper(docId: string, enrollmentNumber: string, selectedPaper: string): Promise<{ success: boolean; error?: string }> {
+    try {
+        const rtdb = getDatabase(studentApp);
+        const appliedExamsRef = ref(rtdb, 'appliedExams');
+        const q = dbQuery(appliedExamsRef, orderByChild('enrollmentNumber'), equalTo(enrollmentNumber));
+        const snapshot = await get(q);
+        
+        if (!snapshot.exists()) {
+            return { success: false, error: "Student has not applied for any exams. Please apply it first." };
+        }
+        
+        const data = snapshot.val();
+        const entries = Object.entries(data);
+        
+        const matchingApp = entries.find(([key, val]: [string, any]) => val.paperName === selectedPaper);
+        
+        if (!matchingApp) {
+            return { success: false, error: `Student has not applied for paper ${selectedPaper}. Please apply it first.` };
+        }
+
+        const [appKey, appVal] = matchingApp;
+
+        // Update assigned paper in Firestore
+        const studentRef = doc(studentDb, 'students', docId);
+        await updateDoc(studentRef, { assignedPaper: selectedPaper });
+
+        // Set status to pending
+        const appRef = ref(rtdb, `appliedExams/${appKey}`);
+        await dbUpdate(appRef, { status: "pending" });
+
+        return { success: true };
+    } catch (error) {
+        console.error("🔥 ERROR (authorizeStudentForPaper):", error);
+        return { success: false, error: "Authorization failed due to server error." };
+    }
+}
+
+// Mark an applied exam as completed
+export async function markExamCompleted(enrollmentNumber: string, paperName: string) {
+    try {
+        const rtdb = getDatabase(studentApp);
+        const appliedExamsRef = ref(rtdb, 'appliedExams');
+        const q = dbQuery(appliedExamsRef, orderByChild('enrollmentNumber'), equalTo(enrollmentNumber));
+        const snapshot = await get(q);
+        
+        if (!snapshot.exists()) return;
+        
+        const data = snapshot.val();
+        const entries = Object.entries(data);
+        
+        const matchingApp = entries.find(([key, val]: [string, any]) => val.paperName === paperName);
+        if (matchingApp) {
+            const [appKey] = matchingApp;
+            const appRef = ref(rtdb, `appliedExams/${appKey}`);
+            await dbUpdate(appRef, { status: "completed" });
+        }
+    } catch (error) {
+        console.error("🔥 ERROR (markExamCompleted):", error);
+    }
+}
+
 
