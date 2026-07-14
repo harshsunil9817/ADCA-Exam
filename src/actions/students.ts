@@ -16,6 +16,7 @@ export interface AppliedExam {
   paperName: string;
   appliedAt: number;
   capturedPhoto: string;
+  authorized?: boolean;
 }
 
 // Config for the student data app

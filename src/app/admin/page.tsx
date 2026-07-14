@@ -8,7 +8,7 @@ import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
 import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser, getLiveExams, terminateLiveExam, type LiveExamState } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
-import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams, verifyApplication, authorizeStudentForPaper, type AppliedExam } from "@/actions/students";
+import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams, verifyApplication, type AppliedExam } from "@/actions/students";
 import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
 import { getPaperQuestions } from "@/actions/questions";
 import { cn } from "@/lib/utils";
