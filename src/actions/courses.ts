@@ -2,6 +2,7 @@
 
 import { appDb, studentDb } from "@/lib/firebase";
 import { collection, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
+import { saveQuestions } from "./questions";
 
 export interface Course {
   id: string;
@@ -96,6 +97,26 @@ export async function addPaperToCourse(courseName: string, paperInfo: PaperInfo)
       await updateDoc(paperDocRef, {
         papers: arrayUnion(paperInfo)
       });
+    }
+
+    // Attempt to download the JSON from the GitHub link
+    if (paperInfo.githubLink) {
+        try {
+            let rawUrl = paperInfo.githubLink;
+            // Convert standard GitHub link to Raw URL
+            if (rawUrl.includes("github.com") && rawUrl.includes("/blob/")) {
+                rawUrl = rawUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+            }
+            const res = await fetch(rawUrl);
+            if (res.ok) {
+                const jsonContent = await res.text();
+                await saveQuestions(paperInfo.name, jsonContent);
+            } else {
+                console.warn(`Failed to fetch from ${rawUrl}. Status: ${res.status}`);
+            }
+        } catch (e) {
+            console.error("Failed to automatically download questions:", e);
+        }
     }
 
     return { success: true };
