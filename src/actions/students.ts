@@ -6,6 +6,18 @@ import { getFirestore, collection, getDocs, doc, deleteDoc, query as firestoreQu
 import { getDatabase, ref, query as dbQuery, orderByChild, equalTo, get } from "firebase/database";
 import type { Student, StudentDetails } from "@/lib/types";
 
+export interface AppliedExam {
+  id: string;
+  enrollmentNumber: string;
+  studentName: string;
+  examId: string;
+  examDate: string;
+  examTime: string;
+  paperName: string;
+  appliedAt: number;
+  capturedPhoto: string;
+}
+
 // Config for the student data app
 const firebaseConfigStudent = {
   apiKey: "AIzaSyB1U0qRrjlp1VIIBpIe-0rFbUpu1or30P8",
@@ -206,3 +218,58 @@ export async function checkStudentApplied(enrollmentNumber: string): Promise<boo
         return false;
     }
 }
+
+// Fetches all applied exams from Realtime Database
+export async function getAppliedExams(): Promise<AppliedExam[]> {
+    try {
+        const rtdb = getDatabase(studentApp);
+        const appliedExamsRef = ref(rtdb, 'appliedExams');
+        const snapshot = await get(appliedExamsRef);
+        
+        if (!snapshot.exists()) return [];
+        
+        const data = snapshot.val();
+        return Object.entries(data).map(([key, val]: [string, any]) => ({
+            id: key,
+            enrollmentNumber: val.enrollmentNumber || '',
+            studentName: val.studentName || '',
+            examId: val.examId || '',
+            examDate: val.examDate || '',
+            examTime: val.examTime || '',
+            paperName: val.paperName || '',
+            appliedAt: val.appliedAt || 0,
+            capturedPhoto: val.capturedPhoto || '',
+        })).sort((a, b) => b.appliedAt - a.appliedAt);
+    } catch (error) {
+        console.error("🔥 FIREBASE RTDB ERROR (getAppliedExams):", error);
+        return [];
+    }
+}
+
+// Verifies an application by creating/updating the student in Firestore
+export async function verifyApplication(app: AppliedExam): Promise<{ success: boolean; error?: string }> {
+    try {
+        let student = await getStudentByEnrollment(app.enrollmentNumber);
+        
+        if (!student) {
+            const addResult = await addStudent(app.enrollmentNumber, app.studentName);
+            if (!addResult.success) {
+                return addResult;
+            }
+            student = await getStudentByEnrollment(app.enrollmentNumber);
+        }
+        
+        if (student) {
+            const updateResult = await updateStudent(student.docId, { assignedPaper: app.paperName });
+            if (!updateResult.success) {
+                return updateResult;
+            }
+            return { success: true };
+        }
+        return { success: false, error: 'Could not find or create student.' };
+    } catch (error) {
+        console.error("🔥 ERROR (verifyApplication):", error);
+        return { success: false, error: 'Verification failed.' };
+    }
+}
+

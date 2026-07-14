@@ -8,7 +8,7 @@ import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
 import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
-import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
+import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams, verifyApplication, type AppliedExam } from "@/actions/students";
 import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
 import { getPaperQuestions } from "@/actions/questions";
 import { cn } from "@/lib/utils";
@@ -743,6 +743,88 @@ function StudentManager({ students, submissions, papers, loading, onUpdate, onSt
     );
 }
 
+interface ApplicationsManagerProps {
+  applications: AppliedExam[];
+  loading: boolean;
+  onUpdate: () => void;
+}
+
+function ApplicationsManager({ applications, loading, onUpdate }: ApplicationsManagerProps) {
+    const { toast } = useToast();
+    const [isVerifying, setIsVerifying] = useState<string | null>(null);
+
+    const handleVerify = async (app: AppliedExam) => {
+        setIsVerifying(app.id);
+        const result = await verifyApplication(app);
+        if (result.success) {
+            toast({ title: "Application Verified", description: `Student ${app.studentName} has been authorized for paper ${app.paperName}.` });
+            onUpdate();
+        } else {
+            toast({ variant: "destructive", title: "Verification Failed", description: result.error });
+        }
+        setIsVerifying(null);
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><CheckCircle /> Applied Exams</CardTitle>
+                <CardDescription>Verify student applications and authorize them for the exam.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Student Name</TableHead>
+                            <TableHead>Enrollment #</TableHead>
+                            <TableHead>Exam ID</TableHead>
+                            <TableHead>Date & Time</TableHead>
+                            <TableHead>Paper</TableHead>
+                            <TableHead>Photo</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {loading ? (
+                            <TableRow><TableCell colSpan={7} className="text-center h-24"><Loader2 className="h-6 w-6 animate-spin mx-auto" /></TableCell></TableRow>
+                        ) : applications.length > 0 ? (
+                            applications.map((app) => (
+                                <TableRow key={app.id}>
+                                    <TableCell className="font-medium">{app.studentName}</TableCell>
+                                    <TableCell className="font-mono">{app.enrollmentNumber}</TableCell>
+                                    <TableCell className="font-mono">{app.examId}</TableCell>
+                                    <TableCell>{app.examDate} <br/><span className="text-xs text-muted-foreground">{app.examTime}</span></TableCell>
+                                    <TableCell><Badge variant="secondary">{app.paperName}</Badge></TableCell>
+                                    <TableCell>
+                                        {app.capturedPhoto ? (
+                                            <img src={app.capturedPhoto} alt="Student Photo" className="w-12 h-12 rounded object-cover" />
+                                        ) : (
+                                            <span className="text-muted-foreground text-xs">No Photo</span>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <Button 
+                                            size="sm" 
+                                            onClick={() => handleVerify(app)}
+                                            disabled={isVerifying === app.id}
+                                        >
+                                            {isVerifying === app.id ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                            Verify & Authorize
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={7} className="text-center h-24">No applications found.</TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+    );
+}
 
 // Main Admin Page
 export default function AdminPage() {
@@ -750,6 +832,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [applications, setApplications] = useState<AppliedExam[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [activeTab, setActiveTab] = useState("students");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
@@ -761,11 +844,12 @@ export default function AdminPage() {
   const fetchData = async (courseIdToFetch: string) => {
     setIsLoadingData(true);
     try {
-      const [subs, studentList, papersList, coursesList] = await Promise.all([
+      const [subs, studentList, papersList, coursesList, appsList] = await Promise.all([
         getSubmissions(),
         getStudents(),
         getCoursePapers(courseIdToFetch),
         getCourses(),
+        getAppliedExams(),
       ]);
 
       const submissionsToUpdate = subs.filter(sub => !sub.paperId);
@@ -781,6 +865,7 @@ export default function AdminPage() {
       setStudents(studentList);
       setCoursePapers(papersList);
       setGlobalCourses(coursesList);
+      setApplications(appsList);
     } catch (error) {
       console.error("Error fetching or updating data: ", error);
       toast({
@@ -855,8 +940,9 @@ export default function AdminPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
+          <TabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto">
               <TabsTrigger value="students">Manage Students</TabsTrigger>
+              <TabsTrigger value="applications">Applied Exams</TabsTrigger>
               <TabsTrigger value="submissions">Submissions</TabsTrigger>
               <TabsTrigger value="questions">Questions</TabsTrigger>
               <TabsTrigger value="courses">Courses</TabsTrigger>
@@ -871,6 +957,13 @@ export default function AdminPage() {
                 onStudentSelect={handleStudentSelect}
                 selectedStudent={selectedStudent}
             />
+          </TabsContent>
+          <TabsContent value="applications" className="mt-6">
+              <ApplicationsManager 
+                  applications={applications} 
+                  loading={isLoadingData} 
+                  onUpdate={() => fetchData(selectedAdminCourseId)} 
+              />
           </TabsContent>
           <TabsContent value="submissions" className="mt-6">
             <SubmissionsList 
