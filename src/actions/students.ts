@@ -201,8 +201,7 @@ export async function getStudentDetails(enrollmentNumber: string): Promise<Stude
     }
 }
 
-// Checks if a student has already applied for the exam in Realtime Database with a specific examId
-export async function checkStudentApplied(enrollmentNumber: string, examId: string): Promise<boolean> {
+export async function checkStudentApplied(enrollmentNumber: string, examId: string): Promise<{ applied: boolean; authorized: boolean; paperName: string } | null> {
     try {
         const rtdb = getDatabase(studentApp);
         const appliedExamsRef = ref(rtdb, 'appliedExams');
@@ -212,12 +211,19 @@ export async function checkStudentApplied(enrollmentNumber: string, examId: stri
         if (snapshot.exists()) {
             const data = snapshot.val();
             const entries = Object.values(data) as any[];
-            return entries.some(app => String(app.examId) === String(examId));
+            const app = entries.find(a => String(a.examId) === String(examId));
+            if (app) {
+                return {
+                    applied: true,
+                    authorized: !!app.authorized,
+                    paperName: app.paperName || ''
+                };
+            }
         }
-        return false;
+        return null;
     } catch (error) {
         console.error("🔥 FIREBASE RTDB ERROR (checkStudentApplied):", error);
-        return false;
+        return null;
     }
 }
 
@@ -241,6 +247,7 @@ export async function getAppliedExams(): Promise<AppliedExam[]> {
             paperName: val.paperName || '',
             appliedAt: val.appliedAt || 0,
             capturedPhoto: val.capturedPhoto || '',
+            authorized: !!val.authorized,
         })).sort((a, b) => b.appliedAt - a.appliedAt);
     } catch (error) {
         console.error("🔥 FIREBASE RTDB ERROR (getAppliedExams):", error);
@@ -266,50 +273,23 @@ export async function verifyApplication(app: AppliedExam): Promise<{ success: bo
             if (!updateResult.success) {
                 return updateResult;
             }
+            
+            // Mark the application as authorized in RTDB
+            try {
+                const rtdb = getDatabase(studentApp);
+                const appRef = ref(rtdb, `appliedExams/${app.id}`);
+                await dbUpdate(appRef, { authorized: true });
+            } catch (err) {
+                console.error("🔥 RTDB Error updating authorized status:", err);
+                return { success: false, error: 'Failed to authorize in RTDB.' };
+            }
+            
             return { success: true };
         }
         return { success: false, error: 'Could not find or create student.' };
     } catch (error) {
         console.error("🔥 ERROR (verifyApplication):", error);
         return { success: false, error: 'Verification failed.' };
-    }
-}
-
-// Authorize student from Admin UI directly
-export async function authorizeStudentForPaper(docId: string, enrollmentNumber: string, selectedPaper: string): Promise<{ success: boolean; error?: string }> {
-    try {
-        const rtdb = getDatabase(studentApp);
-        const appliedExamsRef = ref(rtdb, 'appliedExams');
-        const q = dbQuery(appliedExamsRef, orderByChild('enrollmentNumber'), equalTo(enrollmentNumber));
-        const snapshot = await get(q);
-        
-        if (!snapshot.exists()) {
-            return { success: false, error: "Student has not applied for any exams. Please apply it first." };
-        }
-        
-        const data = snapshot.val();
-        const entries = Object.entries(data);
-        
-        const matchingApp = entries.find(([key, val]: [string, any]) => val.paperName === selectedPaper);
-        
-        if (!matchingApp) {
-            return { success: false, error: `Student has not applied for paper ${selectedPaper}. Please apply it first.` };
-        }
-
-        const [appKey, appVal] = matchingApp;
-
-        // Update assigned paper in Firestore
-        const studentRef = doc(studentDb, 'students', docId);
-        await updateDoc(studentRef, { assignedPaper: selectedPaper });
-
-        // Set status to pending
-        const appRef = ref(rtdb, `appliedExams/${appKey}`);
-        await dbUpdate(appRef, { status: "pending" });
-
-        return { success: true };
-    } catch (error) {
-        console.error("🔥 ERROR (authorizeStudentForPaper):", error);
-        return { success: false, error: "Authorization failed due to server error." };
     }
 }
 

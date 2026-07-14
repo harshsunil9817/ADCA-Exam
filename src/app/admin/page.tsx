@@ -427,31 +427,6 @@ interface StudentRowProps {
 }
 
 function StudentRow({ student, submissions, papers, onUpdate, onRowClick, onDelete, onEdit, isSelected }: StudentRowProps) {
-    const [selectedPaper, setSelectedPaper] = useState("");
-    const [isAuthorizing, setIsAuthorizing] = useState(false);
-    const { toast } = useToast();
-
-    const completedPapers = useMemo(() => {
-        return submissions.map(s => s.paperId);
-    }, [submissions]);
-
-    const handleAuthorize = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (!selectedPaper) {
-            toast({ variant: "destructive", title: "No Paper Selected", description: "Please select a paper to authorize." });
-            return;
-        }
-        setIsAuthorizing(true);
-        const result = await authorizeStudentForPaper(student.docId, student.enrollmentNumber, selectedPaper);
-        if (result.success) {
-            toast({ title: "Test Authorized", description: `Student ${student.name} is now authorized to take paper ${selectedPaper}.` });
-            onUpdate(); // Refetch student list
-        } else {
-            toast({ variant: "destructive", title: "Authorization Failed", description: result.error });
-        }
-        setIsAuthorizing(false);
-    };
-
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
         onDelete(student);
@@ -476,25 +451,6 @@ function StudentRow({ student, submissions, papers, onUpdate, onRowClick, onDele
             </TableCell>
             <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                 <div className="flex gap-2 justify-end items-center">
-                    <Select value={selectedPaper} onValueChange={setSelectedPaper}>
-                        <SelectTrigger className="w-[120px] h-9">
-                            <SelectValue placeholder="Select Paper" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {papers.length === 0 ? (
-                                <SelectItem value="none" disabled>No papers available</SelectItem>
-                            ) : (
-                                papers.map(p => (
-                                    <SelectItem key={p.name} value={p.name} disabled={completedPapers.includes(p.name)}>
-                                        {p.name}
-                                    </SelectItem>
-                                ))
-                            )}
-                        </SelectContent>
-                    </Select>
-                    <Button onClick={handleAuthorize} disabled={isAuthorizing || !selectedPaper} size="sm">
-                        {isAuthorizing ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Authorize'}
-                    </Button>
                     <Button onClick={handleEdit} variant="outline" size="icon" className="h-9 w-9" title="Edit Student">
                         <Edit className="h-4 w-4" />
                         <span className="sr-only">Edit Student</span>
@@ -836,10 +792,10 @@ function ApplicationsManager({ applications, loading, onUpdate }: ApplicationsMa
                                         <Button 
                                             size="sm" 
                                             onClick={() => handleVerify(app)}
-                                            disabled={isVerifying === app.id}
+                                            disabled={isVerifying === app.id || app.authorized}
                                         >
                                             {isVerifying === app.id ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                            Verify & Authorize
+                                            {app.authorized ? "Allowed" : "Verify & Authorize"}
                                         </Button>
                                     </TableCell>
                                 </TableRow>

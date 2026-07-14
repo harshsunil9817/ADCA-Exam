@@ -109,10 +109,11 @@ export default function TestPage() {
         });
 
         // If the database already had a session for this paper, it means the user reloaded (F5) or opened a new tab.
-        // We instantly terminate them.
+        // We instantly terminate them and log them out so they are thrown out of the portal.
         if (initResult && !initResult.success && initResult.reason === 'already_started') {
             if (isMounted) {
-                handleSubmit(true);
+                toast({ variant: 'destructive', title: 'Session Revoked', description: 'Exam already started or terminated. You have been logged out.' });
+                logout();
             }
         }
     }

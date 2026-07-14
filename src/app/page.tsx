@@ -84,7 +84,13 @@ export default function LoginPage() {
             toast({
                 variant: "destructive",
                 title: "Login Failed",
-                description: "You have not applied for this exam yet, or the Exam ID is incorrect.",
+                description: "Invalid Exam ID, or exam is not yet authorized by admin.",
+            });
+         } else if (result.error === 'already_active') {
+            toast({
+                variant: "destructive",
+                title: "Access Denied",
+                description: "You have a pending or terminated exam session. Please contact your admin.",
             });
          } else {
             toast({
