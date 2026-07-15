@@ -49,20 +49,33 @@ export async function getPaperQuestions(paperId: string): Promise<any[]> {
             throw new Error("Invalid paper ID specified.");
         }
         
-        // Use case-insensitive file matching to prevent errors on Linux/WSL
-        const dirPath = path.join(process.cwd(), 'src/data');
-        const files = await fs.readdir(dirPath);
-        const targetFile = `${paperId}.json`.toLowerCase();
-        const matchedFile = files.find(f => f.toLowerCase() === targetFile);
-        
-        if (!matchedFile) {
-            throw new Error(`File not found for paper ${paperId}`);
+        // VERCEL FIX: Use dynamic import to force Webpack to bundle all JSON files in the data folder.
+        try {
+            // First try exact match (this works perfectly if the case matches)
+            const module = await import(`@/data/${paperId}.json`);
+            if (module && module.default) {
+                return Array.isArray(module.default) ? module.default : [];
+            }
+        } catch (importError) {
+            console.log(`Dynamic import failed for ${paperId}.json, falling back to fs...`);
+            
+            // If the exact case fails (e.g. Linux case sensitivity), fallback to fs.readdir
+            // next.config.ts has outputFileTracingIncludes so the folder will be present on Vercel.
+            const dirPath = path.join(process.cwd(), 'src/data');
+            const files = await fs.readdir(dirPath);
+            const targetFile = `${paperId}.json`.toLowerCase();
+            const matchedFile = files.find(f => f.toLowerCase() === targetFile);
+            
+            if (!matchedFile) {
+                throw new Error(`File not found for paper ${paperId}`);
+            }
+            
+            const filePath = path.join(dirPath, matchedFile);
+            const fileContent = await fs.readFile(filePath, 'utf-8');
+            const parsed = JSON.parse(fileContent);
+            return Array.isArray(parsed) ? parsed : [];
         }
-        
-        const filePath = path.join(dirPath, matchedFile);
-        const fileContent = await fs.readFile(filePath, 'utf-8');
-        const parsed = JSON.parse(fileContent);
-        return Array.isArray(parsed) ? parsed : [];
+        return [];
     } catch (error) {
         console.error(`Error fetching questions for paper ${paperId}:`, error);
         return [];
