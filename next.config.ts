@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  outputFileTracingIncludes: {
+    '/*': ['./src/data/**/*'],
+    '/test/**/*': ['./src/data/**/*'],
+    '/admin/**/*': ['./src/data/**/*'],
+    '/api/**/*': ['./src/data/**/*'],
+  },
 
   images: {
     remotePatterns: [

@@ -8,8 +8,8 @@ import path from 'path';
 // It's a server action that can be called from client components.
 export async function saveQuestions(paperId: string, jsonString: string): Promise<{ success: boolean; error?: string }> {
     try {
-        // Check if paperId is somewhat valid (alphanumeric) to prevent path traversal
-        if (!/^[a-zA-Z0-9_-]+$/.test(paperId)) {
+        // Check if paperId is somewhat valid (alphanumeric and spaces) to prevent path traversal
+        if (paperId.includes('..') || paperId.includes('/')) {
             return { success: false, error: "Invalid paper ID specified." };
         }
 
@@ -21,7 +21,7 @@ export async function saveQuestions(paperId: string, jsonString: string): Promis
         }
         
         // Define the path to the specific paper's JSON file
-        const filePath = path.join(process.cwd(), `src/data/${paperId.toLowerCase()}.json`);
+        const filePath = path.join(process.cwd(), `src/data/${paperId}.json`);
 
         // Re-stringify with formatting to ensure the saved file is readable.
         const formattedJson = JSON.stringify(parsedQuestions, null, 2);
@@ -45,14 +45,37 @@ export async function saveQuestions(paperId: string, jsonString: string): Promis
 // Fetch the questions for a specific paper dynamically
 export async function getPaperQuestions(paperId: string): Promise<any[]> {
     try {
-        if (!/^[a-zA-Z0-9_-]+$/.test(paperId)) {
+        if (paperId.includes('..') || paperId.includes('/')) {
             throw new Error("Invalid paper ID specified.");
         }
         
-        const filePath = path.join(process.cwd(), `src/data/${paperId.toLowerCase()}.json`);
-        const fileContent = await fs.readFile(filePath, 'utf-8');
-        const parsed = JSON.parse(fileContent);
-        return Array.isArray(parsed) ? parsed : [];
+        // VERCEL FIX: Use dynamic import to force Webpack to bundle all JSON files in the data folder.
+        try {
+            // First try exact match (this works perfectly if the case matches)
+            const module = await import(`@/data/${paperId}.json`);
+            if (module && module.default) {
+                return Array.isArray(module.default) ? module.default : [];
+            }
+        } catch (importError) {
+            console.log(`Dynamic import failed for ${paperId}.json, falling back to fs...`);
+            
+            // If the exact case fails (e.g. Linux case sensitivity), fallback to fs.readdir
+            // next.config.ts has outputFileTracingIncludes so the folder will be present on Vercel.
+            const dirPath = path.join(process.cwd(), 'src/data');
+            const files = await fs.readdir(dirPath);
+            const targetFile = `${paperId}.json`.toLowerCase();
+            const matchedFile = files.find(f => f.toLowerCase() === targetFile);
+            
+            if (!matchedFile) {
+                throw new Error(`File not found for paper ${paperId}`);
+            }
+            
+            const filePath = path.join(dirPath, matchedFile);
+            const fileContent = await fs.readFile(filePath, 'utf-8');
+            const parsed = JSON.parse(fileContent);
+            return Array.isArray(parsed) ? parsed : [];
+        }
+        return [];
     } catch (error) {
         console.error(`Error fetching questions for paper ${paperId}:`, error);
         return [];
