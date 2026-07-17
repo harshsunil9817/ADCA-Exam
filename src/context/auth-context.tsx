@@ -85,12 +85,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (userId: string, password_input: string): Promise<AuthResult> => {
     const cleanPassword = password_input.trim();
+    // Hardcoded fallback admin check
+    if (userId.toLowerCase() === 'admin' && cleanPassword === 'sunil8896') {
+      const adminUser: User = {
+        id: 'admin',
+        userId: 'admin',
+        docId: 'admin',
+        name: 'Admin User',
+        role: 'admin',
+        assignedPaper: ''
+      };
+      sessionStorage.setItem('user', JSON.stringify(adminUser));
+      setUser(adminUser);
+      return { user: adminUser };
+    }
+
     // Admin check using the new users collection
     if (cleanPassword === 'sunil8896' || cleanPassword.length > 5) {
       const adminDetails = await getAdminUser(userId);
       if (adminDetails) {
         // Authenticated as Admin
-        // If they provided uid as password, verify it, otherwise allow sunil8896 as fallback
         if (cleanPassword === 'sunil8896' || cleanPassword === adminDetails.uid) {
            const adminUser: User = {
              id: adminDetails.uid,
@@ -103,6 +117,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
            sessionStorage.setItem('user', JSON.stringify(adminUser));
            setUser(adminUser);
            return { user: adminUser };
+        } else {
+           return { user: null, error: 'password' };
         }
       }
     }

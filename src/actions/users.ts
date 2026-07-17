@@ -17,7 +17,7 @@ export interface AdminUser {
 // Fetch admin user by mobile or email
 export async function getAdminUser(userId: string): Promise<AdminUser | null> {
   try {
-    const usersCol = collection(appDb, "users");
+    const usersCol = collection(appDb, "user");
     
     // Check if the user is trying to log in using mobile
     let q = query(usersCol, where("mobile", "==", userId));
