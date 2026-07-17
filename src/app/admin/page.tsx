@@ -13,6 +13,7 @@ import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/course
 import { getPaperQuestions } from "@/actions/questions";
 import { cn } from "@/lib/utils";
 import { CourseManager } from "./CourseManager";
+import { PaperManager } from "./PaperManager";
 
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -751,7 +752,7 @@ export default function AdminPage() {
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState("students");
+  const [activeTab, setActiveTab] = useState("results");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [globalCourses, setGlobalCourses] = useState<Course[]>([]);
   const [selectedAdminCourseId, setSelectedAdminCourseId] = useState<string>('adca');
@@ -855,24 +856,11 @@ export default function AdminPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
-              <TabsTrigger value="students">Manage Students</TabsTrigger>
-              <TabsTrigger value="submissions">Submissions</TabsTrigger>
-              <TabsTrigger value="questions">Questions</TabsTrigger>
-              <TabsTrigger value="courses">Courses</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+              <TabsTrigger value="results">Results</TabsTrigger>
+              <TabsTrigger value="paper">Paper</TabsTrigger>
           </TabsList>
-          <TabsContent value="students" className="mt-6">
-            <StudentManager 
-                students={students} 
-                submissions={submissions}
-                papers={coursePapers}
-                loading={isLoadingData} 
-                onUpdate={() => fetchData(selectedAdminCourseId)}
-                onStudentSelect={handleStudentSelect}
-                selectedStudent={selectedStudent}
-            />
-          </TabsContent>
-          <TabsContent value="submissions" className="mt-6">
+          <TabsContent value="results" className="mt-6">
             <SubmissionsList 
                 submissions={submissions}
                 papers={coursePapers}
@@ -882,11 +870,11 @@ export default function AdminPage() {
                 onClearFilter={handleClearFilter}
             />
           </TabsContent>
-          <TabsContent value="questions" className="mt-6">
-              <QuestionEditor papers={coursePapers} />
-          </TabsContent>
-          <TabsContent value="courses" className="mt-6">
-              <CourseManager />
+          <TabsContent value="paper" className="mt-6">
+              <PaperManager 
+                  courses={globalCourses} 
+                  onUpdate={() => fetchData(selectedAdminCourseId)} 
+              />
           </TabsContent>
       </Tabs>
 

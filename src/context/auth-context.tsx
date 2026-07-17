@@ -6,6 +6,8 @@ import { useRouter, usePathname } from 'next/navigation';
 import type { User } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { getStudentDetails } from '@/actions/students';
+import { getAdminUser } from '@/actions/users';
+import { getAssignedExam } from '@/actions/exams';
 
 interface AuthResult {
   user: User | null;
@@ -16,6 +18,7 @@ interface AuthContextType {
   user: User | null;
   login: (userId: string, password: string) => Promise<AuthResult>;
   logout: () => void;
+  verifyExamCode: (code: string) => boolean;
   loading: boolean;
 }
 
@@ -55,13 +58,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (user.role === 'admin') {
           router.push('/admin');
         } else {
-          router.push('/test/confirm');
+          if (!user.isExamCodeVerified) {
+             router.push('/test/enter-code');
+          } else {
+             router.push('/test/confirm');
+          }
         }
       } else {
         if (user.role === 'admin' && !pathname.startsWith('/admin') && !pathname.startsWith('/results')) {
           router.push('/admin');
         } else if (user.role === 'student' && !pathname.startsWith('/test')) {
-          router.push('/test/confirm');
+          if (!user.isExamCodeVerified) {
+             router.push('/test/enter-code');
+          } else {
+             router.push('/test/confirm');
+          }
         }
       }
     } else {
@@ -74,19 +85,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (userId: string, password_input: string): Promise<AuthResult> => {
     const cleanPassword = password_input.trim();
-    // Admin check first
-    if (cleanPassword === 'sunil8896') {
-      const adminUser: User = {
-        id: 'admin',
-        userId: 'admin',
-        docId: 'admin',
-        name: 'Admin',
-        role: 'admin',
-        assignedPaper: '' // Admin doesn't have one
-      };
-      sessionStorage.setItem('user', JSON.stringify(adminUser));
-      setUser(adminUser);
-      return { user: adminUser };
+    // Admin check using the new users collection
+    if (cleanPassword === 'sunil8896' || cleanPassword.length > 5) {
+      const adminDetails = await getAdminUser(userId);
+      if (adminDetails) {
+        // Authenticated as Admin
+        // If they provided uid as password, verify it, otherwise allow sunil8896 as fallback
+        if (cleanPassword === 'sunil8896' || cleanPassword === adminDetails.uid) {
+           const adminUser: User = {
+             id: adminDetails.uid,
+             userId: adminDetails.mobile,
+             docId: adminDetails.uid,
+             name: adminDetails.name,
+             role: 'admin',
+             assignedPaper: '' // Admin doesn't have one
+           };
+           sessionStorage.setItem('user', JSON.stringify(adminUser));
+           setUser(adminUser);
+           return { user: adminUser };
+        }
+      }
     }
 
     // Student password check (universal password)
@@ -94,32 +112,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { user: null, error: 'password' };
     }
 
-    // Check if student exists in the student database and get details
-    const studentDetails = await getStudentDetails(userId);
-    if (!studentDetails) {
-      return { user: null, error: 'generic' };
-    }
-
-    if (!studentDetails.assignedPaper) {
+    // Check if student has an assigned exam in the new collection
+    const authData = await getAssignedExam(userId);
+    if (!authData || !authData.assignedExam) {
       return { user: null, error: 'no_test_assigned' };
     }
+
+    const { assignedExam, studentDetails } = authData;
 
     // If all checks pass, create the user object with the assigned paper
     const loggedInUser: User = {
       id: userId,
-      docId: studentDetails.docId,
-      name: studentDetails.name,
+      docId: studentDetails?.docId || userId,
+      name: studentDetails?.name || userId,
       userId: userId,
       role: 'student',
-      fatherName: studentDetails.fatherName,
-      dob: studentDetails.dob,
-      assignedPaper: studentDetails.assignedPaper,
-      photoUrl: studentDetails.photoUrl,
+      fatherName: studentDetails?.fatherName,
+      dob: studentDetails?.dob,
+      assignedPaper: assignedExam.examName,
+      photoUrl: studentDetails?.photoUrl,
+      examCode: assignedExam.examCode,
+      isExamCodeVerified: false
     };
 
     sessionStorage.setItem('user', JSON.stringify(loggedInUser));
     setUser(loggedInUser);
     return { user: loggedInUser };
+  };
+
+  const verifyExamCode = (code: string) => {
+    if (user && user.role === 'student' && user.examCode === code) {
+      const updatedUser = { ...user, isExamCodeVerified: true };
+      sessionStorage.setItem('user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
+      router.push('/test/confirm');
+      return true;
+    }
+    return false;
   };
 
   const logout = () => {
@@ -138,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, verifyExamCode, loading }}>
       {children}
     </AuthContext.Provider>
   );

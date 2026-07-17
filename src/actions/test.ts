@@ -195,3 +195,102 @@ export async function getSubmissionById(id: string): Promise<Submission | null> 
     return null;
   }
 }
+
+// Start an ongoing exam
+export async function startExam(userId: string, studentName: string, paperId: string, totalQuestions: number): Promise<string> {
+  const submissionData = {
+    userId,
+    studentName,
+    paperId,
+    date: Date.now(),
+    answers: [],
+    score: 0,
+    totalQuestions,
+    attemptedQuestions: 0,
+    notAttemptedQuestions: totalQuestions,
+    correctAnswers: 0,
+    incorrectAnswers: 0,
+    percentage: 0,
+    incorrectAnswerDetails: [],
+    status: "ongoing", // new field for tracking status
+  };
+
+  const docRef = await addDoc(collection(appDb, "submissions"), submissionData);
+  return docRef.id;
+}
+
+// Sync answers for an ongoing exam
+export async function syncAnswers(submissionId: string, answers: Answer[]): Promise<{ success: boolean; error?: string }> {
+  try {
+    const submissionRef = doc(appDb, "submissions", submissionId);
+    await updateDoc(submissionRef, {
+      answers,
+      attemptedQuestions: answers.length
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error syncing answers:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Finish an exam (either normally or terminated due to cheating)
+export async function finishExam(submissionId: string, answers: Answer[], paperId: string, totalQuestions: number, status: "completed" | "failed", reason?: string) {
+  const questions = await getPaperQuestions(paperId);
+  if (!questions || questions.length === 0) {
+    throw new Error(`Paper with ID '${paperId}' not found.`);
+  }
+
+  let score = 0;
+  let correctAnswers = 0;
+  let incorrectAnswers = 0;
+  const incorrectAnswerDetails: any[] = [];
+
+  const questionMap = new Map(questions.map((q) => [q.id, q]));
+
+  answers.forEach((answer) => {
+    const question = questionMap.get(answer.questionId);
+    if (question) {
+      if (answer.selectedOption === question.correct_option) {
+        score++;
+        correctAnswers++;
+      } else {
+        incorrectAnswers++;
+        incorrectAnswerDetails.push({
+          question_en: question.question_en,
+          question_hi: question.question_hi,
+          correct_option: question.options[question.correct_option].en,
+          userSelectedAnswer: question.options[answer.selectedOption]?.en || "Not Answered",
+          topic: question.topic,
+        });
+      }
+    }
+  });
+
+  const attemptedQuestions = answers.length;
+  const notAttemptedQuestions = totalQuestions - attemptedQuestions;
+  const percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+
+  const updateData: any = {
+    date: Date.now(),
+    answers,
+    score,
+    totalQuestions,
+    attemptedQuestions,
+    notAttemptedQuestions,
+    correctAnswers,
+    incorrectAnswers,
+    percentage,
+    incorrectAnswerDetails,
+    status,
+  };
+
+  if (reason) {
+    updateData.reason = reason;
+  }
+
+  const submissionRef = doc(appDb, "submissions", submissionId);
+  await updateDoc(submissionRef, updateData);
+
+  return submissionId;
+}

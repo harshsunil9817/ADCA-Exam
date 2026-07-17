@@ -3,9 +3,16 @@
 import { appDb, studentDb } from "@/lib/firebase";
 import { collection, getDocs, doc, getDoc, setDoc, updateDoc, arrayUnion } from "firebase/firestore";
 
+export interface CourseExamFee {
+  amount: number;
+  name: string;
+  url?: string;
+}
+
 export interface Course {
   id: string;
   name: string;
+  examFees?: CourseExamFee[];
   [key: string]: any;
 }
 
@@ -126,5 +133,36 @@ export async function deletePaperFromCourse(courseName: string, paperName: strin
   } catch (error: any) {
     console.error(`Error deleting paper from course ${courseName}:`, error);
     return { success: false, error: error.message || "Failed to delete paper." };
+  }
+}
+
+// Update the url of an existing examFee paper in the courses collection
+export async function updateCourseExamFeeUrl(courseId: string, paperName: string, url: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const courseRef = doc(appDb, "courses", courseId);
+    const courseDoc = await getDoc(courseRef);
+
+    if (courseDoc.exists()) {
+      const courseData = courseDoc.data();
+      const examFees: CourseExamFee[] = courseData.examFees || [];
+      
+      const updatedExamFees = examFees.map(fee => {
+        if (fee.name.toLowerCase() === paperName.toLowerCase()) {
+          return { ...fee, url };
+        }
+        return fee;
+      });
+      
+      await updateDoc(courseRef, {
+        examFees: updatedExamFees
+      });
+      
+      return { success: true };
+    }
+    
+    return { success: false, error: "Course not found." };
+  } catch (error: any) {
+    console.error(`Error updating paper url for course ${courseId}:`, error);
+    return { success: false, error: error.message || "Failed to update paper url." };
   }
 }

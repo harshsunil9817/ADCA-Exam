@@ -9,6 +9,8 @@ export interface User {
   dob?: { day: string; month: string; year: string; }; // Optional
   assignedPaper: string; // e.g., "M1", "M2". Determined by admin. Empty string if none.
   photoUrl?: string;
+  examCode?: string; // Required for the new login flow
+  isExamCodeVerified?: boolean; // Required for the new login flow
 }
 
 export interface Student {

@@ -19,7 +19,8 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { submitTest } from "@/actions/test";
+import { startExam, syncAnswers, finishExam } from "@/actions/test";
+import { finalizeAssignedExam } from "@/actions/exams";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
@@ -37,6 +38,7 @@ export default function TestPage() {
   const [timeLeft, setTimeLeft] = useState(60 * 60); // 60 minutes
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingQuestions, setLoadingQuestions] = useState(true);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -53,6 +55,11 @@ export default function TestPage() {
             if (isMounted) {
                 const selectedQuestions = selectUniformQuestions(paperQuestions, 100);
                 setQuestions(selectedQuestions);
+                
+                // Start the exam in the database
+                const subId = await startExam(user!.userId, user!.name, user!.assignedPaper!, selectedQuestions.length);
+                setSubmissionId(subId);
+                
                 setLoadingQuestions(false);
             }
         } catch (error) {
@@ -69,6 +76,22 @@ export default function TestPage() {
     return () => { isMounted = false; };
   }, [user, authLoading, router, toast]);
 
+  // Anti-cheat: Terminate on minimize/tab switch
+  useEffect(() => {
+    if (!submissionId || isSubmitting) return;
+
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'hidden') {
+        const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
+        await finishExam(submissionId, answersArray, user!.assignedPaper!, questions.length, "failed", "cheating (minimized window)");
+        router.push('/test/terminated');
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [submissionId, isSubmitting, answers, user, questions.length, router]);
+
   const answeredCount = useMemo(() => {
     // We filter out empty/undefined answers before getting the size
     return Array.from(answers.values()).filter(Boolean).length;
@@ -79,16 +102,18 @@ export default function TestPage() {
   const currentQuestion = questions[currentQuestionIndex];
 
   const handleSubmit = useCallback(async () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
-    if (!user || !user.assignedPaper) {
-      toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in or no paper is assigned.' });
+    if (!user || !user.assignedPaper || !submissionId) {
+      toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in, no paper is assigned, or exam not started.' });
       setIsSubmitting(false);
       return;
     }
 
     try {
       const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-      const submissionId = await submitTest(answersArray, user, user.assignedPaper, questions.length);
+      await finishExam(submissionId, answersArray, user.assignedPaper, questions.length, "completed");
+      await finalizeAssignedExam(user.userId, user.assignedPaper);
       toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
       router.push(`/test/submitted?submissionId=${submissionId}`);
     } catch (error) {
@@ -96,7 +121,7 @@ export default function TestPage() {
       toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
       setIsSubmitting(false);
     }
-  }, [answers, user, toast, router]);
+  }, [answers, user, toast, router, submissionId, questions.length, isSubmitting]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -110,7 +135,12 @@ export default function TestPage() {
   }, [timeLeft, handleSubmit]);
 
   const handleAnswerChange = (questionId: number, optionKey: string) => {
-    setAnswers(new Map(answers.set(questionId, optionKey)));
+    const newAnswers = new Map(answers.set(questionId, optionKey));
+    setAnswers(newAnswers);
+    if (submissionId) {
+        const answersArray = Array.from(newAnswers, ([qId, selectedOption]) => ({ questionId: qId, selectedOption }));
+        syncAnswers(submissionId, answersArray).catch(console.error);
+    }
   };
 
   const handleNext = () => {
