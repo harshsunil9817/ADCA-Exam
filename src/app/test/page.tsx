@@ -107,8 +107,16 @@ export default function TestPage() {
       }
     };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+    // Add a small delay before attaching the listener to prevent spurious 
+    // visibilitychange events when the app/window first loads (common in Electron)
+    const timeoutId = setTimeout(() => {
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+    }, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [submissionId, isSubmitting, answers, user, questions.length, router]);
 
   // Polling for exam status (Admin termination or external completion)
