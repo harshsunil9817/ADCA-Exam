@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
-import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser } from "@/actions/test";
+import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser, terminateExamByAdmin } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent } from "@/actions/students";
 import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/table";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw, Trash2, CheckCircle, XCircle, MoreHorizontal } from "lucide-react";
+import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw, Trash2, CheckCircle, XCircle, MoreHorizontal, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -84,7 +84,7 @@ function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent
   const { toast } = useToast();
 
   const filteredSubmissions = useMemo(() => {
-    let subs = submissions;
+    let subs = submissions.filter(s => s.status !== 'ongoing');
 
     if (filterStudent) {
       subs = subs.filter(s => s.userId === filterStudent.enrollmentNumber || s.studentName === filterStudent.name);
@@ -252,6 +252,97 @@ function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent
   );
 }
 
+interface LiveExamsListProps {
+  submissions: Submission[];
+  onUpdate: () => void;
+}
+
+function LiveExamsList({ submissions, onUpdate }: LiveExamsListProps) {
+  const [isTerminating, setIsTerminating] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const liveExams = useMemo(() => {
+    return submissions.filter(s => s.status === 'ongoing');
+  }, [submissions]);
+
+  const handleTerminate = async (submissionId: string) => {
+    setIsTerminating(submissionId);
+    try {
+      const result = await terminateExamByAdmin(submissionId);
+      if (result.success) {
+        toast({
+          title: "Exam Terminated",
+          description: "The exam has been successfully terminated.",
+        });
+        onUpdate();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to terminate exam.",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred.",
+      });
+    } finally {
+      setIsTerminating(null);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle /> Live Exams</CardTitle>
+        <CardDescription>
+          Monitor students currently taking a test. You can forcefully terminate their session if needed.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Student Name</TableHead>
+              <TableHead>Paper</TableHead>
+              <TableHead>Started At</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {liveExams.length > 0 ? (
+              liveExams.map((sub) => (
+                <TableRow key={sub.id}>
+                  <TableCell className="font-medium">{sub.studentName}</TableCell>
+                  <TableCell className="font-mono">{sub.paperId}</TableCell>
+                  <TableCell>{new Date(sub.date).toLocaleTimeString()}</TableCell>
+                  <TableCell className="text-right">
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={() => handleTerminate(sub.id)}
+                      disabled={isTerminating === sub.id}
+                    >
+                      {isTerminating === sub.id ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Terminating...</> : "Terminate"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                  No live exams at the moment.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
 
 interface QuestionEditorProps {
     papers: PaperInfo[];
@@ -856,8 +947,9 @@ export default function AdminPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
               <TabsTrigger value="results">Results</TabsTrigger>
+              <TabsTrigger value="live">Live Exams</TabsTrigger>
               <TabsTrigger value="paper">Paper</TabsTrigger>
           </TabsList>
           <TabsContent value="results" className="mt-6">
@@ -868,6 +960,12 @@ export default function AdminPage() {
                 onUpdate={() => fetchData(selectedAdminCourseId)}
                 filterStudent={selectedStudent}
                 onClearFilter={handleClearFilter}
+            />
+          </TabsContent>
+          <TabsContent value="live" className="mt-6">
+            <LiveExamsList 
+                submissions={submissions}
+                onUpdate={() => fetchData(selectedAdminCourseId)}
             />
           </TabsContent>
           <TabsContent value="paper" className="mt-6">

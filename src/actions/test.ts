@@ -197,12 +197,26 @@ export async function getSubmissionById(id: string): Promise<Submission | null> 
 }
 
 // Start an ongoing exam
-export async function startExam(userId: string, studentName: string, paperId: string, totalQuestions: number): Promise<string> {
+export async function startExam(userId: string, studentName: string, paperId: string, totalQuestions: number): Promise<{ id: string, startTime: number, existingAnswers: Answer[] }> {
+  const submissionsRef = collection(appDb, "submissions");
+  const q = query(submissionsRef, where("userId", "==", userId), where("paperId", "==", paperId), where("status", "==", "ongoing"));
+  const querySnapshot = await getDocs(q);
+  
+  if (!querySnapshot.empty) {
+    const docSnap = querySnapshot.docs[0];
+    return {
+      id: docSnap.id,
+      startTime: docSnap.data().date,
+      existingAnswers: docSnap.data().answers || []
+    };
+  }
+
+  const startTime = Date.now();
   const submissionData = {
     userId,
     studentName,
     paperId,
-    date: Date.now(),
+    date: startTime,
     answers: [],
     score: 0,
     totalQuestions,
@@ -216,7 +230,7 @@ export async function startExam(userId: string, studentName: string, paperId: st
   };
 
   const docRef = await addDoc(collection(appDb, "submissions"), submissionData);
-  return docRef.id;
+  return { id: docRef.id, startTime, existingAnswers: [] };
 }
 
 // Sync answers for an ongoing exam
@@ -293,4 +307,28 @@ export async function finishExam(submissionId: string, answers: Answer[], paperI
   await updateDoc(submissionRef, updateData);
 
   return submissionId;
+}
+
+// Admin forcefully terminates an exam
+export async function terminateExamByAdmin(submissionId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const submissionRef = doc(appDb, "submissions", submissionId);
+    const docSnap = await getDoc(submissionRef);
+    if (!docSnap.exists()) {
+      return { success: false, error: "Submission not found" };
+    }
+    
+    const data = docSnap.data();
+    if (data.status !== "ongoing") {
+      return { success: false, error: "Exam is not ongoing" };
+    }
+
+    // Force finish the exam with the currently synced answers
+    await finishExam(submissionId, data.answers || [], data.paperId, data.totalQuestions, "failed", "Terminated by Admin");
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error terminating exam:", error);
+    return { success: false, error: error.message };
+  }
 }

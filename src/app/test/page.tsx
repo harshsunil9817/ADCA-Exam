@@ -19,7 +19,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { startExam, syncAnswers, finishExam } from "@/actions/test";
+import { startExam, syncAnswers, finishExam, getSubmissionById } from "@/actions/test";
 import { finalizeAssignedExam } from "@/actions/exams";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -57,8 +57,20 @@ export default function TestPage() {
                 setQuestions(selectedQuestions);
                 
                 // Start the exam in the database
-                const subId = await startExam(user!.userId, user!.name, user!.assignedPaper!, selectedQuestions.length);
-                setSubmissionId(subId);
+                const { id, startTime, existingAnswers } = await startExam(user!.userId, user!.name, user!.assignedPaper!, selectedQuestions.length);
+                setSubmissionId(id);
+                
+                // Restore answers if they exist
+                if (existingAnswers && existingAnswers.length > 0) {
+                    const restoredMap = new Map<number, string>();
+                    existingAnswers.forEach(ans => restoredMap.set(ans.questionId, ans.selectedOption));
+                    setAnswers(restoredMap);
+                }
+
+                // Calculate remaining time
+                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const remaining = Math.max(0, 3600 - elapsedSeconds);
+                setTimeLeft(remaining);
                 
                 setLoadingQuestions(false);
             }
@@ -91,6 +103,25 @@ export default function TestPage() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [submissionId, isSubmitting, answers, user, questions.length, router]);
+
+  // Polling for exam status (Admin termination or external completion)
+  useEffect(() => {
+    if (!submissionId || isSubmitting) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const sub = await getSubmissionById(submissionId);
+        if (sub && sub.status !== "ongoing") {
+          toast({ variant: 'destructive', title: 'Exam Ended', description: sub.reason || 'Your exam session has ended.' });
+          router.push('/test/terminated');
+        }
+      } catch (e) {
+        console.error("Failed to check status", e);
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [submissionId, isSubmitting, router, toast]);
 
   const answeredCount = useMemo(() => {
     // We filter out empty/undefined answers before getting the size
