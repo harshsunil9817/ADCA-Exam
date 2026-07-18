@@ -295,11 +295,16 @@ function LiveExamsList({ submissions, onUpdate }: LiveExamsListProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle /> Live Exams</CardTitle>
-        <CardDescription>
-          Monitor students currently taking a test. You can forcefully terminate their session if needed.
-        </CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div>
+          <CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle /> Live Exams</CardTitle>
+          <CardDescription className="mt-1">
+            Monitor students currently taking a test. You can forcefully terminate their session if needed.
+          </CardDescription>
+        </div>
+        <Button variant="outline" size="sm" onClick={onUpdate} className="flex gap-2">
+          <RefreshCcw className="h-4 w-4" /> Refresh
+        </Button>
       </CardHeader>
       <CardContent>
         <Table>
