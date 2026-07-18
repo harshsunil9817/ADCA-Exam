@@ -197,18 +197,31 @@ export async function getSubmissionById(id: string): Promise<Submission | null> 
 }
 
 // Start an ongoing exam
-export async function startExam(userId: string, studentName: string, paperId: string, totalQuestions: number): Promise<{ id: string, startTime: number, existingAnswers: Answer[] }> {
+export async function startExam(userId: string, studentName: string, paperId: string, totalQuestions: number): Promise<{ success: boolean; data?: { id: string, startTime: number, existingAnswers: Answer[] }; error?: string }> {
   const submissionsRef = collection(appDb, "submissions");
-  const q = query(submissionsRef, where("userId", "==", userId), where("paperId", "==", paperId), where("status", "==", "ongoing"));
+  // Look for any submission for this paper and user
+  const q = query(submissionsRef, where("userId", "==", userId), where("paperId", "==", paperId));
   const querySnapshot = await getDocs(q);
   
   if (!querySnapshot.empty) {
     const docSnap = querySnapshot.docs[0];
-    return {
-      id: docSnap.id,
-      startTime: docSnap.data().date,
-      existingAnswers: docSnap.data().answers || []
-    };
+    const data = docSnap.data();
+    
+    if (data.status === "ongoing") {
+      return {
+        success: true,
+        data: {
+          id: docSnap.id,
+          startTime: data.date,
+          existingAnswers: data.answers || []
+        }
+      };
+    } else {
+      return {
+        success: false,
+        error: "You have already completed or terminated this exam."
+      };
+    }
   }
 
   const startTime = Date.now();
@@ -230,7 +243,7 @@ export async function startExam(userId: string, studentName: string, paperId: st
   };
 
   const docRef = await addDoc(collection(appDb, "submissions"), submissionData);
-  return { id: docRef.id, startTime, existingAnswers: [] };
+  return { success: true, data: { id: docRef.id, startTime, existingAnswers: [] } };
 }
 
 // Sync answers for an ongoing exam

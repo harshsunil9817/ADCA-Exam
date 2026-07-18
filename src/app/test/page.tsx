@@ -57,7 +57,13 @@ export default function TestPage() {
                 setQuestions(selectedQuestions);
                 
                 // Start the exam in the database
-                const { id, startTime, existingAnswers } = await startExam(user!.userId, user!.name, user!.assignedPaper!, selectedQuestions.length);
+                const result = await startExam(user!.userId, user!.name, user!.assignedPaper!, selectedQuestions.length);
+                if (!result.success || !result.data) {
+                    toast({ variant: "destructive", title: "Cannot Start Exam", description: result.error });
+                    router.push('/test/terminated');
+                    return;
+                }
+                const { id, startTime, existingAnswers } = result.data;
                 setSubmissionId(id);
                 
                 // Restore answers if they exist
