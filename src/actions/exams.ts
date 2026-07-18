@@ -45,7 +45,7 @@ export async function getAssignedExam(csaId: string): Promise<StudentAuthResult 
 }
 
 // Finalize the assigned exam (mark as completed, remove examCode)
-export async function finalizeAssignedExam(csaId: string, examName: string): Promise<{ success: boolean; error?: string }> {
+export async function finalizeAssignedExam(csaId: string, examName: string, newStatus: string = "completed"): Promise<{ success: boolean; error?: string }> {
   try {
     const examsCol = collection(appDb, "assignedExams");
     const q = query(examsCol, where("csaId", "==", csaId), where("examName", "==", examName));
@@ -56,7 +56,7 @@ export async function finalizeAssignedExam(csaId: string, examName: string): Pro
       const examRef = doc(appDb, "assignedExams", examDoc.id);
       
       await updateDoc(examRef, {
-        status: "completed",
+        status: newStatus,
         examCode: deleteField(),
         updatedAt: new Date().toISOString()
       });

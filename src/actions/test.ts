@@ -6,6 +6,7 @@ import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, quer
 import type { Answer, Submission, User } from "@/lib/types";
 import { getPaperQuestions } from "@/actions/questions";
 import { studentDb } from "@/lib/firebase";
+import { finalizeAssignedExam } from "@/actions/exams";
 
 // Config for the primary app (submissions)
 const firebaseConfigApp = {
@@ -262,7 +263,7 @@ export async function syncAnswers(submissionId: string, answers: Answer[]): Prom
 }
 
 // Finish an exam (either normally or terminated due to cheating)
-export async function finishExam(submissionId: string, answers: Answer[], paperId: string, totalQuestions: number, status: "completed" | "failed", reason?: string) {
+export async function finishExam(submissionId: string, answers: Answer[], paperId: string, totalQuestions: number, status: "completed" | "failed" | "terminated", reason?: string) {
   const questions = await getPaperQuestions(paperId);
   if (!questions || questions.length === 0) {
     throw new Error(`Paper with ID '${paperId}' not found.`);
@@ -337,7 +338,10 @@ export async function terminateExamByAdmin(submissionId: string): Promise<{ succ
     }
 
     // Force finish the exam with the currently synced answers
-    await finishExam(submissionId, data.answers || [], data.paperId, data.totalQuestions, "failed", "Terminated by Admin");
+    await finishExam(submissionId, data.answers || [], data.paperId, data.totalQuestions, "terminated", "Terminated by Admin");
+    
+    // Ensure the assigned exam status is also changed to terminated and exam code is deleted
+    await finalizeAssignedExam(data.userId, data.paperId, "terminated");
     
     return { success: true };
   } catch (error: any) {

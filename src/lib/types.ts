@@ -73,6 +73,6 @@ export interface Submission {
     userSelectedAnswer: string;
     topic: string;
   }[];
-  status?: "ongoing" | "completed" | "failed";
+  status?: "ongoing" | "completed" | "failed" | "terminated";
   reason?: string;
 }

@@ -101,7 +101,8 @@ export default function TestPage() {
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'hidden') {
         const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-        await finishExam(submissionId, answersArray, user!.assignedPaper!, questions.length, "failed", "cheating (minimized window)");
+        await finishExam(submissionId, answersArray, user!.assignedPaper!, questions.length, "terminated", "cheating (minimized window)");
+        await finalizeAssignedExam(user!.userId, user!.assignedPaper!, "terminated");
         router.push('/test/terminated');
       }
     };
