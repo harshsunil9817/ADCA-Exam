@@ -19,7 +19,8 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { submitTest, updateLiveExamState, initLiveExamState, checkLiveExamStatus } from "@/actions/test";
+import { startExam, syncAnswers, finishExam, getSubmissionById } from "@/actions/test";
+import { finalizeAssignedExam } from "@/actions/exams";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { ArrowLeft, ArrowRight, Loader2, X } from "lucide-react";
@@ -37,38 +38,7 @@ export default function TestPage() {
   const [timeLeft, setTimeLeft] = useState(60 * 60); // 60 minutes
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingQuestions, setLoadingQuestions] = useState(true);
-  const [terminated, setTerminated] = useState(false);
-  const { logout } = useAuth();
-  
-  // Track initialization to prevent re-running on state changes
-  const hasInitialized = useRef(false);
-
-  const handleSubmit = useCallback(async (isTerminated = false) => {
-    if (isTerminated) {
-        setTerminated(true); // Instantly show termination UI, hiding the "Submitting..." text
-    }
-    setIsSubmitting(true);
-    if (!user || !user.assignedPaper) {
-      toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in or no paper is assigned.' });
-      setIsSubmitting(false);
-      return;
-    }
-
-    try {
-      const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-      const submissionId = await submitTest(answersArray, user, user.assignedPaper, questions.length);
-      
-      if (!isTerminated) {
-          // If terminated, we already showed the UI at the top, and we don't want to redirect them out.
-          toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
-          router.push(`/test/submitted?submissionId=${submissionId}`);
-      }
-    } catch (error) {
-      console.error("Submission failed:", error);
-      toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
-      setIsSubmitting(false);
-    }
-  }, [answers, user, toast, router, questions.length]);
+  const [submissionId, setSubmissionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -88,6 +58,29 @@ export default function TestPage() {
             if (isMounted) {
                 const selectedQuestions = selectUniformQuestions(paperQuestions, 100);
                 setQuestions(selectedQuestions);
+                
+                // Start the exam in the database
+                const result = await startExam(user!.userId, user!.name, user!.assignedPaper!, selectedQuestions.length);
+                if (!result.success || !result.data) {
+                    toast({ variant: "destructive", title: "Cannot Start Exam", description: result.error });
+                    router.push('/test/terminated');
+                    return;
+                }
+                const { id, startTime, existingAnswers } = result.data;
+                setSubmissionId(id);
+                
+                // Restore answers if they exist
+                if (existingAnswers && existingAnswers.length > 0) {
+                    const restoredMap = new Map<number, string>();
+                    existingAnswers.forEach(ans => restoredMap.set(ans.questionId, ans.selectedOption));
+                    setAnswers(restoredMap);
+                }
+
+                // Calculate remaining time
+                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const remaining = Math.max(0, 3600 - elapsedSeconds);
+                setTimeLeft(remaining);
+                
                 setLoadingQuestions(false);
             }
         } catch (error) {
@@ -128,6 +121,46 @@ export default function TestPage() {
     return () => { isMounted = false; };
   }, [user, authLoading, router, toast, logout]);
 
+  // Anti-cheat: Terminate on minimize/blur from the Electron wrapper
+  useEffect(() => {
+    if (!submissionId || isSubmitting) return;
+
+    const handleElectronCheat = async () => {
+      const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
+      await finishExam(submissionId, answersArray, user!.assignedPaper!, questions.length, "terminated", "cheating (minimized/unfocused window)");
+      await finalizeAssignedExam(user!.userId, user!.assignedPaper!, "terminated");
+      router.push('/test/terminated');
+    };
+
+    // Listen for custom events triggered by the Electron main process
+    window.addEventListener("electron-minimize", handleElectronCheat);
+    window.addEventListener("electron-blur", handleElectronCheat);
+
+    return () => {
+      window.removeEventListener("electron-minimize", handleElectronCheat);
+      window.removeEventListener("electron-blur", handleElectronCheat);
+    };
+  }, [submissionId, isSubmitting, answers, user, questions.length, router]);
+
+  // Polling for exam status (Admin termination or external completion)
+  useEffect(() => {
+    if (!submissionId || isSubmitting) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const sub = await getSubmissionById(submissionId);
+        if (sub && sub.status !== "ongoing") {
+          toast({ variant: 'destructive', title: 'Exam Ended', description: sub.reason || 'Your exam session has ended.' });
+          router.push('/test/terminated');
+        }
+      } catch (e) {
+        console.error("Failed to check status", e);
+      }
+    }, 15000);
+
+    return () => clearInterval(interval);
+  }, [submissionId, isSubmitting, router, toast]);
+
   const answeredCount = useMemo(() => {
     // We filter out empty/undefined answers before getting the size
     return Array.from(answers.values()).filter(Boolean).length;
@@ -146,6 +179,28 @@ export default function TestPage() {
   const progressValue = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
 
   const currentQuestion = questions[currentQuestionIndex];
+
+  const handleSubmit = useCallback(async () => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    if (!user || !user.assignedPaper || !submissionId) {
+      toast({ variant: 'destructive', title: 'Error', description: 'You are not logged in, no paper is assigned, or exam not started.' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
+      await finishExam(submissionId, answersArray, user.assignedPaper, questions.length, "completed");
+      await finalizeAssignedExam(user.userId, user.assignedPaper);
+      toast({ title: 'Test Submitted!', description: "Thank you for completing the test." });
+      router.push(`/test/submitted?submissionId=${submissionId}`);
+    } catch (error) {
+      console.error("Submission failed:", error);
+      toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
+      setIsSubmitting(false);
+    }
+  }, [answers, user, toast, router, submissionId, questions.length, isSubmitting]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -184,7 +239,12 @@ export default function TestPage() {
   }, [user, handleSubmit]);
 
   const handleAnswerChange = (questionId: number, optionKey: string) => {
-    setAnswers(new Map(answers.set(questionId, optionKey)));
+    const newAnswers = new Map(answers.set(questionId, optionKey));
+    setAnswers(newAnswers);
+    if (submissionId) {
+        const answersArray = Array.from(newAnswers, ([qId, selectedOption]) => ({ questionId: qId, selectedOption }));
+        syncAnswers(submissionId, answersArray).catch(console.error);
+    }
   };
 
   const handleNext = () => {

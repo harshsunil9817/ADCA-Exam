@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
-import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser, getLiveExams, terminateLiveExam, type LiveExamState } from "@/actions/test";
+import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser, terminateExamByAdmin } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams, verifyApplication, type AppliedExam } from "@/actions/students";
 import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
@@ -14,6 +14,7 @@ import { getPaperQuestions } from "@/actions/questions";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 import { CourseManager } from "./CourseManager";
+import { PaperManager } from "./PaperManager";
 
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -35,7 +36,7 @@ import {
 } from "@/components/ui/table";
 import { Header } from "@/components/header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw, Trash2, CheckCircle, XCircle, MoreHorizontal } from "lucide-react";
+import { FileText, Loader2, Terminal, Users, UserPlus, Edit, RefreshCcw, Trash2, CheckCircle, XCircle, MoreHorizontal, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -78,13 +79,15 @@ interface SubmissionsListProps {
 // Submissions List Component
 function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent, onClearFilter }: SubmissionsListProps) {
   const [submissionToReset, setSubmissionToReset] = useState<Submission | null>(null);
+  const [submissionToTerminate, setSubmissionToTerminate] = useState<Submission | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [isTerminating, setIsTerminating] = useState(false);
   const [resetDate, setResetDate] = useState<Date | undefined>(new Date());
   const [activeFilter, setActiveFilter] = useState("all");
   const { toast } = useToast();
 
   const filteredSubmissions = useMemo(() => {
-    let subs = submissions;
+    let subs = submissions.filter(s => s.status !== 'ongoing');
 
     if (filterStudent) {
       subs = subs.filter(s => s.userId === filterStudent.enrollmentNumber || s.studentName === filterStudent.name);
@@ -117,6 +120,38 @@ function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent
     } finally {
       setIsResetting(false);
       setSubmissionToReset(null);
+    }
+  };
+
+  const handleTerminateSubmission = async () => {
+    if (!submissionToTerminate) return;
+
+    setIsTerminating(true);
+    try {
+      const res = await terminateExamByAdmin(submissionToTerminate.id);
+      if (res.success) {
+        toast({
+          title: "Exam Terminated",
+          description: `Exam for ${submissionToTerminate.studentName} has been forcefully terminated.`,
+        });
+        onUpdate();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: res.error || "Failed to terminate exam",
+        });
+      }
+    } catch (error) {
+      console.error("Error terminating exam:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to terminate exam.",
+      });
+    } finally {
+      setIsTerminating(false);
+      setSubmissionToTerminate(null);
     }
   };
 
@@ -182,10 +217,34 @@ function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent
                       <TableCell className="font-medium">{sub.studentName}</TableCell>
                       <TableCell className="font-mono">{sub.paperId || 'M1'}</TableCell>
                       <TableCell>{new Date(sub.date).toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{`${sub.correctAnswers}/${sub.totalQuestions}`}</TableCell>
-                      <TableCell className="text-right">{sub.percentage.toFixed(2)}%</TableCell>
+                      <TableCell className="text-right">
+                        {sub.status === 'terminated' ? (
+                           <Badge variant="destructive" className="ml-2">Terminated</Badge>
+                        ) : (
+                           `${sub.correctAnswers}/${sub.totalQuestions}`
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {sub.status === 'terminated' ? (
+                           <span className="text-muted-foreground">-</span>
+                        ) : (
+                           `${sub.percentage.toFixed(2)}%`
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">
                        <div className="flex gap-2 justify-end">
+                        {sub.status !== 'terminated' && (
+                          <Button 
+                             variant="destructive" 
+                             size="sm"
+                             onClick={() => setSubmissionToTerminate(sub)}
+                             disabled={isTerminating && submissionToTerminate?.id === sub.id}
+                             title="Terminate Exam"
+                          >
+                             <XCircle className="h-4 w-4 mr-2" />
+                             Terminate
+                          </Button>
+                        )}
                         <Button asChild variant="outline" size="sm">
                           <Link href={`/results/${sub.id}`}>View Result</Link>
                         </Button>
@@ -248,10 +307,124 @@ function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!submissionToTerminate} onOpenChange={(open) => !open && setSubmissionToTerminate(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Force Terminate Exam?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to forcefully terminate this exam for <span className="font-bold">{submissionToTerminate?.studentName}</span>?
+              This will set their score to 0 and permanently lock them out of retaking it unless you manually reset it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isTerminating}>Cancel</AlertDialogCancel>
+            <Button variant="destructive" onClick={handleTerminateSubmission} disabled={isTerminating}>
+              {isTerminating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Terminating...</> : "Terminate Exam"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
 
+interface LiveExamsListProps {
+  submissions: Submission[];
+  onUpdate: () => void;
+}
+
+function LiveExamsList({ submissions, onUpdate }: LiveExamsListProps) {
+  const [isTerminating, setIsTerminating] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  const liveExams = useMemo(() => {
+    return submissions.filter(s => s.status === 'ongoing');
+  }, [submissions]);
+
+  const handleTerminate = async (submissionId: string) => {
+    setIsTerminating(submissionId);
+    try {
+      const result = await terminateExamByAdmin(submissionId);
+      if (result.success) {
+        toast({
+          title: "Exam Terminated",
+          description: "The exam has been successfully terminated.",
+        });
+        onUpdate();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: result.error || "Failed to terminate exam.",
+        });
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "An unexpected error occurred.",
+      });
+    } finally {
+      setIsTerminating(null);
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <div>
+          <CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle /> Live Exams</CardTitle>
+          <CardDescription className="mt-1">
+            Monitor students currently taking a test. You can forcefully terminate their session if needed.
+          </CardDescription>
+        </div>
+        <Button variant="outline" size="sm" onClick={onUpdate} className="flex gap-2">
+          <RefreshCcw className="h-4 w-4" /> Refresh
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Student Name</TableHead>
+              <TableHead>Paper</TableHead>
+              <TableHead>Started At</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {liveExams.length > 0 ? (
+              liveExams.map((sub) => (
+                <TableRow key={sub.id}>
+                  <TableCell className="font-medium">{sub.studentName}</TableCell>
+                  <TableCell className="font-mono">{sub.paperId}</TableCell>
+                  <TableCell>{new Date(sub.date).toLocaleTimeString()}</TableCell>
+                  <TableCell className="text-right">
+                    <Button 
+                      variant="destructive" 
+                      size="sm" 
+                      onClick={() => handleTerminate(sub.id)}
+                      disabled={isTerminating === sub.id}
+                    >
+                      {isTerminating === sub.id ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Terminating...</> : "Terminate"}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={4} className="text-center h-24 text-muted-foreground">
+                  No live exams at the moment.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+}
 
 interface QuestionEditorProps {
     papers: PaperInfo[];
@@ -915,7 +1088,7 @@ export default function AdminPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [applications, setApplications] = useState<AppliedExam[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
-  const [activeTab, setActiveTab] = useState("students");
+  const [activeTab, setActiveTab] = useState("results");
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [globalCourses, setGlobalCourses] = useState<Course[]>([]);
   const [selectedAdminCourseId, setSelectedAdminCourseId] = useState<string>('adca');
@@ -1021,36 +1194,12 @@ export default function AdminPage() {
       </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 max-w-5xl mx-auto">
-              <TabsTrigger value="students">Manage Students</TabsTrigger>
-              <TabsTrigger value="applications">Applied Exams</TabsTrigger>
-              <TabsTrigger value="live">Live Exams <div className="w-2 h-2 ml-2 rounded-full bg-red-500 animate-pulse" /></TabsTrigger>
-              <TabsTrigger value="submissions">Submissions</TabsTrigger>
-              <TabsTrigger value="questions">Questions</TabsTrigger>
-              <TabsTrigger value="courses">Courses</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto">
+              <TabsTrigger value="results">Results</TabsTrigger>
+              <TabsTrigger value="live">Live Exams</TabsTrigger>
+              <TabsTrigger value="paper">Paper</TabsTrigger>
           </TabsList>
-          <TabsContent value="students" className="mt-6">
-            <StudentManager 
-                students={students} 
-                submissions={submissions}
-                papers={coursePapers}
-                loading={isLoadingData} 
-                onUpdate={() => fetchData(selectedAdminCourseId)}
-                onStudentSelect={handleStudentSelect}
-                selectedStudent={selectedStudent}
-            />
-          </TabsContent>
-          <TabsContent value="applications" className="mt-6">
-              <ApplicationsManager 
-                  applications={applications} 
-                  loading={isLoadingData} 
-                  onUpdate={() => fetchData(selectedAdminCourseId)} 
-              />
-          </TabsContent>
-          <TabsContent value="live" className="mt-6">
-              <LiveExamManager />
-          </TabsContent>
-          <TabsContent value="submissions" className="mt-6">
+          <TabsContent value="results" className="mt-6">
             <SubmissionsList 
                 submissions={submissions}
                 papers={coursePapers}
@@ -1060,11 +1209,17 @@ export default function AdminPage() {
                 onClearFilter={handleClearFilter}
             />
           </TabsContent>
-          <TabsContent value="questions" className="mt-6">
-              <QuestionEditor papers={coursePapers} />
+          <TabsContent value="live" className="mt-6">
+            <LiveExamsList 
+                submissions={submissions}
+                onUpdate={() => fetchData(selectedAdminCourseId)}
+            />
           </TabsContent>
-          <TabsContent value="courses" className="mt-6">
-              <CourseManager />
+          <TabsContent value="paper" className="mt-6">
+              <PaperManager 
+                  courses={globalCourses} 
+                  onUpdate={() => fetchData(selectedAdminCourseId)} 
+              />
           </TabsContent>
       </Tabs>
 

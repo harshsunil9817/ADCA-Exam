@@ -6,23 +6,9 @@ import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, quer
 import { getDatabase, ref, get, set, remove, update as dbUpdate } from "firebase/database";
 import type { Answer, Submission, User } from "@/lib/types";
 import { getPaperQuestions } from "@/actions/questions";
-import { markExamCompleted } from "@/actions/students";
-import { studentDb } from "@/lib/firebase";
+import { studentDb, appDb } from "@/lib/firebase";
+import { finalizeAssignedExam, getAssignedExam } from "@/actions/exams";
 
-// Config for the primary app (submissions)
-const firebaseConfigApp = {
-  apiKey: "AIzaSyAeiQQ62Pn_MBPhsAruzqKHdZxLO1riJFY",
-  authDomain: "examplify-262mw.firebaseapp.com",
-  projectId: "examplify-262mw",
-  storageBucket: "examplify-262mw.firebasestorage.app",
-  messagingSenderId: "644265344193",
-  appId: "1:644265344193:web:c3500be72fdc0aea77e840",
-  databaseURL: "https://examplify-262mw-default-rtdb.asia-southeast1.firebasedatabase.app/"
-};
-
-// Initialize app, checking if it already exists to avoid errors during hot-reloading.
-const primaryApp: FirebaseApp = getApps().find(app => app.name === 'primary') || initializeApp(firebaseConfigApp, 'primary');
-const appDb = getFirestore(primaryApp);
 
 
 export async function submitTest(answers: Answer[], user: User, paperId: string, totalQuestions: number) {
@@ -236,107 +222,171 @@ export async function getSubmissionById(id: string): Promise<Submission | null> 
   }
 }
 
-// -------------------------------------------------------------
-// LIVE EXAM ACTIONS
-// -------------------------------------------------------------
+// Start an ongoing exam
+export async function startExam(userId: string, studentName: string, paperId: string, totalQuestions: number): Promise<{ success: boolean; data?: { id: string, startTime: number, existingAnswers: Answer[] }; error?: string }> {
+  // 1. Verify the user actually has this exam assigned and booked
+  const authData = await getAssignedExam(userId);
+  
+  if (!authData || !authData.assignedExam) {
+    return { success: false, error: "You do not have this exam assigned, or it has already been completed/terminated." };
+  }
+  
+  if (authData.assignedExam.examName !== paperId) {
+    return { success: false, error: "The assigned paper does not match. Please re-login." };
+  }
 
-export interface LiveExamState {
-    userId: string;
-    studentName: string;
-    enrollmentNumber: string;
-    paperId: string;
-    answeredCount: number;
-    totalQuestions: number;
-    status: 'in-progress' | 'terminated';
-    lastActive: number;
+  // 2. Check if there is already an *ongoing* submission for this assignment
+  const submissionsRef = collection(appDb, "submissions");
+  const q = query(submissionsRef, where("userId", "==", userId), where("paperId", "==", paperId), where("status", "==", "ongoing"));
+  const querySnapshot = await getDocs(q);
+  
+  if (!querySnapshot.empty) {
+    const docSnap = querySnapshot.docs[0];
+    const data = docSnap.data();
+    return {
+      success: true,
+      data: {
+        id: docSnap.id,
+        startTime: data.date,
+        existingAnswers: data.answers || []
+      }
+    };
+  }
+
+  const startTime = Date.now();
+  const submissionData = {
+    userId,
+    studentName,
+    paperId,
+    date: startTime,
+    answers: [],
+    score: 0,
+    totalQuestions,
+    attemptedQuestions: 0,
+    notAttemptedQuestions: totalQuestions,
+    correctAnswers: 0,
+    incorrectAnswers: 0,
+    percentage: 0,
+    incorrectAnswerDetails: [],
+    status: "ongoing", // new field for tracking status
+  };
+
+  const docRef = await addDoc(collection(appDb, "submissions"), submissionData);
+  return { success: true, data: { id: docRef.id, startTime, existingAnswers: [] } };
 }
 
-export async function updateLiveExamState(userId: string, data: Partial<LiveExamState>) {
-    try {
-        const rtdb = getDatabase(primaryApp);
-        const liveExamRef = ref(rtdb, `liveExams/${userId}`);
-        
-        // Use dbUpdate to merge new data
-        // For first time insert, we can use set, but dbUpdate will create it if not exist for the fields provided.
-        // Wait, dbUpdate throws if the node doesn't exist and you don't provide the full object at root.
-        // Let's use set with the full object if it doesn't exist, or just use update.
-        await dbUpdate(liveExamRef, {
-            ...data,
-            lastActive: Date.now()
+// Sync answers for an ongoing exam
+export async function syncAnswers(submissionId: string, answers: Answer[]): Promise<{ success: boolean; error?: string }> {
+  try {
+    const submissionRef = doc(appDb, "submissions", submissionId);
+    await updateDoc(submissionRef, {
+      answers,
+      attemptedQuestions: answers.length
+    });
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error syncing answers:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Finish an exam (either normally or terminated due to cheating)
+export async function finishExam(submissionId: string, answers: Answer[], paperId: string, totalQuestions: number, status: "completed" | "failed" | "terminated", reason?: string) {
+  const questions = await getPaperQuestions(paperId);
+  if (!questions || questions.length === 0) {
+    throw new Error(`Paper with ID '${paperId}' not found.`);
+  }
+
+  let score = 0;
+  let correctAnswers = 0;
+  let incorrectAnswers = 0;
+  const incorrectAnswerDetails: any[] = [];
+
+  const questionMap = new Map(questions.map((q) => [q.id, q]));
+
+  answers.forEach((answer) => {
+    const question = questionMap.get(answer.questionId);
+    if (question) {
+      if (answer.selectedOption === question.correct_option) {
+        score++;
+        correctAnswers++;
+      } else {
+        incorrectAnswers++;
+        incorrectAnswerDetails.push({
+          question_en: question.question_en,
+          question_hi: question.question_hi,
+          correct_option: question.options[question.correct_option].en,
+          userSelectedAnswer: question.options[answer.selectedOption]?.en || "Not Answered",
+          topic: question.topic,
         });
-        return { success: true };
-    } catch (error) {
-        console.error("🔥 ERROR (updateLiveExamState):", error);
-        return { success: false };
+      }
     }
+  });
+
+  const attemptedQuestions = answers.length;
+  const notAttemptedQuestions = totalQuestions - attemptedQuestions;
+  const percentage = totalQuestions > 0 ? (correctAnswers / totalQuestions) * 100 : 0;
+
+  const updateData: any = {
+    date: Date.now(),
+    answers,
+    score,
+    totalQuestions,
+    attemptedQuestions,
+    notAttemptedQuestions,
+    correctAnswers,
+    incorrectAnswers,
+    percentage,
+    incorrectAnswerDetails,
+    status,
+  };
+
+  if (reason) {
+    updateData.reason = reason;
+  }
+
+  const submissionRef = doc(appDb, "submissions", submissionId);
+  await updateDoc(submissionRef, updateData);
+
+  return submissionId;
 }
 
-export async function initLiveExamState(data: LiveExamState): Promise<{ success: boolean; reason?: string }> {
-    try {
-        const rtdb = getDatabase(primaryApp);
-        const liveExamRef = ref(rtdb, `liveExams/${data.userId}`);
-        
-        // Fetch current state to check if it's a reload/F5
-        const snapshot = await get(liveExamRef);
-        if (snapshot.exists()) {
-            const existing = snapshot.val() as LiveExamState;
-            // If the exam is already in progress or terminated for the SAME paper, it means the user reloaded!
-            if (existing.paperId === data.paperId) {
-                 await dbUpdate(liveExamRef, { status: 'terminated' });
-                 return { success: false, reason: 'already_started' };
-            }
-        }
-
-        await set(liveExamRef, {
-            ...data,
-            lastActive: Date.now()
-        });
-        return { success: true };
-    } catch (error) {
-        console.error("🔥 ERROR (initLiveExamState):", error);
-        return { success: false, reason: 'error' };
+// Admin forcefully terminates an exam (ongoing or retroactively)
+export async function terminateExamByAdmin(submissionId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const submissionRef = doc(appDb, "submissions", submissionId);
+    const docSnap = await getDoc(submissionRef);
+    if (!docSnap.exists()) {
+      return { success: false, error: "Submission not found" };
     }
-}
-
-export async function checkLiveExamStatus(userId: string): Promise<string | null> {
-    try {
-        const rtdb = getDatabase(primaryApp);
-        const liveExamRef = ref(rtdb, `liveExams/${userId}/status`);
-        const snapshot = await get(liveExamRef);
-        if (snapshot.exists()) {
-            return snapshot.val() as string;
-        }
-        return null;
-    } catch (error) {
-        console.error("🔥 ERROR (checkLiveExamStatus):", error);
-        return null;
+    
+    const data = docSnap.data();
+    if (data.status === "terminated") {
+      return { success: false, error: "Exam is already terminated" };
     }
-}
 
-export async function terminateLiveExam(userId: string) {
-    try {
-        const rtdb = getDatabase(primaryApp);
-        const liveExamRef = ref(rtdb, `liveExams/${userId}`);
-        await dbUpdate(liveExamRef, { status: 'terminated' });
-        return { success: true };
-    } catch (error) {
-        console.error("🔥 ERROR (terminateLiveExam):", error);
-        return { success: false, error: 'Failed to terminate exam.' };
+    if (data.status === "ongoing") {
+      // Force finish the exam with the currently synced answers
+      await finishExam(submissionId, data.answers || [], data.paperId, data.totalQuestions, "terminated", "Terminated by Admin");
+    } else {
+      // Retroactively terminate an already finished exam
+      await updateDoc(submissionRef, {
+        status: "terminated",
+        reason: "Terminated by Admin retroactively",
+        score: 0,
+        correctAnswers: 0,
+        percentage: 0,
+        incorrectAnswers: data.totalQuestions || 0,
+        incorrectAnswerDetails: []
+      });
     }
-}
-
-export async function getLiveExams(): Promise<LiveExamState[]> {
-    try {
-        const rtdb = getDatabase(primaryApp);
-        const liveExamsRef = ref(rtdb, `liveExams`);
-        const snapshot = await get(liveExamsRef);
-        
-        if (!snapshot.exists()) return [];
-        
-        const data = snapshot.val();
-        return Object.values(data) as LiveExamState[];
-    } catch (error) {
-        console.error("🔥 ERROR (getLiveExams):", error);
-        return [];
-    }
+    
+    // Ensure the assigned exam status is also changed to terminated and exam code is deleted
+    await finalizeAssignedExam(data.userId, data.paperId, "terminated");
+    
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error terminating exam:", error);
+    return { success: false, error: error.message };
+  }
 }
