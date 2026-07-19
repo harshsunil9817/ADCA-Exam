@@ -199,30 +199,31 @@ export async function getSubmissionById(id: string): Promise<Submission | null> 
 
 // Start an ongoing exam
 export async function startExam(userId: string, studentName: string, paperId: string, totalQuestions: number): Promise<{ success: boolean; data?: { id: string, startTime: number, existingAnswers: Answer[] }; error?: string }> {
+  // 1. Verify the user actually has this exam assigned and booked
+  const examsCol = collection(appDb, "assignedExams");
+  const assignedQ = query(examsCol, where("csaId", "==", userId), where("examName", "==", paperId), where("status", "==", "booked"));
+  const assignedSnap = await getDocs(assignedQ);
+  
+  if (assignedSnap.empty) {
+    return { success: false, error: "You do not have this exam assigned, or it has already been completed/terminated." };
+  }
+
+  // 2. Check if there is already an *ongoing* submission for this assignment
   const submissionsRef = collection(appDb, "submissions");
-  // Look for any submission for this paper and user
-  const q = query(submissionsRef, where("userId", "==", userId), where("paperId", "==", paperId));
+  const q = query(submissionsRef, where("userId", "==", userId), where("paperId", "==", paperId), where("status", "==", "ongoing"));
   const querySnapshot = await getDocs(q);
   
   if (!querySnapshot.empty) {
     const docSnap = querySnapshot.docs[0];
     const data = docSnap.data();
-    
-    if (data.status === "ongoing") {
-      return {
-        success: true,
-        data: {
-          id: docSnap.id,
-          startTime: data.date,
-          existingAnswers: data.answers || []
-        }
-      };
-    } else {
-      return {
-        success: false,
-        error: "You have already completed or terminated this exam."
-      };
-    }
+    return {
+      success: true,
+      data: {
+        id: docSnap.id,
+        startTime: data.date,
+        existingAnswers: data.answers || []
+      }
+    };
   }
 
   const startTime = Date.now();
