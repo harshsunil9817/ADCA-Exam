@@ -78,7 +78,9 @@ interface SubmissionsListProps {
 // Submissions List Component
 function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent, onClearFilter }: SubmissionsListProps) {
   const [submissionToReset, setSubmissionToReset] = useState<Submission | null>(null);
+  const [submissionToTerminate, setSubmissionToTerminate] = useState<Submission | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [isTerminating, setIsTerminating] = useState(false);
   const [resetDate, setResetDate] = useState<Date | undefined>(new Date());
   const [activeFilter, setActiveFilter] = useState("all");
   const { toast } = useToast();
@@ -117,6 +119,38 @@ function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent
     } finally {
       setIsResetting(false);
       setSubmissionToReset(null);
+    }
+  };
+
+  const handleTerminateSubmission = async () => {
+    if (!submissionToTerminate) return;
+
+    setIsTerminating(true);
+    try {
+      const res = await terminateExamByAdmin(submissionToTerminate.id);
+      if (res.success) {
+        toast({
+          title: "Exam Terminated",
+          description: `Exam for ${submissionToTerminate.studentName} has been forcefully terminated.`,
+        });
+        onUpdate();
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: res.error || "Failed to terminate exam",
+        });
+      }
+    } catch (error) {
+      console.error("Error terminating exam:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to terminate exam.",
+      });
+    } finally {
+      setIsTerminating(false);
+      setSubmissionToTerminate(null);
     }
   };
 
@@ -182,10 +216,34 @@ function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent
                       <TableCell className="font-medium">{sub.studentName}</TableCell>
                       <TableCell className="font-mono">{sub.paperId || 'M1'}</TableCell>
                       <TableCell>{new Date(sub.date).toLocaleString()}</TableCell>
-                      <TableCell className="text-right">{`${sub.correctAnswers}/${sub.totalQuestions}`}</TableCell>
-                      <TableCell className="text-right">{sub.percentage.toFixed(2)}%</TableCell>
+                      <TableCell className="text-right">
+                        {sub.status === 'terminated' ? (
+                           <Badge variant="destructive" className="ml-2">Terminated</Badge>
+                        ) : (
+                           `${sub.correctAnswers}/${sub.totalQuestions}`
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        {sub.status === 'terminated' ? (
+                           <span className="text-muted-foreground">-</span>
+                        ) : (
+                           `${sub.percentage.toFixed(2)}%`
+                        )}
+                      </TableCell>
                       <TableCell className="text-right">
                        <div className="flex gap-2 justify-end">
+                        {sub.status !== 'terminated' && (
+                          <Button 
+                             variant="destructive" 
+                             size="sm"
+                             onClick={() => setSubmissionToTerminate(sub)}
+                             disabled={isTerminating && submissionToTerminate?.id === sub.id}
+                             title="Terminate Exam"
+                          >
+                             <XCircle className="h-4 w-4 mr-2" />
+                             Terminate
+                          </Button>
+                        )}
                         <Button asChild variant="outline" size="sm">
                           <Link href={`/results/${sub.id}`}>View Result</Link>
                         </Button>
@@ -248,6 +306,24 @@ function SubmissionsList({ submissions, papers, loading, onUpdate, filterStudent
             </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!submissionToTerminate} onOpenChange={(open) => !open && setSubmissionToTerminate(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Force Terminate Exam?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to forcefully terminate this exam for <span className="font-bold">{submissionToTerminate?.studentName}</span>?
+              This will set their score to 0 and permanently lock them out of retaking it unless you manually reset it.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isTerminating}>Cancel</AlertDialogCancel>
+            <Button variant="destructive" onClick={handleTerminateSubmission} disabled={isTerminating}>
+              {isTerminating ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Terminating...</> : "Terminate Exam"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

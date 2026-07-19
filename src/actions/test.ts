@@ -313,7 +313,7 @@ export async function finishExam(submissionId: string, answers: Answer[], paperI
   return submissionId;
 }
 
-// Admin forcefully terminates an exam
+// Admin forcefully terminates an exam (ongoing or retroactively)
 export async function terminateExamByAdmin(submissionId: string): Promise<{ success: boolean; error?: string }> {
   try {
     const submissionRef = doc(appDb, "submissions", submissionId);
@@ -323,12 +323,25 @@ export async function terminateExamByAdmin(submissionId: string): Promise<{ succ
     }
     
     const data = docSnap.data();
-    if (data.status !== "ongoing") {
-      return { success: false, error: "Exam is not ongoing" };
+    if (data.status === "terminated") {
+      return { success: false, error: "Exam is already terminated" };
     }
 
-    // Force finish the exam with the currently synced answers
-    await finishExam(submissionId, data.answers || [], data.paperId, data.totalQuestions, "terminated", "Terminated by Admin");
+    if (data.status === "ongoing") {
+      // Force finish the exam with the currently synced answers
+      await finishExam(submissionId, data.answers || [], data.paperId, data.totalQuestions, "terminated", "Terminated by Admin");
+    } else {
+      // Retroactively terminate an already finished exam
+      await updateDoc(submissionRef, {
+        status: "terminated",
+        reason: "Terminated by Admin retroactively",
+        score: 0,
+        correctAnswers: 0,
+        percentage: 0,
+        incorrectAnswers: data.totalQuestions || 0,
+        incorrectAnswerDetails: []
+      });
+    }
     
     // Ensure the assigned exam status is also changed to terminated and exam code is deleted
     await finalizeAssignedExam(data.userId, data.paperId, "terminated");
