@@ -5,13 +5,18 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Loader2, UserCheck, ArrowLeft, FileText, AlertTriangle, PartyPopper } from 'lucide-react';
 import { Header } from '@/components/header';
 import Image from "next/image";
+import { useState } from 'react';
 
 export default function ConfirmDetailsPage() {
-    const { user, loading, logout } = useAuth();
+    const { user, loading, logout, verifyExamCode } = useAuth();
     const router = useRouter();
+    const [examCode, setExamCode] = useState('');
+    const [error, setError] = useState('');
 
     if (loading || !user) {
         return (
@@ -28,6 +33,19 @@ export default function ConfirmDetailsPage() {
     }
 
     const handleConfirm = () => {
+        if (user.examCode) {
+            if (!examCode.trim()) {
+                setError("Please enter the Exam Code.");
+                return;
+            }
+            if (!verifyExamCode(examCode.trim())) {
+                setError("Invalid Exam Code.");
+                return;
+            }
+        } else {
+            // No exam code required, just verify with empty string to update state
+            verifyExamCode('');
+        }
         router.push('/test');
     };
     
@@ -80,6 +98,26 @@ export default function ConfirmDetailsPage() {
                             <div className="text-center text-sm text-destructive-foreground bg-destructive/90 p-3 rounded-md flex items-center justify-center gap-2">
                                 <AlertTriangle className="h-5 w-5" />
                                 <p>No test has been assigned to you. Please contact your administrator.</p>
+                            </div>
+                        )}
+
+                        {hasPaperAssigned && user.examCode && (
+                            <div className="space-y-3 mt-4 p-4 border rounded-md bg-slate-50">
+                                <div className="space-y-1">
+                                    <Label htmlFor="examCode" className="font-semibold text-lg">Exam Code</Label>
+                                    <p className="text-sm text-muted-foreground">Please enter the exam code provided by your invigilator.</p>
+                                </div>
+                                <Input 
+                                    id="examCode" 
+                                    placeholder="Enter Exam Code" 
+                                    value={examCode}
+                                    onChange={(e) => {
+                                        setExamCode(e.target.value);
+                                        setError('');
+                                    }}
+                                    className={error ? "border-red-500" : ""}
+                                />
+                                {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
                             </div>
                         )}
                     </CardContent>

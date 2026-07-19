@@ -11,7 +11,7 @@ import { getAssignedExam } from '@/actions/exams';
 
 interface AuthResult {
   user: User | null;
-  error?: 'password' | 'used' | 'generic' | 'no_test_assigned' | 'not_applied';
+  error?: 'password' | 'used' | 'generic' | 'no_test_assigned' | 'not_applied' | 'already_active';
 }
 
 interface AuthContextType {
@@ -157,12 +157,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const verifyExamCode = (code: string) => {
-    if (user && user.role === 'student' && user.examCode === code) {
-      const updatedUser = { ...user, isExamCodeVerified: true };
-      sessionStorage.setItem('user', JSON.stringify(updatedUser));
-      setUser(updatedUser);
-      router.push('/test/confirm');
-      return true;
+    if (user && user.role === 'student') {
+      if (!user.examCode || user.examCode === code) {
+        const updatedUser = { ...user, isExamCodeVerified: true };
+        sessionStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        return true;
+      }
     }
     return false;
   };
