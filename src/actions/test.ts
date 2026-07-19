@@ -6,7 +6,7 @@ import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, quer
 import type { Answer, Submission, User } from "@/lib/types";
 import { getPaperQuestions } from "@/actions/questions";
 import { studentDb } from "@/lib/firebase";
-import { finalizeAssignedExam } from "@/actions/exams";
+import { finalizeAssignedExam, getAssignedExam } from "@/actions/exams";
 
 // Config for the primary app (submissions)
 const firebaseConfigApp = {
