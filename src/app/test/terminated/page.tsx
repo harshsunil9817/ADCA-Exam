@@ -12,10 +12,9 @@ export default function TerminatedPage() {
   const { logout } = useAuth();
   const router = useRouter();
 
-  // Optionally automatically log them out when they land here
+  // Automatically log them out when they land here to clear stale sessions
   useEffect(() => {
-    // We can clear session if we want to ensure they can't even attempt to go back
-    // logout(); 
+    logout(); 
   }, []);
 
   const handleReturn = () => {

@@ -200,12 +200,14 @@ export async function getSubmissionById(id: string): Promise<Submission | null> 
 // Start an ongoing exam
 export async function startExam(userId: string, studentName: string, paperId: string, totalQuestions: number): Promise<{ success: boolean; data?: { id: string, startTime: number, existingAnswers: Answer[] }; error?: string }> {
   // 1. Verify the user actually has this exam assigned and booked
-  const examsCol = collection(appDb, "assignedExams");
-  const assignedQ = query(examsCol, where("csaId", "==", userId), where("examName", "==", paperId), where("status", "==", "booked"));
-  const assignedSnap = await getDocs(assignedQ);
+  const authData = await getAssignedExam(userId);
   
-  if (assignedSnap.empty) {
+  if (!authData || !authData.assignedExam) {
     return { success: false, error: "You do not have this exam assigned, or it has already been completed/terminated." };
+  }
+  
+  if (authData.assignedExam.examName !== paperId) {
+    return { success: false, error: "The assigned paper does not match. Please re-login." };
   }
 
   // 2. Check if there is already an *ongoing* submission for this assignment
