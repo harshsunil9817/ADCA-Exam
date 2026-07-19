@@ -98,6 +98,13 @@ export default function TestPage() {
   useEffect(() => {
     if (!submissionId || isSubmitting) return;
 
+    // In a dedicated Electron app, we don't need this anti-cheat and it often causes false positives.
+    const isElectron = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('electron');
+    if (isElectron) {
+      console.log("Electron detected - disabling visibility anti-cheat");
+      return;
+    }
+
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'hidden') {
         const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
@@ -108,7 +115,7 @@ export default function TestPage() {
     };
 
     // Add a small delay before attaching the listener to prevent spurious 
-    // visibilitychange events when the app/window first loads (common in Electron)
+    // visibilitychange events when the app/window first loads
     const timeoutId = setTimeout(() => {
       document.addEventListener("visibilitychange", handleVisibilityChange);
     }, 3000);
