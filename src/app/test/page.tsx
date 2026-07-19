@@ -95,15 +95,13 @@ export default function TestPage() {
   }, [user, authLoading, router, toast]);
 
   // Anti-cheat: Terminate on minimize/tab switch
+  // DISABLED: Causing immediate termination issues in the user's Electron/Desktop EXE wrapper.
+  /*
   useEffect(() => {
     if (!submissionId || isSubmitting) return;
 
-    // In a dedicated Electron app, we don't need this anti-cheat and it often causes false positives.
     const isElectron = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('electron');
-    if (isElectron) {
-      console.log("Electron detected - disabling visibility anti-cheat");
-      return;
-    }
+    if (isElectron) return;
 
     const handleVisibilityChange = async () => {
       if (document.visibilityState === 'hidden') {
@@ -114,8 +112,6 @@ export default function TestPage() {
       }
     };
 
-    // Add a small delay before attaching the listener to prevent spurious 
-    // visibilitychange events when the app/window first loads
     const timeoutId = setTimeout(() => {
       document.addEventListener("visibilitychange", handleVisibilityChange);
     }, 3000);
@@ -125,6 +121,7 @@ export default function TestPage() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [submissionId, isSubmitting, answers, user, questions.length, router]);
+  */
 
   // Polling for exam status (Admin termination or external completion)
   useEffect(() => {
