@@ -94,34 +94,26 @@ export default function TestPage() {
     return () => { isMounted = false; };
   }, [user, authLoading, router, toast]);
 
-  // Anti-cheat: Terminate on minimize/tab switch
-  // DISABLED: Causing immediate termination issues in the user's Electron/Desktop EXE wrapper.
-  /*
+  // Anti-cheat: Terminate on minimize/blur from the Electron wrapper
   useEffect(() => {
     if (!submissionId || isSubmitting) return;
 
-    const isElectron = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().includes('electron');
-    if (isElectron) return;
-
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'hidden') {
-        const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-        await finishExam(submissionId, answersArray, user!.assignedPaper!, questions.length, "terminated", "cheating (minimized window)");
-        await finalizeAssignedExam(user!.userId, user!.assignedPaper!, "terminated");
-        router.push('/test/terminated');
-      }
+    const handleElectronCheat = async () => {
+      const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
+      await finishExam(submissionId, answersArray, user!.assignedPaper!, questions.length, "terminated", "cheating (minimized/unfocused window)");
+      await finalizeAssignedExam(user!.userId, user!.assignedPaper!, "terminated");
+      router.push('/test/terminated');
     };
 
-    const timeoutId = setTimeout(() => {
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-    }, 3000);
+    // Listen for custom events triggered by the Electron main process
+    window.addEventListener("electron-minimize", handleElectronCheat);
+    window.addEventListener("electron-blur", handleElectronCheat);
 
     return () => {
-      clearTimeout(timeoutId);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("electron-minimize", handleElectronCheat);
+      window.removeEventListener("electron-blur", handleElectronCheat);
     };
   }, [submissionId, isSubmitting, answers, user, questions.length, router]);
-  */
 
   // Polling for exam status (Admin termination or external completion)
   useEffect(() => {
