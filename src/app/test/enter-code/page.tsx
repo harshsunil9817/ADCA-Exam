@@ -69,7 +69,7 @@ export default function EnterCodePage() {
                 <Input
                   id="examCode"
                   type="text"
-                  placeholder="Enter 4-digit code"
+                  placeholder="Enter 5-digit code"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   required
