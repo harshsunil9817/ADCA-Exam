@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/auth-context";
 import type { Submission, Student } from "@/lib/types";
-import { deleteSubmission, getSubmissions, updateSubmission, deleteSubmissionsForUser, terminateExamByAdmin } from "@/actions/test";
+import { deleteSubmission, getSubmissions, getOngoingSubmissions, updateSubmission, deleteSubmissionsForUser, terminateExamByAdmin } from "@/actions/test";
 import { saveQuestions } from "@/actions/questions";
 import { getStudents, addStudent, updateStudent, deleteStudent, getAppliedExams, verifyApplication, type AppliedExam } from "@/actions/students";
 import { getCoursePapers, getCourses, PaperInfo, Course } from "@/actions/courses";
@@ -995,8 +995,7 @@ function LiveExamManager() {
 
     const fetchLiveExams = async () => {
         try {
-            const allSubmissions = await getSubmissions();
-            const ongoing = allSubmissions.filter(sub => sub.status === 'ongoing');
+            const ongoing = await getOngoingSubmissions();
             setLiveExams(ongoing);
         } catch (e) {
             console.error("Failed to fetch live exams", e);

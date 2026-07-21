@@ -37,10 +37,11 @@ export default function TestPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Map<number, string>>(new Map());
-  const [timeLeft, setTimeLeft] = useState(60 * 60); // 60 minutes
+  const [timeLeft, setTimeLeft] = useState<number>(3600); // Default to 1 hour, will be updated based on start time
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingQuestions, setLoadingQuestions] = useState(true);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const syncTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [terminated, setTerminated] = useState(false);
 
   useEffect(() => {
@@ -216,8 +217,13 @@ export default function TestPage() {
     const newAnswers = new Map(answers.set(questionId, optionKey));
     setAnswers(newAnswers);
     if (submissionId) {
-        const answersArray = Array.from(newAnswers, ([qId, selectedOption]) => ({ questionId: qId, selectedOption }));
-        syncAnswers(submissionId, answersArray).catch(console.error);
+        if (syncTimerRef.current) {
+            clearTimeout(syncTimerRef.current);
+        }
+        syncTimerRef.current = setTimeout(() => {
+            const answersArray = Array.from(newAnswers, ([qId, selectedOption]) => ({ questionId: qId, selectedOption }));
+            syncAnswers(submissionId, answersArray).catch(console.error);
+        }, 3000); // Sync after 3 seconds of inactivity
     }
   };
 

@@ -2,8 +2,8 @@
 "use server";
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getFirestore, collection, getDocs, doc, deleteDoc, query as firestoreQuery, orderBy, where, addDoc, updateDoc } from "firebase/firestore";
-import { getDatabase, ref, query as dbQuery, orderByChild, equalTo, get, update as dbUpdate } from "firebase/database";
+import { getFirestore, collection, getDocs, doc, deleteDoc, query as firestoreQuery, orderBy, where, addDoc, updateDoc, limit } from "firebase/firestore";
+import { getDatabase, ref, query as dbQuery, orderByChild, equalTo, get, update as dbUpdate, limitToLast } from "firebase/database";
 import type { Student, StudentDetails } from "@/lib/types";
 
 export interface AppliedExam {
@@ -39,10 +39,11 @@ const studentDb = getFirestore(studentApp);
 export async function getStudents(): Promise<Student[]> {
     try {
         const studentsCollection = collection(studentDb, 'students');
-        // Get all students with courseName "ADCA"
+        // Get all students with courseName "ADCA", limited to 1000 for performance
         const q = firestoreQuery(
             studentsCollection, 
-            where("courseName", "==", "ADCA")
+            where("courseName", "==", "ADCA"),
+            limit(1000)
         );
         const snapshot = await getDocs(q);
         
@@ -233,7 +234,8 @@ export async function getAppliedExams(): Promise<AppliedExam[]> {
     try {
         const rtdb = getDatabase(studentApp);
         const appliedExamsRef = ref(rtdb, 'appliedExams');
-        const snapshot = await get(appliedExamsRef);
+        const q = dbQuery(appliedExamsRef, orderByChild('appliedAt'), limitToLast(1000));
+        const snapshot = await get(q);
         
         if (!snapshot.exists()) return [];
         

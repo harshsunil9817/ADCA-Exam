@@ -2,7 +2,7 @@
 "use server";
 
 import { initializeApp, getApps, type FirebaseApp } from "firebase/app";
-import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc, writeBatch } from "firebase/firestore";
+import { getFirestore, collection, addDoc, doc, deleteDoc, getDocs, getDoc, query, where, orderBy, updateDoc, writeBatch, limit } from "firebase/firestore";
 import { getDatabase, ref, get, set, remove, update as dbUpdate } from "firebase/database";
 import type { Answer, Submission, User } from "@/lib/types";
 import { getPaperQuestions } from "@/actions/questions";
@@ -167,9 +167,19 @@ export async function getCompletedPapers(userId: string): Promise<string[]> {
   }
 }
 
-// Server action to get all submissions.
+// Server action to get all submissions. Limited to 1000 for performance.
 export async function getSubmissions(): Promise<Submission[]> {
-  const q = query(collection(appDb, "submissions"), orderBy("date", "desc"));
+  const q = query(collection(appDb, "submissions"), orderBy("date", "desc"), limit(1000));
+  const querySnapshot = await getDocs(q);
+  if (querySnapshot.empty) {
+    return [];
+  }
+  return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Submission);
+}
+
+// Server action to efficiently get only ongoing submissions
+export async function getOngoingSubmissions(): Promise<Submission[]> {
+  const q = query(collection(appDb, "submissions"), where("status", "==", "ongoing"));
   const querySnapshot = await getDocs(q);
   if (querySnapshot.empty) {
     return [];
