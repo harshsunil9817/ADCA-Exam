@@ -990,24 +990,29 @@ function ApplicationsManager({ applications, loading, onUpdate }: ApplicationsMa
 // -------------------------------------------------------------
 function LiveExamManager() {
     const { toast } = useToast();
-    const [liveExams, setLiveExams] = useState<LiveExamState[]>([]);
+    const [liveExams, setLiveExams] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
 
     const fetchLiveExams = async () => {
-        const exams = await getLiveExams();
-        setLiveExams(exams);
+        try {
+            const allSubmissions = await getSubmissions();
+            const ongoing = allSubmissions.filter(sub => sub.status === 'ongoing');
+            setLiveExams(ongoing);
+        } catch (e) {
+            console.error("Failed to fetch live exams", e);
+        }
         setLoading(false);
     };
 
     useEffect(() => {
         fetchLiveExams();
-        const interval = setInterval(fetchLiveExams, 5000);
+        const interval = setInterval(fetchLiveExams, 10000); // Check every 10 seconds
         return () => clearInterval(interval);
     }, []);
 
-    const handleTerminate = async (userId: string, name: string) => {
+    const handleTerminate = async (submissionId: string, name: string) => {
         if (!confirm(`Are you sure you want to terminate the exam for ${name}? They will be marked as failed.`)) return;
-        const res = await terminateLiveExam(userId);
+        const res = await terminateExamByAdmin(submissionId);
         if (res.success) {
             toast({ title: "Exam Terminated", description: `Terminated exam for ${name}` });
             fetchLiveExams();
@@ -1039,18 +1044,18 @@ function LiveExamManager() {
                             <TableRow><TableCell colSpan={6} className="text-center h-24"><Loader2 className="h-6 w-6 animate-spin mx-auto" /></TableCell></TableRow>
                         ) : liveExams.length > 0 ? (
                             liveExams.map((exam) => (
-                                <TableRow key={exam.userId}>
+                                <TableRow key={exam.id}>
                                     <TableCell className="font-medium">{exam.studentName}</TableCell>
-                                    <TableCell className="font-mono">{exam.enrollmentNumber}</TableCell>
+                                    <TableCell className="font-mono">{exam.userId}</TableCell>
                                     <TableCell><Badge variant="secondary">{exam.paperId}</Badge></TableCell>
                                     <TableCell>
                                         <div className="flex items-center gap-2">
-                                            <Progress value={(exam.answeredCount / exam.totalQuestions) * 100} className="w-[60px]" />
-                                            <span className="text-xs text-muted-foreground">{exam.answeredCount}/{exam.totalQuestions}</span>
+                                            <Progress value={((exam.attemptedQuestions || exam.answers?.length || 0) / (exam.totalQuestions || 100)) * 100} className="w-[60px]" />
+                                            <span className="text-xs text-muted-foreground">{exam.attemptedQuestions || exam.answers?.length || 0}/{exam.totalQuestions || 100}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        {exam.status === 'in-progress' ? (
+                                        {exam.status === 'ongoing' ? (
                                             <Badge className="bg-green-500">In Progress</Badge>
                                         ) : (
                                             <Badge variant="destructive">Terminated</Badge>
@@ -1058,11 +1063,11 @@ function LiveExamManager() {
                                     </TableCell>
                                     <TableCell className="text-right">
                                         <Button 
-                                            size="sm" 
-                                            variant="destructive"
-                                            onClick={() => handleTerminate(exam.userId, exam.studentName)}
-                                            disabled={exam.status === 'terminated'}
+                                            variant="destructive" 
+                                            size="sm"
+                                            onClick={() => handleTerminate(exam.id, exam.studentName)}
                                         >
+                                            <XCircle className="w-4 h-4 mr-2" />
                                             Terminate
                                         </Button>
                                     </TableCell>

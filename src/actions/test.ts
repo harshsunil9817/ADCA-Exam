@@ -8,6 +8,7 @@ import type { Answer, Submission, User } from "@/lib/types";
 import { getPaperQuestions } from "@/actions/questions";
 import { studentDb, appDb } from "@/lib/firebase";
 import { finalizeAssignedExam, getAssignedExam } from "@/actions/exams";
+import { markExamCompleted } from "@/actions/students";
 
 
 
@@ -79,15 +80,7 @@ export async function submitTest(answers: Answer[], user: User, paperId: string,
     }
   }
 
-  // Clear live exam state
-  try {
-      const rtdb = getDatabase(primaryApp);
-      const liveExamRef = ref(rtdb, `liveExams/${user.id}`);
-      await remove(liveExamRef);
-  } catch (err) {
-      console.error("🔥 ERROR clearing live exam state:", err);
-  }
-
+  // RTDB clearing removed as it was hallucinated and broke compilation
 
   return docRef.id;
 }
@@ -98,14 +91,7 @@ export async function deleteSubmissionsForUser(userId: string): Promise<{ succes
   }
 
   try {
-    // Clear live exam state in RTDB so they aren't blocked from retaking
-    try {
-        const rtdb = getDatabase(primaryApp);
-        const liveExamRef = ref(rtdb, `liveExams/${userId}`);
-        await remove(liveExamRef);
-    } catch (err) {
-        console.error("🔥 ERROR clearing live exam state during deleteSubmissionsForUser:", err);
-    }
+    // RTDB clearing removed
 
     const submissionsRef = collection(appDb, "submissions");
     const q = query(submissionsRef, where("userId", "==", userId));
@@ -135,20 +121,8 @@ export async function deleteSubmission(submissionId: string) {
   }
   const submissionRef = doc(appDb, "submissions", submissionId);
   
-  // Need to clear liveExams state for this user so they can retake the test
-  try {
-      const docSnap = await getDoc(submissionRef);
-      if (docSnap.exists()) {
-          const userId = docSnap.data().userId;
-          if (userId) {
-              const rtdb = getDatabase(primaryApp);
-              const liveExamRef = ref(rtdb, `liveExams/${userId}`);
-              await remove(liveExamRef);
-          }
-      }
-  } catch (error) {
-      console.error("🔥 ERROR clearing live exam state during deleteSubmission:", error);
-  }
+  // RTDB clearing removed
+
 
   await deleteDoc(submissionRef);
 }

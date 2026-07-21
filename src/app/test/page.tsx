@@ -28,9 +28,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Header } from "@/components/header";
 
 export default function TestPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, logout } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+
+  const hasInitialized = useRef(false);
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -39,6 +41,7 @@ export default function TestPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadingQuestions, setLoadingQuestions] = useState(true);
   const [submissionId, setSubmissionId] = useState<string | null>(null);
+  const [terminated, setTerminated] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -94,30 +97,6 @@ export default function TestPage() {
     
     fetchQuestions();
 
-    // Initialize live exam state
-    async function initializeLiveExam() {
-        const initResult = await initLiveExamState({
-            userId: user!.id,
-            studentName: user!.name,
-            enrollmentNumber: user!.id, 
-            paperId: user!.assignedPaper!,
-            answeredCount: 0,
-            totalQuestions: 100, 
-            status: 'in-progress',
-            lastActive: Date.now()
-        });
-
-        // If the database already had a session for this paper, it means the user reloaded (F5) or opened a new tab.
-        // We instantly terminate them, but do not forcefully log them out so they can see the termination screen.
-        if (initResult && !initResult.success && initResult.reason === 'already_started') {
-            if (isMounted) {
-                setTerminated(true);
-            }
-        }
-    }
-    
-    initializeLiveExam();
-
     return () => { isMounted = false; };
   }, [user, authLoading, router, toast, logout]);
 
@@ -166,16 +145,6 @@ export default function TestPage() {
     return Array.from(answers.values()).filter(Boolean).length;
   }, [answers]);
 
-  // Sync answers count to RTDB
-  useEffect(() => {
-      if (user && user.id && questions.length > 0) {
-          updateLiveExamState(user.id, {
-              answeredCount,
-              totalQuestions: questions.length
-          });
-      }
-  }, [answeredCount, user, questions.length]);
-
   const progressValue = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
 
   const currentQuestion = questions[currentQuestionIndex];
@@ -213,28 +182,20 @@ export default function TestPage() {
     return () => clearInterval(timer);
   }, [timeLeft, handleSubmit]);
 
-  // Anti-Cheat & Live Termination Polling
+  // Anti-Cheat: auto-submit when visibility changes
   useEffect(() => {
       if (!user) return;
 
       const handleVisibilityChange = () => {
           if (document.visibilityState === 'hidden') {
-              handleSubmit(true);
+              handleSubmit();
           }
       };
       
       document.addEventListener("visibilitychange", handleVisibilityChange);
 
-      const statusInterval = setInterval(async () => {
-          const status = await checkLiveExamStatus(user.id);
-          if (status === 'terminated') {
-              handleSubmit(true);
-          }
-      }, 5000); // Check every 5 seconds
-
       return () => {
           document.removeEventListener("visibilitychange", handleVisibilityChange);
-          clearInterval(statusInterval);
       };
   }, [user, handleSubmit]);
 
@@ -430,9 +391,9 @@ export default function TestPage() {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => handleSubmit(false)} disabled={isSubmitting}>
+                <Button onClick={() => handleSubmit()} size="lg" className="w-full sm:w-auto" variant="destructive">
                   {isSubmitting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Submitting...</> : 'Yes, Submit My Test'}
-                </AlertDialogAction>
+                </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
