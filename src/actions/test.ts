@@ -7,7 +7,7 @@ import { getDatabase, ref, get, set, remove, update as dbUpdate } from "firebase
 import type { Answer, Submission, User } from "@/lib/types";
 import { getPaperQuestions } from "@/actions/questions";
 import { studentDb, appDb } from "@/lib/firebase";
-import { finalizeAssignedExam, getAssignedExam } from "@/actions/exams";
+import { finalizeAssignedExam, getAssignedExam, resetAssignedExam } from "@/actions/exams";
 import { markExamCompleted } from "@/actions/students";
 
 
@@ -121,8 +121,14 @@ export async function deleteSubmission(submissionId: string) {
   }
   const submissionRef = doc(appDb, "submissions", submissionId);
   
-  // RTDB clearing removed
-
+  // Get data to reset assigned exam
+  const submissionSnap = await getDoc(submissionRef);
+  if (submissionSnap.exists()) {
+    const data = submissionSnap.data();
+    if (data.userId && data.paperId) {
+      await resetAssignedExam(data.userId, data.paperId);
+    }
+  }
 
   await deleteDoc(submissionRef);
 }

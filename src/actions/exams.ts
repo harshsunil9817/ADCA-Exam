@@ -1,7 +1,7 @@
 "use server";
 
 import { appDb } from "@/lib/firebase";
-import { collection, getDocs, query, where, doc, getDoc, updateDoc, deleteField } from "firebase/firestore";
+import { collection, getDocs, query, where, doc, getDoc, updateDoc, deleteDoc, deleteField } from "firebase/firestore";
 import type { StudentDetails } from "@/lib/types";
 import { getStudentDetails } from "./students";
 
@@ -67,5 +67,52 @@ export async function finalizeAssignedExam(csaId: string, examName: string, newS
   } catch (error: any) {
     console.error("Error finalizing assigned exam:", error);
     return { success: false, error: error.message || "Failed to finalize exam." };
+  }
+}
+
+// Reset the assigned exam for a re-exam (change status to booked, generate new exam code)
+export async function resetAssignedExam(csaId: string, examName: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const examsCol = collection(appDb, "assignedExams");
+    const q = query(examsCol, where("csaId", "==", csaId), where("examName", "==", examName));
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      const examDoc = snapshot.docs[0];
+      const examRef = doc(appDb, "assignedExams", examDoc.id);
+      
+      // Generate a new 6-character random alphanumeric exam code
+      const newExamCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      await updateDoc(examRef, {
+        status: "booked",
+        examCode: newExamCode,
+        updatedAt: new Date().toISOString()
+      });
+      return { success: true };
+    }
+    
+    return { success: false, error: "Assigned exam not found." };
+  } catch (error: any) {
+    console.error("Error resetting assigned exam:", error);
+    return { success: false, error: error.message || "Failed to reset exam." };
+  }
+}
+
+// Delete all assigned exams for a user (when the user is deleted or paper removed)
+export async function deleteAssignedExamsForUser(csaId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const examsCol = collection(appDb, "assignedExams");
+    const q = query(examsCol, where("csaId", "==", csaId));
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      const deletePromises = snapshot.docs.map(docSnap => deleteDoc(doc(appDb, "assignedExams", docSnap.id)));
+      await Promise.all(deletePromises);
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error("Error deleting assigned exams for user:", error);
+    return { success: false, error: error.message || "Failed to delete assigned exams." };
   }
 }
