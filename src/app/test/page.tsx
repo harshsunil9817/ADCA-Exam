@@ -89,8 +89,8 @@ export default function TestPage() {
         } catch (error) {
             console.error("Failed to load questions:", error);
             if (isMounted) {
-                toast({ variant: "destructive", title: "Error", description: "Failed to load test questions." });
-                setLoadingQuestions(false);
+                toast({ variant: "destructive", title: "Error", description: "Failed to start exam due to a network error." });
+                router.push('/test/terminated');
             }
         }
     }
@@ -100,16 +100,29 @@ export default function TestPage() {
     return () => { isMounted = false; };
   }, [user, authLoading, router, toast, logout]);
 
+  const terminateExam = useCallback(async (reason: string) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    if (!user || !user.assignedPaper || !submissionId) {
+      router.push('/test/terminated');
+      return;
+    }
+    try {
+      const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
+      await finishExam(submissionId, answersArray, user.assignedPaper, questions.length, "terminated", reason);
+      await finalizeAssignedExam(user.userId, user.assignedPaper, "terminated");
+      router.push('/test/terminated');
+    } catch (error) {
+      console.error("Termination failed:", error);
+      setIsSubmitting(false);
+    }
+  }, [answers, user, submissionId, questions.length, isSubmitting, router]);
+
   // Anti-cheat: Terminate on minimize/blur from the Electron wrapper
   useEffect(() => {
     if (!submissionId || isSubmitting) return;
 
-    const handleElectronCheat = async () => {
-      const answersArray = Array.from(answers, ([questionId, selectedOption]) => ({ questionId, selectedOption }));
-      await finishExam(submissionId, answersArray, user!.assignedPaper!, questions.length, "terminated", "cheating (minimized/unfocused window)");
-      await finalizeAssignedExam(user!.userId, user!.assignedPaper!, "terminated");
-      router.push('/test/terminated');
-    };
+    const handleElectronCheat = () => terminateExam("cheating (minimized/unfocused window)");
 
     // Listen for custom events triggered by the Electron main process
     window.addEventListener("electron-minimize", handleElectronCheat);
@@ -119,7 +132,7 @@ export default function TestPage() {
       window.removeEventListener("electron-minimize", handleElectronCheat);
       window.removeEventListener("electron-blur", handleElectronCheat);
     };
-  }, [submissionId, isSubmitting, answers, user, questions.length, router]);
+  }, [submissionId, isSubmitting, terminateExam]);
 
   // Polling for exam status (Admin termination or external completion)
   useEffect(() => {
@@ -169,7 +182,7 @@ export default function TestPage() {
       toast({ variant: 'destructive', title: 'Submission Failed', description: 'Could not submit your test. Please try again.' });
       setIsSubmitting(false);
     }
-  }, [answers, user, toast, router, submissionId, questions.length, isSubmitting]);
+  }, [answers, user, toast, router, submissionId, questions.length]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -182,13 +195,13 @@ export default function TestPage() {
     return () => clearInterval(timer);
   }, [timeLeft, handleSubmit]);
 
-  // Anti-Cheat: auto-submit when visibility changes
+  // Anti-Cheat: terminate when visibility changes (switched tabs)
   useEffect(() => {
       if (!user) return;
 
       const handleVisibilityChange = () => {
           if (document.visibilityState === 'hidden') {
-              handleSubmit();
+              terminateExam("cheating (switched tabs / lost focus)");
           }
       };
       
@@ -197,7 +210,7 @@ export default function TestPage() {
       return () => {
           document.removeEventListener("visibilitychange", handleVisibilityChange);
       };
-  }, [user, handleSubmit]);
+  }, [user, terminateExam]);
 
   const handleAnswerChange = (questionId: number, optionKey: string) => {
     const newAnswers = new Map(answers.set(questionId, optionKey));

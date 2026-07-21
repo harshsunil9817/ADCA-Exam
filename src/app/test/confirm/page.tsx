@@ -33,7 +33,7 @@ export default function ConfirmDetailsPage() {
     }
 
     const handleConfirm = () => {
-        if (user.examCode) {
+        if (user.examCode && !user.isExamCodeVerified) {
             if (!examCode.trim()) {
                 setError("Please enter the Exam Code.");
                 return;
@@ -42,7 +42,7 @@ export default function ConfirmDetailsPage() {
                 setError("Invalid Exam Code.");
                 return;
             }
-        } else {
+        } else if (!user.examCode) {
             // No exam code required, just verify with empty string to update state
             verifyExamCode('');
         }
@@ -101,23 +101,21 @@ export default function ConfirmDetailsPage() {
                             </div>
                         )}
 
-                        {hasPaperAssigned && user.examCode && (
-                            <div className="space-y-3 mt-4 p-4 border rounded-md bg-slate-50">
-                                <div className="space-y-1">
-                                    <Label htmlFor="examCode" className="font-semibold text-lg">Exam Code</Label>
-                                    <p className="text-sm text-muted-foreground">Please enter the exam code provided by your invigilator.</p>
-                                </div>
-                                <Input 
-                                    id="examCode" 
-                                    placeholder="Enter Exam Code" 
+                        {hasPaperAssigned && user.examCode && !user.isExamCodeVerified && (
+                            <div className="space-y-2 pt-4">
+                                <Label htmlFor="examCode">Exam Code</Label>
+                                <Input
+                                    id="examCode"
+                                    type="text"
+                                    placeholder="Enter Exam Code"
                                     value={examCode}
                                     onChange={(e) => {
                                         setExamCode(e.target.value);
                                         setError('');
                                     }}
-                                    className={error ? "border-red-500" : ""}
+                                    className="text-center text-lg tracking-widest"
                                 />
-                                {error && <p className="text-red-500 text-sm font-medium">{error}</p>}
+                                {error && <p className="text-sm text-destructive font-medium">{error}</p>}
                             </div>
                         )}
                     </CardContent>
