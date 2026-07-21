@@ -81,8 +81,8 @@ export async function resetAssignedExam(csaId: string, examName: string): Promis
       const examDoc = snapshot.docs[0];
       const examRef = doc(appDb, "assignedExams", examDoc.id);
       
-      // Generate a new 6-character random alphanumeric exam code
-      const newExamCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+      // Generate a new 5-character random alphanumeric exam code
+      const newExamCode = Math.random().toString(36).substring(2, 7).toUpperCase();
       
       await updateDoc(examRef, {
         status: "booked",
